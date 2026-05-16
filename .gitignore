@@ -76,6 +76,12 @@ public
 # Service Office temporary files
 ~$*
 
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+__pycache__/
+
 # OS Files
 .DS_Store
 Thumbs.db
