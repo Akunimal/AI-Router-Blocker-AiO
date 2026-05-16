@@ -39,6 +39,7 @@ AI coding assistants have deep, unrestricted access to your files, your clipboar
 | Feature | Description |
 |---|---|
 | 🔒 **One-click toggle** | Block or unblock all AI services instantly |
+| 🌍 **Multilingual support** | 10 languages supported with automatic system detection & manual selector |
 | 🎨 **Premium dark UI** | Modern Catppuccin Mocha theme with color-coded status |
 | 🔑 **Auto UAC elevation** | Automatically requests administrator privileges — no right-click needed |
 | 🧹 **DNS cache flush** | Runs `ipconfig /flushdns` after every change for instant effect |

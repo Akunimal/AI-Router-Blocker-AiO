@@ -2,28 +2,28 @@
 """
 AI Network Blocker — Kill switch para editores de código con IA.
 Bloquea/desbloquea dominios de IA editando el archivo hosts de Windows.
+Soporte para 10 idiomas con detección automática y selector manual.
 Requiere privilegios de Administrador.
 """
 
 import os
 import sys
 import ctypes
+import locale
 import subprocess
 import tkinter as tk
 from tkinter import messagebox
-import time
+from tkinter import ttk
 import threading
 
 # =====================================================================
 # VERSIÓN
 # =====================================================================
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.1.0"
 
 # =====================================================================
 # CONFIGURACIÓN DE DOMINIOS A BLOQUEAR
 # =====================================================================
-# Diccionario de dominios organizado por proveedor de IA.
-# Edita esta lista para añadir o quitar dominios según necesites.
 BLOCKLIST = {
     "OpenAI": [
         "api.openai.com", "chatgpt.com", "chat.openai.com",
@@ -60,16 +60,13 @@ BLOCKLIST = {
     ],
 }
 
-# Lista de ejecutables de editores de IA a cerrar al activar el bloqueo.
 PROCESS_LIST = [
     "Code.exe", "Cursor.exe", "Windsurf.exe", "Claude.exe",
     "Trae.exe", "Cline.exe", "Roo.exe", "Augment.exe",
 ]
 
-# Marca de comentario que identifica las líneas añadidas por esta app.
 COMMENT_TAG = "# AI-Block"
 
-# Ruta del archivo hosts (se construye dinámicamente para portabilidad).
 HOSTS_PATH = os.path.join(
     os.environ.get("SystemRoot", r"C:\Windows"),
     r"System32\drivers\etc\hosts",
@@ -90,6 +87,279 @@ COL_BLUE      = "#89B4FA"   # Azul accent
 COL_MAUVE     = "#CBA6F7"   # Púrpura accent
 
 # =====================================================================
+# TRADUCCIONES PARA 10 IDIOMAS
+# =====================================================================
+LANG_DISPLAY_MAP = {
+    "English": "en",
+    "Español": "es",
+    "Português": "pt",
+    "Français": "fr",
+    "Deutsch": "de",
+    "Italiano": "it",
+    "Русский": "ru",
+    "中文 (简体)": "zh",
+    "日本語": "ja",
+    "한국어": "ko"
+}
+LANG_CODE_MAP = {v: k for k, v in LANG_DISPLAY_MAP.items()}
+
+CATEGORY_TRANSLATIONS = {
+    "en": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Others"},
+    "es": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Otros"},
+    "pt": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Outros"},
+    "fr": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Autres"},
+    "de": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Andere"},
+    "it": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Altri"},
+    "ru": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "Другие"},
+    "zh": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "其他"},
+    "ja": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "その他"},
+    "ko": {"OpenAI": "OpenAI", "Anthropic": "Anthropic", "GitHub Copilot": "GitHub Copilot", "Google AI": "Google AI", "Meta AI": "Meta AI", "Mistral AI": "Mistral AI", "Microsoft Copilot": "Microsoft Copilot", "DeepSeek": "DeepSeek", "Otros": "기타"},
+}
+
+STRINGS = {
+    "en": {
+        "protected_title": "PROTECTED — Blocking active",
+        "protected_desc": "{count} domains redirected to 127.0.0.1",
+        "exposed_title": "EXPOSED — No protection",
+        "exposed_desc": "Your network traffic to AI is open",
+        "btn_block": "🔒  BLOCK AI",
+        "btn_unblock": "🔓  UNBLOCK AI",
+        "busy_text": "⏳  Processing...",
+        "categories_title": "Blocked Categories",
+        "domains_label": "{total} domains",
+        "running_warning": "⚠ Detected: {editors}",
+        "hosts_write_error_title": "Permission Error",
+        "hosts_write_error_msg": "Could not write to the hosts file.\nPlease run the application as Administrator.",
+        "unexpected_error_title": "Unexpected Error",
+        "unexpected_error_msg": "An error occurred:\n{error}",
+        "block_success_title": "AI Blocking Active",
+        "block_success_msg": "Block successfully activated!\n\n✓ {added_count} domains blocked in hosts file.\n{process_details}\n✓ DNS cache flushed.",
+        "unblock_success_title": "AI Blocking Disabled",
+        "unblock_success_msg": "Block successfully deactivated!\n\n✓ {removed} entries removed from hosts file.\n✓ DNS cache flushed.\n\nAll AI tools can access the network again.",
+        "closed_processes_prefix": "✓ Closed processes: ",
+        "no_processes_detected": "• No open AI editors detected.",
+        "admin_required_title": "Access Denied",
+        "admin_required_msg": "Administrator privileges are required.\n\nRight-click → 'Run as administrator'."
+    },
+    "es": {
+        "protected_title": "PROTEGIDO — Bloqueo activo",
+        "protected_desc": "{count} dominios redirigidos a 127.0.0.1",
+        "exposed_title": "EXPUESTO — Sin protección",
+        "exposed_desc": "Tu tráfico de red hacia IAs está abierto",
+        "btn_block": "🔒  BLOQUEAR IA",
+        "btn_unblock": "🔓  DESBLOQUEAR IA",
+        "busy_text": "⏳  Procesando...",
+        "categories_title": "Categorías bloqueadas",
+        "domains_label": "{total} dominios",
+        "running_warning": "⚠ Detectados: {editors}",
+        "hosts_write_error_title": "Error de Permisos",
+        "hosts_write_error_msg": "No se pudo escribir en el archivo hosts.\nPor favor, ejecuta la aplicación como Administrador.",
+        "unexpected_error_title": "Error Inesperado",
+        "unexpected_error_msg": "Ocurrió un error al intentar aplicar el bloqueo:\n{error}",
+        "block_success_title": "Bloqueo de IA Activo",
+        "block_success_msg": "¡Bloqueo activado con éxito!\n\n✓ {added_count} dominios bloqueados en el archivo hosts.\n{process_details}\n✓ Caché DNS limpiada.",
+        "unblock_success_title": "Bloqueo Desactivado",
+        "unblock_success_msg": "¡El bloqueo de IA ha sido desactivado!\n\n✓ {removed} entradas eliminadas del hosts.\n✓ Caché DNS limpiada.\n\nTodos los servicios de IA vuelven a estar accesibles.",
+        "closed_processes_prefix": "✓ Se cerraron los siguientes procesos: ",
+        "no_processes_detected": "• No se detectaron editores de IA abiertos.",
+        "admin_required_title": "Acceso Denegado",
+        "admin_required_msg": "Se requieren privilegios de Administrador.\n\nHaz clic derecho → 'Ejecutar como administrador'."
+    },
+    "pt": {
+        "protected_title": "PROTEGIDO — Bloqueio ativo",
+        "protected_desc": "{count} domínios redirecionados para 127.0.0.1",
+        "exposed_title": "EXPOSTO — Sem proteção",
+        "exposed_desc": "Seu tráfego de rede para IA está aberto",
+        "btn_block": "🔒  BLOQUEAR IA",
+        "btn_unblock": "🔓  DESBLOQUEAR IA",
+        "busy_text": "⏳  Processando...",
+        "categories_title": "Categorias bloqueadas",
+        "domains_label": "{total} domínios",
+        "running_warning": "⚠ Detectados: {editors}",
+        "hosts_write_error_title": "Erro de Permissão",
+        "hosts_write_error_msg": "Não foi possível escrever no arquivo hosts.\nPor favor, execute o aplicativo como Administrador.",
+        "unexpected_error_title": "Erro Inesperado",
+        "unexpected_error_msg": "Ocurreu um erro:\n{error}",
+        "block_success_title": "Bloqueio de IA Ativo",
+        "block_success_msg": "Bloqueio ativado com sucesso!\n\n✓ {added_count} domínios bloqueados no arquivo hosts.\n{process_details}\n✓ Cache DNS limpo.",
+        "unblock_success_title": "Bloqueio Desativado",
+        "unblock_success_msg": "O bloqueio de IA foi desativado!\n\n✓ {removed} entradas removidas do hosts.\n✓ Cache DNS limpo.\n\nTodos os serviços de IA estão acessíveis novamente.",
+        "closed_processes_prefix": "✓ Processos fechados: ",
+        "no_processes_detected": "• Nenhum editor de IA aberto detectado.",
+        "admin_required_title": "Acesso Negado",
+        "admin_required_msg": "Privilégios de Administrador são necessários.\n\nClique com o botão direito → 'Executar como administrador'."
+    },
+    "fr": {
+        "protected_title": "PROTÉGÉ — Blocage actif",
+        "protected_desc": "{count} domaines redirigés vers 127.0.0.1",
+        "exposed_title": "EXPOSÉ — Sans protection",
+        "exposed_desc": "Votre trafic réseau vers l'IA est ouvert",
+        "btn_block": "🔒  BLOQUER L'IA",
+        "btn_unblock": "🔓  DÉBLOQUER L'IA",
+        "busy_text": "⏳  Traitement...",
+        "categories_title": "Catégories bloquées",
+        "domains_label": "{total} domaines",
+        "running_warning": "⚠ Détectés: {editors}",
+        "hosts_write_error_title": "Erreur d'autorisation",
+        "hosts_write_error_msg": "Impossible d'écrire dans le fichier hosts.\nVeuillez lancer l'application en tant qu'Administrateur.",
+        "unexpected_error_title": "Erreur inattendue",
+        "unexpected_error_msg": "Une erreur est survenue :\n{error}",
+        "block_success_title": "Blocage de l'IA Actif",
+        "block_success_msg": "Blocage activé avec succès !\n\n✓ {added_count} domaines bloqués dans le fichier hosts.\n{process_details}\n✓ Cache DNS vidé.",
+        "unblock_success_title": "Blocage Désactivé",
+        "unblock_success_msg": "Le blocage de l'IA a été désactivé !\n\n✓ {removed} entrées supprimées du fichier hosts.\n✓ Cache DNS vidé.\n\nTous les services d'IA sont à nouveau accessibles.",
+        "closed_processes_prefix": "✓ Processus fermés : ",
+        "no_processes_detected": "• Aucun éditeur d'IA ouvert détecté.",
+        "admin_required_title": "Accès Refusé",
+        "admin_required_msg": "Des privilèges d'Administrateur sont requis.\n\nFaites un clic droit → 'Exécuter en tant qu'administrateur'."
+    },
+    "de": {
+        "protected_title": "GESCHÜTZT — Blockierung aktiv",
+        "protected_desc": "{count} Domains umgeleitet auf 127.0.0.1",
+        "exposed_title": "GEFÄHRDET — Kein Schutz",
+        "exposed_desc": "Ihr Datenverkehr zu KI-Diensten ist offen",
+        "btn_block": "🔒  KI BLOCKIEREN",
+        "btn_unblock": "🔓  KI FREIGEBEN",
+        "busy_text": "⏳  Verarbeiten...",
+        "categories_title": "Blockierte Kategorien",
+        "domains_label": "{total} Domains",
+        "running_warning": "⚠ Erkannt: {editors}",
+        "hosts_write_error_title": "Berechtigungsfehler",
+        "hosts_write_error_msg": "Schreiben in die Hosts-Datei fehlgeschlagen.\nBitte führen Sie die Anwendung als Administrator aus.",
+        "unexpected_error_title": "Unerwarteter Fehler",
+        "unexpected_error_msg": "Ein Fehler ist aufgetreten:\n{error}",
+        "block_success_title": "KI-Blockierung Aktiv",
+        "block_success_msg": "Blockierung erfolgreich aktiviert!\n\n✓ {added_count} Domains in der Hosts-Datei blockiert.\n{process_details}\n✓ DNS-Cache geleert.",
+        "unblock_success_title": "Blockierung Deaktiviert",
+        "unblock_success_msg": "Die KI-Blockierung wurde deaktiviert!\n\n✓ {removed} Einträge aus der Hosts-Datei entfernt.\n✓ DNS-Cache geleert.\n\nAlle KI-Dienste sind wieder erreichbar.",
+        "closed_processes_prefix": "✓ Geschlossene Prozesse: ",
+        "no_processes_detected": "• Keine geöffneten KI-Editoren erkannt.",
+        "admin_required_title": "Zugriff Verweigert",
+        "admin_required_msg": "Administratorrechte sind erforderlich.\n\nRechtsklick → 'Als Administrator ausführen'."
+    },
+    "it": {
+        "protected_title": "PROTETTO — Blocco attivo",
+        "protected_desc": "{count} domini reindirizzati a 127.0.0.1",
+        "exposed_title": "ESPOSTO — Nessuna protezione",
+        "exposed_desc": "Il tuo traffico verso le IA è aperto",
+        "btn_block": "🔒  BLOCCA IA",
+        "btn_unblock": "🔓  SBLOCCA IA",
+        "busy_text": "⏳  Elaborazione...",
+        "categories_title": "Categorie bloccate",
+        "domains_label": "{total} domini",
+        "running_warning": "⚠ Rilevati: {editors}",
+        "hosts_write_error_title": "Errore di Permesso",
+        "hosts_write_error_msg": "Impossibile scrivere nel file hosts.\nEsegui l'applicazione come Amministratore.",
+        "unexpected_error_title": "Errore Inaspettato",
+        "unexpected_error_msg": "Si è verificato un errore:\n{error}",
+        "block_success_title": "Blocco IA Attivo",
+        "block_success_msg": "Blocco attivato con successo!\n\n✓ {added_count} domini bloccati nel file hosts.\n{process_details}\n✓ Cache DNS svuotata.",
+        "unblock_success_title": "Blocco Disattivato",
+        "unblock_success_msg": "Il blocco IA è stato disattivato!\n\n✓ {removed} voci rimosse dal file hosts.\n✓ Cache DNS svuotata.\n\nTutti i servizi IA sono nuovamente accessibili.",
+        "closed_processes_prefix": "✓ Processi terminati: ",
+        "no_processes_detected": "• Nessun editor IA aperto rilevato.",
+        "admin_required_title": "Accesso Negato",
+        "admin_required_msg": "Sono richiesti i privilegi di Amministratore.\n\nTasto destro → 'Esegui como amministratore'."
+    },
+    "ru": {
+        "protected_title": "ЗАЩИЩЕНО — Блокировка активна",
+        "protected_desc": "{count} доменов перенаправлено на 127.0.0.1",
+        "exposed_title": "УЯЗВИМО — Нет защиты",
+        "exposed_desc": "Ваш сетевой трафик к ИИ открыт",
+        "btn_block": "🔒  БЛОКИРОВАТЬ ИИ",
+        "btn_unblock": "🔓  РАЗБЛОКИРОВАТЬ ИИ",
+        "busy_text": "⏳  Обработка...",
+        "categories_title": "Заблокированные категории",
+        "domains_label": "{total} доменов",
+        "running_warning": "⚠ Обнаружены: {editors}",
+        "hosts_write_error_title": "Ошибка прав доступа",
+        "hosts_write_error_msg": "Не удалось записать в файл hosts.\nПожалуйста, запустите приложение от имени Администратора.",
+        "unexpected_error_title": "Неожиданная ошибка",
+        "unexpected_error_msg": "Произошла ошибка:\n{error}",
+        "block_success_title": "Блокировка ИИ Активна",
+        "block_success_msg": "Блокировка успешно активирована!\n\n✓ {added_count} доменов заблокировано в файле hosts.\n{process_details}\n✓ Кэш DNS очищен.",
+        "unblock_success_title": "Блокировка Отключена",
+        "unblock_success_msg": "Блокировка ИИ отключена!\n\n✓ {removed} записей удалено из файла hosts.\n✓ Кэш DNS очищен.\n\nВсе ИИ-сервисы снова доступны.",
+        "closed_processes_prefix": "✓ Закрытые процессы: ",
+        "no_processes_detected": "• Запущенных ИИ-редакторов не обнаружено.",
+        "admin_required_title": "Доступ запрещен",
+        "admin_required_msg": "Требуются права Администратора.\n\nНажмите правой кнопкой мыши → 'Запуск от имени администратора'."
+    },
+    "zh": {
+        "protected_title": "已保护 — 拦截处于激活状态",
+        "protected_desc": "{count} 个域名已被重定向至 127.0.0.1",
+        "exposed_title": "未受保护 — 存在风险",
+        "exposed_desc": "您的网络流量可以正常访问 AI 服务",
+        "btn_block": "🔒  拦截 AI 流量",
+        "btn_unblock": "🔓  恢复 AI 访问",
+        "busy_text": "⏳  正在处理...",
+        "categories_title": "已拦截类别",
+        "domains_label": "{total} 个域名",
+        "running_warning": "⚠ 检测到运行中: {editors}",
+        "hosts_write_error_title": "权限错误",
+        "hosts_write_error_msg": "无法写入 hosts 文件。\n请以管理员身份运行此程序。",
+        "unexpected_error_title": "意外错误",
+        "unexpected_error_msg": "发生错误:\n{error}",
+        "block_success_title": "AI 拦截已启用",
+        "block_success_msg": "成功启用拦截！\n\n✓ hosts 文件中已拦截 {added_count} 个域名。\n{process_details}\n✓ DNS 缓存已清空。",
+        "unblock_success_title": "AI 拦截已禁用",
+        "unblock_success_msg": "AI 拦截已成功关闭！\n\n✓ 已从 hosts 文件中移除 {removed} 条记录。\n✓ DNS 缓存已清空。\n\n所有 AI 服务已恢复网络访问。",
+        "closed_processes_prefix": "✓ 已关闭的进程: ",
+        "no_processes_detected": "• 未检测到运行中的 AI 编辑器。",
+        "admin_required_title": "拒绝访问",
+        "admin_required_msg": "需要管理员权限。\n\n请右键单击 → 选择 “以管理员身份运行”。"
+    },
+    "ja": {
+        "protected_title": "保護中 — ブロック有効",
+        "protected_desc": "{count} 個のドメインを 127.0.0.1 にリダイレクト中",
+        "exposed_title": "未保護 — 危険",
+        "exposed_desc": "AI サービスへの通信がオープンになっています",
+        "btn_block": "🔒  AI をブロックする",
+        "btn_unblock": "🔓  ブロックを解除する",
+        "busy_text": "⏳  処理中...",
+        "categories_title": "ブロック対象カテゴリ",
+        "domains_label": "{total} ドメイン",
+        "running_warning": "⚠ 検出中: {editors}",
+        "hosts_write_error_title": "権限エラー",
+        "hosts_write_error_msg": "hosts 文件に書き込めませんでした。\n管理者としてアプリケーションを実行してください。",
+        "unexpected_error_title": "予期せぬエラー",
+        "unexpected_error_msg": "エラーが発生しました:\n{error}",
+        "block_success_title": "AI ブロック有効化",
+        "block_success_msg": "ブロックを正常に有効化しました！\n\n✓ hosts ファイルで {added_count} 個のドメインをブロックしました。\n{process_details}\n✓ DNS キャッシュをクリアしました。",
+        "unblock_success_title": "AI ブロック解除",
+        "unblock_success_msg": "AI ブロックを解除しました！\n\n✓ hosts ファイルから {removed} 件の項目を削除しました。\n✓ DNS キャッシュをクリアしました。\n\nすべての AI ツールが再び通信可能になりました。",
+        "closed_processes_prefix": "✓ 終了したプロセス: ",
+        "no_processes_detected": "• 起動中の AI エディタは検出されませんでした。",
+        "admin_required_title": "アクセス拒否",
+        "admin_required_msg": "管理者権限が必要です。\n\n右クリック → 「管理者として実行」を選択してください。"
+    },
+    "ko": {
+        "protected_title": "보호됨 — 블록 활성화됨",
+        "protected_desc": "{count}개 도메인이 127.0.0.1로 리디렉션됨",
+        "exposed_title": "노출됨 — 보호 없음",
+        "exposed_desc": "AI 서비스로의 네트워크 통신이 열려 있습니다",
+        "btn_block": "🔒  AI 네트워크 차단",
+        "btn_unblock": "🔓  차단 해제하기",
+        "busy_text": "⏳  처리 중...",
+        "categories_title": "차단된 카테고리",
+        "domains_label": "{total}개 도메인",
+        "running_warning": "⚠ 감지됨: {editors}",
+        "hosts_write_error_title": "권한 오류",
+        "hosts_write_error_msg": "hosts 파일에 쓸 수 없습니다.\n관리자 권한으로 응용 프로그램을 실행해 주세요.",
+        "unexpected_error_title": "예기치 않은 오류",
+        "unexpected_error_msg": "오류가 발생했습니다:\n{error}",
+        "block_success_title": "AI 차단 활성화됨",
+        "block_success_msg": "차단이 성공적으로 활성화되었습니다!\n\n✓ hosts 파일에서 {added_count}개 도메인이 차단되었습니다.\n{process_details}\n✓ DNS 캐시가 플러시되었습니다.",
+        "unblock_success_title": "AI 차단 비활성화됨",
+        "unblock_success_msg": "AI 차단이 비활성화되었습니다!\n\n✓ hosts 파일에서 {removed}개 항목이 제거되었습니다.\n✓ DNS 캐시가 플러시되었습니다.\n\n모든 AI 서비스를 다시 정상적으로 사용할 수 있습니다.",
+        "closed_processes_prefix": "✓ 종료된 프로세스: ",
+        "no_processes_detected": "• 실행 중인 AI 에디터가 감지되지 않았습니다.",
+        "admin_required_title": "액세스 거부",
+        "admin_required_msg": "관리자 권한이 필요합니다.\n\n오른쪽 마우스 클릭 → '관리자 권한으로 실행'을 선택하세요."
+    }
+}
+
+# =====================================================================
 # UTILIDADES DE SISTEMA
 # =====================================================================
 def is_admin():
@@ -103,17 +373,13 @@ def is_admin():
 def relaunch_as_admin():
     """
     Re-lanza el ejecutable actual solicitando elevación UAC.
-    Funciona tanto desde .py como desde .exe empaquetado.
     """
     try:
         if getattr(sys, "frozen", False):
-            # Si estamos corriendo como .exe empaquetado por PyInstaller
             executable = sys.executable
         else:
-            # Si estamos corriendo como script .py
-            executable = sys.executable  # python.exe
+            executable = sys.executable
         
-        # ShellExecuteW con "runas" muestra el diálogo UAC
         ctypes.windll.shell32.ShellExecuteW(
             None, "runas", executable,
             " ".join(f'"{a}"' for a in sys.argv),
@@ -125,10 +391,7 @@ def relaunch_as_admin():
 
 
 def flush_dns():
-    """
-    Ejecuta ipconfig /flushdns para que los cambios en el hosts surtan
-    efecto inmediato sin esperar al TTL de la caché DNS.
-    """
+    """Ejecuta ipconfig /flushdns de manera silenciosa."""
     try:
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -150,7 +413,7 @@ def count_total_domains():
 
 
 def check_block_status():
-    """Lee el hosts y retorna True si encuentra al menos una línea con la marca AI-Block."""
+    """Determina si el bloqueo está activo actualmente."""
     if not os.path.exists(HOSTS_PATH):
         return False
     try:
@@ -178,14 +441,49 @@ def get_blocked_domains_count():
     return count
 
 
+def detect_system_language():
+    """
+    Detecta el idioma del sistema Windows de forma robusta.
+    Retorna el código de dos letras (es, en, pt, fr, de, it, ru, zh, ja, ko).
+    Si no está soportado o falla, retorna 'en' (inglés).
+    """
+    try:
+        lang, _ = locale.getdefaultlocale()
+        if lang:
+            code = lang.split('_')[0].lower()
+            if code in STRINGS:
+                return code
+    except Exception:
+        pass
+    
+    # Alternativa en Windows
+    try:
+        lcid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+        lcid_map = {
+            1034: "es", 2058: "es", 3082: "es", 4106: "es", 5130: "es", 6154: "es",
+            1046: "pt", 2070: "pt",
+            1036: "fr", 2060: "fr", 3084: "fr",
+            1031: "de", 2055: "de",
+            1040: "it",
+            1049: "ru",
+            2052: "zh", 1028: "zh", 3076: "zh",
+            1041: "ja",
+            1042: "ko",
+        }
+        for k, v in lcid_map.items():
+            if lcid == k or (lcid & 0x3FF) == (k & 0x3FF):
+                return v
+    except Exception:
+        pass
+        
+    return "en"
+
+
 # =====================================================================
 # ACCIONES DE BLOQUEO / DESBLOQUEO
 # =====================================================================
 def force_close_processes():
-    """
-    Cierra de forma forzada los editores de IA en ejecución.
-    Retorna una lista con los nombres de los procesos cerrados.
-    """
+    """Cierra de forma forzada los editores de IA en ejecución."""
     closed = []
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -205,10 +503,7 @@ def force_close_processes():
 
 
 def detect_running_ai_editors():
-    """
-    Detecta qué editores de IA están en ejecución actualmente (sin cerrarlos).
-    Retorna una lista de nombres.
-    """
+    """Detecta qué editores de IA están en ejecución actualmente (sin cerrarlos)."""
     running = []
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -227,17 +522,13 @@ def detect_running_ai_editors():
     return running
 
 
-def activate_block():
-    """
-    1. Cierra procesos de editores de IA.
-    2. Agrega al hosts los dominios de BLOCKLIST redirigiendo a 127.0.0.1.
-    3. Limpia la caché DNS.
-    Retorna (éxito: bool, mensaje: str).
-    """
-    # Paso 1: cerrar procesos
+def activate_block(lang):
+    """Aplica el bloqueo de red de IAs."""
+    # 1. Cierra procesos activos
     closed_list = force_close_processes()
+    s = STRINGS[lang]
 
-    # Paso 2: modificar archivo hosts
+    # 2. Modifica el archivo hosts
     try:
         existing_lines = []
         if os.path.exists(HOSTS_PATH):
@@ -261,33 +552,33 @@ def activate_block():
             with open(HOSTS_PATH, "w", encoding="utf-8") as f:
                 f.writelines(existing_lines + new_entries)
 
-        # Paso 3: limpiar caché DNS
+        # 3. Limpia caché DNS
         flush_dns()
 
-        # Construir mensaje
-        parts = [f"✓ {added_count} dominios bloqueados en el archivo hosts."]
+        # Construye detalles de procesos
         if closed_list:
-            parts.append(f"✓ Procesos cerrados: {', '.join(closed_list)}")
+            process_details = f"{s['closed_processes_prefix']}{', '.join(closed_list)}"
         else:
-            parts.append("• No se detectaron editores de IA abiertos.")
-        parts.append("✓ Caché DNS limpiada.")
+            process_details = s["no_processes_detected"]
 
-        return True, "\n".join(parts)
+        msg = s["block_success_msg"].format(
+            added_count=added_count,
+            process_details=process_details
+        )
+        return True, msg
 
     except PermissionError:
-        return False, "Error: no se pudo escribir en el archivo hosts.\nEjecuta como Administrador."
+        return False, s["hosts_write_error_msg"]
     except Exception as e:
-        return False, f"Error inesperado:\n{e}"
+        return False, s["unexpected_error_msg"].format(error=str(e))
 
 
-def deactivate_block():
-    """
-    Elimina del hosts las líneas con la marca AI-Block.
-    Retorna (éxito: bool, mensaje: str).
-    """
+def deactivate_block(lang):
+    """Desactiva el bloqueo de red de IAs."""
+    s = STRINGS[lang]
     try:
         if not os.path.exists(HOSTS_PATH):
-            return True, "El archivo hosts no existe. Bloqueo ya inactivo."
+            return True, s["unblock_success_msg"].format(removed=0)
 
         with open(HOSTS_PATH, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -301,25 +592,24 @@ def deactivate_block():
 
         flush_dns()
 
-        return True, f"✓ {removed} entradas eliminadas del hosts.\n✓ Caché DNS limpiada.\n\nTodos los servicios de IA vuelven a estar accesibles."
+        msg = s["unblock_success_msg"].format(removed=removed)
+        return True, msg
 
     except PermissionError:
-        return False, "Error: no se pudo escribir en el archivo hosts.\nEjecuta como Administrador."
+        return False, s["hosts_write_error_msg"]
     except Exception as e:
-        return False, f"Error inesperado:\n{e}"
+        return False, s["unexpected_error_msg"].format(error=str(e))
 
 
 # =====================================================================
-# INTERFAZ GRÁFICA PREMIUM
+# INTERFAZ GRÁFICA PREMIUM CON INTERNACIONALIZACIÓN
 # =====================================================================
 class AIBlockerApp:
-    """Ventana principal de AI Network Blocker con interfaz moderna."""
-
     def __init__(self, root):
         self.root = root
         self.root.title("AI Network Blocker")
-        self.root.geometry("520x620")
-        self.root.minsize(480, 580)
+        self.root.geometry("520x650")
+        self.root.minsize(480, 600)
         self.root.configure(bg=COL_BASE)
 
         # Intentar poner el icono si existe
@@ -330,9 +620,15 @@ class AIBlockerApp:
             except Exception:
                 pass
 
-        # Estado actual
+        # Configurar tema para Combobox moderno
+        self._setup_ttk_styles()
+
+        # Detectar idioma inicial
+        self.current_lang = detect_system_language()
+        
+        # Estado actual del archivo hosts
         self.is_blocked = check_block_status()
-        self.is_busy = False  # Previene doble-clic
+        self.is_busy = False
 
         # Construir la interfaz
         self._build_header()
@@ -341,27 +637,74 @@ class AIBlockerApp:
         self._build_info_panel()
         self._build_footer()
 
-        # Actualizar visualización basada en el estado actual
-        self._update_visuals()
+        # Actualizar visualización e idioma
+        self._update_language_ui()
+
+    def _setup_ttk_styles(self):
+        """Configura estilos oscuros modernos para widgets ttk."""
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.style.configure(
+            "TCombobox",
+            fieldbackground=COL_SURFACE0,
+            background=COL_SURFACE1,
+            foreground=COL_TEXT,
+            bordercolor=COL_SURFACE1,
+            arrowcolor=COL_TEXT,
+            lightcolor=COL_SURFACE1,
+            darkcolor=COL_SURFACE1
+        )
+        # Configurar colores de la lista desplegable del Combobox
+        self.root.option_add("*TCombobox*Listbox.background", COL_SURFACE0)
+        self.root.option_add("*TCombobox*Listbox.foreground", COL_TEXT)
+        self.root.option_add("*TCombobox*Listbox.selectBackground", COL_BLUE)
+        self.root.option_add("*TCombobox*Listbox.selectForeground", "#000000")
+        self.root.option_add("*TCombobox*Listbox.font", ("Segoe UI", 9))
 
     # -----------------------------------------------------------------
-    # Header — Título y versión
+    # Header — Título, Versión y Dropdown de Idioma
     # -----------------------------------------------------------------
     def _build_header(self):
         header = tk.Frame(self.root, bg=COL_BASE)
         header.pack(fill=tk.X, padx=24, pady=(20, 0))
 
-        tk.Label(
+        # Título principal
+        self.title_label = tk.Label(
             header, text="🛡️  AI Network Blocker",
-            font=("Segoe UI", 18, "bold"),
+            font=("Segoe UI", 16, "bold"),
             bg=COL_BASE, fg=COL_TEXT,
-        ).pack(side=tk.LEFT)
+        )
+        self.title_label.pack(side=tk.LEFT)
 
-        tk.Label(
-            header, text=f"v{APP_VERSION}",
-            font=("Segoe UI", 10),
+        # Contenedor a la derecha
+        right_panel = tk.Frame(header, bg=COL_BASE)
+        right_panel.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Selector de idioma (Combobox)
+        self.lang_var = tk.StringVar()
+        self.lang_combo = ttk.Combobox(
+            right_panel,
+            textvariable=self.lang_var,
+            values=list(LANG_DISPLAY_MAP.keys()),
+            state="readonly",
+            width=12,
+            font=("Segoe UI", 9)
+        )
+        self.lang_combo.pack(side=tk.LEFT, padx=(0, 10), pady=(4, 0))
+        
+        # Sincronizar el valor inicial del Combobox con el idioma detectado
+        initial_display = LANG_CODE_MAP.get(self.current_lang, "English")
+        self.lang_combo.set(initial_display)
+        
+        self.lang_combo.bind("<<ComboboxSelected>>", self._on_language_selected)
+
+        # Etiqueta de versión
+        self.version_label = tk.Label(
+            right_panel, text=f"v{APP_VERSION}",
+            font=("Segoe UI", 9),
             bg=COL_BASE, fg=COL_SUBTEXT,
-        ).pack(side=tk.RIGHT, pady=(6, 0))
+        )
+        self.version_label.pack(side=tk.RIGHT, pady=(6, 0))
 
     # -----------------------------------------------------------------
     # Card de estado — indicador visual grande
@@ -376,7 +719,7 @@ class AIBlockerApp:
         inner = tk.Frame(self.card_frame, bg=COL_SURFACE0)
         inner.pack(fill=tk.X, padx=16, pady=14)
 
-        # Indicador circular simulado con texto
+        # Indicador de estado (círculo)
         self.status_dot = tk.Label(
             inner, text="●", font=("Segoe UI", 22),
             bg=COL_SURFACE0,
@@ -419,53 +762,59 @@ class AIBlockerApp:
     # Panel informativo — categorías y conteo de dominios
     # -----------------------------------------------------------------
     def _build_info_panel(self):
-        panel = tk.Frame(
+        self.info_panel = tk.Frame(
             self.root, bg=COL_SURFACE0,
             highlightbackground=COL_SURFACE1, highlightthickness=1,
         )
-        panel.pack(fill=tk.BOTH, expand=True, padx=24, pady=(16, 0))
+        self.info_panel.pack(fill=tk.BOTH, expand=True, padx=24, pady=(16, 0))
 
-        # Título del panel
-        title_bar = tk.Frame(panel, bg=COL_SURFACE0)
-        title_bar.pack(fill=tk.X, padx=14, pady=(10, 4))
+        # Título del panel de categorías
+        self.title_bar = tk.Frame(self.info_panel, bg=COL_SURFACE0)
+        self.title_bar.pack(fill=tk.X, padx=14, pady=(10, 4))
 
-        tk.Label(
-            title_bar, text="Categorías bloqueadas",
+        self.categories_title_label = tk.Label(
+            self.title_bar, text="",
             font=("Segoe UI", 10, "bold"),
             bg=COL_SURFACE0, fg=COL_TEXT, anchor="w",
-        ).pack(side=tk.LEFT)
+        )
+        self.categories_title_label.pack(side=tk.LEFT)
 
-        total = count_total_domains()
-        tk.Label(
-            title_bar, text=f"{total} dominios",
+        self.categories_total_domains_label = tk.Label(
+            self.title_bar, text="",
             font=("Segoe UI", 9),
             bg=COL_SURFACE0, fg=COL_MAUVE, anchor="e",
-        ).pack(side=tk.RIGHT)
+        )
+        self.categories_total_domains_label.pack(side=tk.RIGHT)
 
         # Separador sutil
-        tk.Frame(panel, bg=COL_SURFACE1, height=1).pack(fill=tk.X, padx=14)
+        tk.Frame(self.info_panel, bg=COL_SURFACE1, height=1).pack(fill=tk.X, padx=14)
 
-        # Lista de categorías con conteo
-        list_frame = tk.Frame(panel, bg=COL_SURFACE0)
-        list_frame.pack(fill=tk.BOTH, expand=True, padx=14, pady=(6, 10))
+        # Lista de categorías
+        self.list_frame = tk.Frame(self.info_panel, bg=COL_SURFACE0)
+        self.list_frame.pack(fill=tk.BOTH, expand=True, padx=14, pady=(6, 10))
 
-        # Símbolos por categoría para darle personalidad
-        category_icons = {
+        # Emojis temáticos
+        self.category_icons = {
             "OpenAI": "🟢", "Anthropic": "🟠", "GitHub Copilot": "🐙",
             "Google AI": "🔵", "Meta AI": "🔷", "Mistral AI": "🌊",
             "Microsoft Copilot": "🟦", "DeepSeek": "🔮", "Otros": "📦",
         }
 
+        # Guardar referencias de los labels de categorías para poder traducirlos dinámicamente
+        self.category_labels = {}
+
         for cat, domains in BLOCKLIST.items():
-            row = tk.Frame(list_frame, bg=COL_SURFACE0)
+            row = tk.Frame(self.list_frame, bg=COL_SURFACE0)
             row.pack(fill=tk.X, pady=1)
 
-            icon = category_icons.get(cat, "•")
-            tk.Label(
+            icon = self.category_icons.get(cat, "•")
+            cat_label = tk.Label(
                 row, text=f"  {icon}  {cat}",
                 font=("Segoe UI", 9), bg=COL_SURFACE0,
                 fg=COL_TEXT, anchor="w",
-            ).pack(side=tk.LEFT)
+            )
+            cat_label.pack(side=tk.LEFT)
+            self.category_labels[cat] = cat_label
 
             tk.Label(
                 row, text=f"{len(domains)}",
@@ -474,20 +823,21 @@ class AIBlockerApp:
             ).pack(side=tk.RIGHT, padx=(0, 4))
 
     # -----------------------------------------------------------------
-    # Footer — créditos y enlace
+    # Footer — créditos y aviso de editores detectados
     # -----------------------------------------------------------------
     def _build_footer(self):
         footer = tk.Frame(self.root, bg=COL_BASE)
         footer.pack(fill=tk.X, padx=24, pady=(8, 12))
 
-        tk.Label(
+        self.footer_label = tk.Label(
             footer,
             text="Open Source · github.com/Akunimal/AI-Blocker",
             font=("Segoe UI", 8),
             bg=COL_BASE, fg=COL_SUBTEXT,
-        ).pack(side=tk.LEFT)
+        )
+        self.footer_label.pack(side=tk.LEFT)
 
-        # Detección rápida de editores activos
+        # Aviso en tiempo real de editores de IA activos
         self.editors_label = tk.Label(
             footer, text="",
             font=("Segoe UI", 8),
@@ -497,79 +847,122 @@ class AIBlockerApp:
         self._refresh_editors_label()
 
     # -----------------------------------------------------------------
-    # Lógica de interacción
+    # Gestión de Idiomas
+    # -----------------------------------------------------------------
+    def _on_language_selected(self, event):
+        """Manejador al cambiar idioma en el desplegable combobox."""
+        selected_display = self.lang_combo.get()
+        selected_code = LANG_DISPLAY_MAP.get(selected_display, "en")
+        
+        if selected_code != self.current_lang:
+            self.current_lang = selected_code
+            self._update_language_ui()
+
+    def _update_language_ui(self):
+        """Actualiza todas las etiquetas de la GUI al idioma actual."""
+        s = STRINGS[self.current_lang]
+        
+        # 1. Título de la aplicación en la cabecera
+        self.title_label.configure(text="🛡️  AI Network Blocker")
+        
+        # 2. Título de la ventana
+        self.root.title(f"AI Network Blocker v{APP_VERSION}")
+
+        # 3. Categorías e Información
+        self.categories_title_label.configure(text=s["categories_title"])
+        total_domains = count_total_domains()
+        self.categories_total_domains_label.configure(
+            text=s["domains_label"].format(total=total_domains)
+        )
+
+        # 4. Traducir los nombres de categorías en el listado
+        translations = CATEGORY_TRANSLATIONS.get(self.current_lang, CATEGORY_TRANSLATIONS["en"])
+        for cat, label in self.category_labels.items():
+            translated_name = translations.get(cat, cat)
+            icon = self.category_icons.get(cat, "•")
+            label.configure(text=f"  {icon}  {translated_name}")
+
+        # 5. Estado y Botón (usando la lógica de visuals existente)
+        self._update_visuals()
+
+    # -----------------------------------------------------------------
+    # Lógica de Interacción y Estados
     # -----------------------------------------------------------------
     def _handle_toggle(self):
-        """Toggle entre bloquear y desbloquear. Se ejecuta en un hilo para no congelar la GUI."""
+        """Ejecuta la acción de bloqueo/desbloqueo en un hilo independiente."""
         if self.is_busy:
             return
         self.is_busy = True
-        self.toggle_btn.configure(state="disabled", text="⏳  Procesando…")
+        
+        s = STRINGS[self.current_lang]
+        self.toggle_btn.configure(state="disabled", text=s["busy_text"])
 
         def task():
             if self.is_blocked:
-                ok, msg = deactivate_block()
+                ok, msg = deactivate_block(self.current_lang)
                 if ok:
                     self.is_blocked = False
             else:
-                ok, msg = activate_block()
+                ok, msg = activate_block(self.current_lang)
                 if ok:
                     self.is_blocked = True
 
-            # Volver al hilo principal de tkinter para actualizar la GUI
             self.root.after(0, lambda: self._on_task_done(ok, msg))
 
         threading.Thread(target=task, daemon=True).start()
 
     def _on_task_done(self, ok, msg):
-        """Callback que se ejecuta en el hilo principal tras completar el bloqueo/desbloqueo."""
+        """Callback al terminar la acción en segundo plano."""
         self.is_busy = False
         self.toggle_btn.configure(state="normal")
         self._update_visuals()
         self._refresh_editors_label()
 
+        s = STRINGS[self.current_lang]
         if ok:
-            messagebox.showinfo("AI Network Blocker", msg)
+            title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
+            messagebox.showinfo(title, msg)
         else:
-            messagebox.showerror("Error", msg)
+            title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
+            messagebox.showerror(title, msg)
 
     def _update_visuals(self):
-        """Actualiza colores, textos e indicadores según el estado actual."""
+        """Actualiza colores y etiquetas según el estado de bloqueo."""
+        s = STRINGS[self.current_lang]
         blocked_count = get_blocked_domains_count()
 
         if self.is_blocked:
-            # BLOQUEADO — estado seguro
+            # Estado protegido (bloqueo activo)
             self.status_dot.configure(fg=COL_GREEN)
-            self.status_title.configure(text="PROTEGIDO — Bloqueo activo")
+            self.status_title.configure(text=s["protected_title"])
             self.status_subtitle.configure(
-                text=f"{blocked_count} dominios redirigidos a 127.0.0.1"
+                text=s["protected_desc"].format(count=blocked_count)
             )
             self.toggle_btn.configure(
-                text="🔓  DESBLOQUEAR IA",
+                text=s["btn_unblock"],
                 bg="#2D6A4F", fg="#A6E3A1",
                 activebackground="#1B4332",
             )
             self.card_frame.configure(highlightbackground=COL_GREEN)
         else:
-            # DESBLOQUEADO — expuesto
+            # Estado expuesto (bloqueo inactivo)
             self.status_dot.configure(fg=COL_RED)
-            self.status_title.configure(text="EXPUESTO — Sin protección")
-            self.status_subtitle.configure(
-                text="Tu tráfico de red hacia IAs está abierto"
-            )
+            self.status_title.configure(text=s["exposed_title"])
+            self.status_subtitle.configure(text=s["exposed_desc"])
             self.toggle_btn.configure(
-                text="🔒  BLOQUEAR IA",
+                text=s["btn_block"],
                 bg="#6B1E2B", fg="#F38BA8",
                 activebackground="#4C1220",
             )
             self.card_frame.configure(highlightbackground=COL_RED)
 
     def _refresh_editors_label(self):
-        """Actualiza la etiqueta del footer mostrando editores de IA detectados."""
+        """Efectúa escaneo rápido en segundo plano de editores de IA."""
         def scan():
             running = detect_running_ai_editors()
+            s = STRINGS[self.current_lang]
             if running:
-                text = f"⚠ Detectados: {', '.join(running)}"
+                text = s["running_warning"].format(editors=", ".join(running))
             else:
                 text = ""
             self.root.after(0, lambda: self.editors_label.configure(text=text))
@@ -581,16 +974,19 @@ class AIBlockerApp:
 # PUNTO DE ENTRADA PRINCIPAL
 # =====================================================================
 if __name__ == "__main__":
-    # Si no somos admin, intentar re-lanzar con elevación UAC
+    # Comprobar privilegios de administrador antes de lanzar la app
     if not is_admin():
         relaunch_as_admin()
-        # Si relaunch falla, mostramos error
+        
+        # En caso de que falle la auto-elevación UAC, se muestra el error traducido detectado
+        detected_lang = detect_system_language()
+        s = STRINGS[detected_lang]
+        
         root_temp = tk.Tk()
         root_temp.withdraw()
         messagebox.showerror(
-            "Acceso Denegado",
-            "Se requieren privilegios de Administrador.\n\n"
-            "Haz clic derecho → 'Ejecutar como administrador'.",
+            s["admin_required_title"],
+            s["admin_required_msg"]
         )
         root_temp.destroy()
         sys.exit(1)
