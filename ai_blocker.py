@@ -670,6 +670,7 @@ class AIBlockerApp:
         self._scan_after_id = None
         self.last_visuals_blocked = self.is_blocked
         self._anim_id = 0
+        self.active_toasts = []
 
         # Cargar perfil guardado / Load saved profile
         self.selected_profile_key = self.config.get("profile", "work")
@@ -989,7 +990,7 @@ class AIBlockerApp:
                 
             # Basic domain validation
             if "." not in domain or len(domain) < 4:
-                messagebox.showerror(s.get("unexpected_error_title", "Error"), s.get("invalid_domain_msg", "Please enter a valid domain."))
+                self.show_toast(s.get("unexpected_error_title", "Error"), s.get("invalid_domain_msg", "Please enter a valid domain."), "error")
                 return
                 
             self._add_custom_domain_to_list(domain, cat)
@@ -1289,7 +1290,7 @@ class AIBlockerApp:
         if not ok:
             s = STRINGS[self.current_lang]
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
-            messagebox.showerror(title, msg)
+            self.show_toast(title, msg, "error")
 
     def _handle_toggle(self):
         """
@@ -1336,10 +1337,154 @@ class AIBlockerApp:
         s = STRINGS[self.current_lang]
         if ok:
             title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
-            messagebox.showinfo(title, msg)
+            self.show_toast(title, msg, "success")
         else:
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
-            messagebox.showerror(title, msg)
+            self.show_toast(title, msg, "error")
+
+    def show_toast(self, title, message, level="info"):
+        toast = tk.Toplevel(self.root)
+        toast.overrideredirect(True)
+        toast.configure(bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        
+        # Prevent stealing focus on show
+        try:
+            toast.attributes("-topmost", True)
+            toast.attributes("-alpha", 0.0)
+        except Exception:
+            pass
+
+        # Determine level color
+        if level == "success":
+            accent_color = COL_GREEN
+            icon = "✓"
+        elif level == "error":
+            accent_color = COL_RED
+            icon = "✗"
+        elif level == "warning":
+            accent_color = COL_YELLOW
+            icon = "⚠"
+        else:
+            accent_color = COL_BLUE
+            icon = "ℹ"
+
+        # Accent bar on the left
+        bar = tk.Frame(toast, bg=accent_color, width=4)
+        bar.pack(side=tk.LEFT, fill=tk.Y)
+
+        # Content frame
+        content = tk.Frame(toast, bg=COL_SURFACE0)
+        content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=12, pady=10)
+
+        # Header of toast (title + close button)
+        header_frame = tk.Frame(content, bg=COL_SURFACE0)
+        header_frame.pack(fill=tk.X)
+
+        title_label = tk.Label(
+            header_frame, text=f"{icon}  {title}",
+            font=(UI_FONT, 10, "bold"),
+            bg=COL_SURFACE0, fg=accent_color,
+            anchor="w"
+        )
+        title_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        close_btn = tk.Label(
+            header_frame, text="×", font=(UI_FONT, 14, "bold"),
+            bg=COL_SURFACE0, fg=COL_SUBTEXT, cursor="hand2"
+        )
+        close_btn.pack(side=tk.RIGHT)
+
+        # Message
+        msg_label = tk.Label(
+            content, text=message,
+            font=(UI_FONT, 9),
+            bg=COL_SURFACE0, fg=COL_TEXT,
+            anchor="nw", justify=tk.LEFT,
+            wraplength=290
+        )
+        msg_label.pack(fill=tk.BOTH, expand=True, pady=(4, 0))
+
+        # Calculate height dynamically based on length of message
+        lines = message.count("\n") + max(1, len(message) // 38)
+        toast_height = max(80, 50 + lines * 16)
+        toast.toast_height = toast_height
+
+        # Bind close actions
+        def on_close(e=None):
+            self._close_toast(toast)
+
+        close_btn.bind("<Button-1>", on_close)
+        toast.bind("<Button-1>", on_close)
+        content.bind("<Button-1>", on_close)
+        title_label.bind("<Button-1>", on_close)
+        msg_label.bind("<Button-1>", on_close)
+
+        # Add to list and position
+        self.active_toasts.append(toast)
+        self._reposition_toasts()
+
+        # Fade in
+        self._fade_in(toast)
+
+        # Schedule auto close
+        self.root.after(4500, on_close)
+
+    def _close_toast(self, toast):
+        if toast in self.active_toasts:
+            self.active_toasts.remove(toast)
+            self._reposition_toasts()
+        self._fade_out_and_destroy(toast)
+
+    def _reposition_toasts(self):
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        toast_width = 340
+        margin_x = 20
+        margin_y = 60 # above taskbar
+        
+        self.active_toasts = [t for t in self.active_toasts if t.winfo_exists()]
+        
+        current_y = screen_height - margin_y
+        for toast in self.active_toasts:
+            h = getattr(toast, "toast_height", 90)
+            current_y -= (h + 10)
+            x = screen_width - toast_width - margin_x
+            try:
+                toast.geometry(f"{toast_width}x{h}+{x}+{current_y}")
+            except Exception:
+                pass
+
+    def _fade_in(self, toast, alpha=0.0):
+        try:
+            if not toast.winfo_exists():
+                return
+            if alpha < 0.95:
+                alpha += 0.15
+                toast.attributes("-alpha", alpha)
+                self.root.after(15, lambda: self._fade_in(toast, alpha))
+            else:
+                toast.attributes("-alpha", 1.0)
+        except Exception:
+            try:
+                toast.attributes("-alpha", 1.0)
+            except Exception:
+                pass
+
+    def _fade_out_and_destroy(self, toast, alpha=1.0):
+        try:
+            if not toast.winfo_exists():
+                return
+            if alpha > 0.1:
+                alpha -= 0.15
+                toast.attributes("-alpha", alpha)
+                self.root.after(15, lambda: self._fade_out_and_destroy(toast, alpha))
+            else:
+                toast.destroy()
+        except Exception:
+            try:
+                toast.destroy()
+            except Exception:
+                pass
 
     def _interpolate_color(self, color1, color2, factor):
         c1 = color1.lstrip("#")
