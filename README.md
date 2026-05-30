@@ -1,9 +1,9 @@
-# 🛡️ AI Network Blocker
+# 🛡️ AI DevSec Gateway (formerly AI Network Blocker)
 
-> **Take back control. Decide when your AI-powered editors can talk to the cloud.**
+> **Take back control. Intercept, audit, and route your AI traffic.**
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="AI Network Blocker Interface" width="600">
+  <img src="assets/screenshot.png" alt="AI DevSec Gateway Interface" width="600">
 </p>
 
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
@@ -17,14 +17,14 @@
 
 ## 📖 What is this?
 
-**AI Network Blocker** is a free, open-source, single-click desktop tool that blocks all network traffic between your machine and the major AI cloud providers. It works by editing the system `hosts` file — no background processes, no firewall rules, no drivers. It supports Windows, Linux, and macOS.
+**AI DevSec Gateway** is a free, open-source, desktop tool that puts you back in charge of the AI tools running on your machine. Originally a simple network blocker, it has evolved into a full DevSecOps proxy. 
+
+It helps you **block unauthorized data leaks**, **audit your running environment using OpenAI's API**, and **transparently route cloud AI requests to your own Local LLMs** (like Llama 3 via Ollama) or your personal API keys (BYOK).
 
 With one click it:
-1. **Kills** running AI editor processes (VS Code, Cursor, Windsurf, Claude, etc.).
-2. **Redirects** 35+ AI domains to `127.0.0.1` in your hosts file.
-3. **Flushes** the DNS cache so the block takes effect **immediately**.
-
-With a second click it **undoes everything** cleanly, removing only the lines it added.
+1. **Blocks & Redirects** 35+ AI domains to `127.0.0.1` in your hosts file.
+2. **Routes** local traffic through a transparent API Gateway to your Local LLM.
+3. **Audits** your active editor processes and generates security recommendations via the OpenAI API.
 
 ---
 
@@ -44,17 +44,14 @@ AI coding assistants have deep, unrestricted access to your files, your clipboar
 
 | Feature | Description |
 |---|---|
-| 🔒 **One-click toggle** | Block or unblock all AI services instantly |
-| 🌍 **Multilingual support** | 10 languages supported with automatic system detection & manual selector |
-| 🎨 **Premium dark UI** | Modern Catppuccin Mocha theme with color-coded status |
-| 🔑 **Smart elevation** | Auto UAC on Windows, clear `sudo` instructions on Unix |
-| 🧹 **DNS cache flush** | Automatically flushes DNS for instant effect on all OSes |
-| 👁️ **Live process detection** | Footer continuously polls and shows which AI editors are currently running |
-| 🛡️ **Safe concurrency** | Single instance lock prevents multiple windows from corrupting the hosts file |
-| 📊 **Category breakdown** | Visual panel listing all blocked providers with domain counts |
-| 📦 **Portable** | Single-file executable builds available |
-| ⚡ **Non-blocking UI** | All operations run on background threads — the GUI never freezes |
-| 🔍 **Fully auditable** | One Python file, extensively commented |
+| 🔀 **Local API Router** | Intercept Copilot/Cursor traffic and route it to your own Local LLM (Ollama/LM Studio). |
+| 🛡️ **AI DevSec Auditor** | Live analysis of your running processes to detect data leak risks, powered by OpenAI. |
+| 🔒 **One-click Kill Switch** | Block or unblock all AI services instantly via the system `hosts` file. |
+| 🌍 **Multilingual support** | 10 languages supported with automatic system detection. |
+| 🎨 **Premium dark UI** | Modern Catppuccin Mocha theme with color-coded status and tabs. |
+| 🔑 **Smart elevation** | Auto UAC on Windows, clear `sudo` instructions on Unix. |
+| 👁️ **Live process detection** | Continuously polls and shows which AI editors are currently running. |
+| 📦 **Portable** | Single-file executable builds available without heavy dependencies. |
 
 ---
 

@@ -30,6 +30,9 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import threading
+import urllib.request
+import urllib.error
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # =====================================================================
 # VERSIÓN / VERSION
@@ -639,6 +642,59 @@ def deactivate_block(lang):
 
 
 # =====================================================================
+# API GATEWAY & PROXY LOGIC / LÓGICA DEL GATEWAY Y PROXY
+# =====================================================================
+class GatewayHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self._proxy_request("GET")
+    
+    def do_POST(self):
+        self._proxy_request("POST")
+
+    def do_OPTIONS(self):
+        self._proxy_request("OPTIONS")
+        
+    def _proxy_request(self, method):
+        target = self.server.target_url.rstrip("/") + self.path
+        headers = {}
+        for k, v in self.headers.items():
+            if k.lower() not in ['host', 'accept-encoding']:
+                headers[k] = v
+        
+        data = None
+        if method in ['POST', 'PUT', 'PATCH']:
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                data = self.rfile.read(content_length)
+                
+        req = urllib.request.Request(target, data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as response:
+                self.send_response(response.status)
+                for k, v in response.headers.items():
+                    if k.lower() not in ['transfer-encoding']:
+                        self.send_header(k, v)
+                self.end_headers()
+                
+                while True:
+                    chunk = response.read(1024)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    self.wfile.flush()
+        except urllib.error.HTTPError as e:
+            self.send_response(e.code)
+            for k, v in e.headers.items():
+                if k.lower() not in ['transfer-encoding']:
+                    self.send_header(k, v)
+            self.end_headers()
+            self.wfile.write(e.read())
+        except Exception as e:
+            self.send_response(502)
+            self.end_headers()
+            self.wfile.write(f"Gateway Error: {e}".encode())
+
+# =====================================================================
 # INTERFAZ GRÁFICA PREMIUM CON INTERNACIONALIZACIÓN / PREMIUM GUI WITH i18n
 # =====================================================================
 class AIBlockerApp:
@@ -677,6 +733,8 @@ class AIBlockerApp:
         self.active_toasts = []
         self.logs = self.config.get("logs", [])
         self.log_expanded = False
+        self.gateway_server = None
+        self.gateway_running = False
 
         # Cargar perfil guardado / Load saved profile
         self.selected_profile_key = self.config.get("profile", "work")
@@ -698,13 +756,28 @@ class AIBlockerApp:
         else:
             self.root.protocol("WM_DELETE_WINDOW", self.exit_app)
 
-        # Construir la interfaz / Build the interface
+        # Configurar Notebook (Pestañas) / Configure Notebook (Tabs)
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
+
+        # Tab 1: Blocker (Original)
+        self.tab_blocker = tk.Frame(self.notebook, bg=COL_BASE)
+        self.notebook.add(self.tab_blocker, text=" 🛡️ AI Blocker ")
+
+        # Tab 2: DevSec Gateway (Nuevas funciones)
+        self.tab_gateway = tk.Frame(self.notebook, bg=COL_BASE)
+        self.notebook.add(self.tab_gateway, text=" ⚡ DevSec Gateway ")
+
+        # Construir la interfaz de la pestaña 1 / Build Tab 1 interface
         self._build_header()
         self._build_status_card()
         self._build_toggle_button()
         self._build_info_panel()
         self._build_log_panel()
         self._build_footer()
+
+        # Construir la interfaz de la pestaña 2 / Build Tab 2 interface
+        self._build_gateway_tab()
 
         # Actualizar visualización e idioma / Update display and language
         self._update_language_ui()
@@ -740,7 +813,7 @@ class AIBlockerApp:
     # Header — Título, Versión y Dropdown de Idioma / Header — Title, Version and Language Dropdown
     # -----------------------------------------------------------------
     def _build_header(self):
-        header = tk.Frame(self.root, bg=COL_BASE)
+        header = tk.Frame(self.tab_blocker, bg=COL_BASE)
         header.pack(fill=tk.X, padx=24, pady=(20, 0))
 
         # Título principal / Main title
@@ -798,7 +871,7 @@ class AIBlockerApp:
     # -----------------------------------------------------------------
     def _build_status_card(self):
         self.card_frame = tk.Frame(
-            self.root, bg=COL_SURFACE0,
+            self.tab_blocker, bg=COL_SURFACE0,
             highlightbackground=COL_SURFACE1, highlightthickness=1,
         )
         self.card_frame.pack(fill=tk.X, padx=24, pady=(16, 0))
@@ -838,7 +911,7 @@ class AIBlockerApp:
     # Botón toggle principal / Main toggle button
     # -----------------------------------------------------------------
     def _build_toggle_button(self):
-        btn_frame = tk.Frame(self.root, bg=COL_BASE)
+        btn_frame = tk.Frame(self.tab_blocker, bg=COL_BASE)
         btn_frame.pack(fill=tk.X, padx=24, pady=(16, 0))
 
         self.toggle_btn = tk.Button(
@@ -856,7 +929,7 @@ class AIBlockerApp:
     # -----------------------------------------------------------------
     def _build_info_panel(self):
         self.info_panel = tk.Frame(
-            self.root, bg=COL_SURFACE0,
+            self.tab_blocker, bg=COL_SURFACE0,
             highlightbackground=COL_SURFACE1, highlightthickness=1,
         )
         self.info_panel.pack(fill=tk.BOTH, expand=True, padx=24, pady=(16, 0))
@@ -1100,7 +1173,7 @@ class AIBlockerApp:
     # Footer — créditos y aviso de editores detectados / Footer — credits and warning of detected editors
     # -----------------------------------------------------------------
     def _build_footer(self):
-        footer = tk.Frame(self.root, bg=COL_BASE)
+        footer = tk.Frame(self.tab_blocker, bg=COL_BASE)
         footer.pack(fill=tk.X, padx=24, pady=(8, 12))
 
         self.footer_label = tk.Label(
@@ -1138,12 +1211,130 @@ class AIBlockerApp:
             footer, text="",
             font=(UI_FONT, 8),
             bg=COL_BASE, fg=COL_YELLOW,
-        )
-        self.editors_label.pack(side=tk.RIGHT)
+            self.editors_label.pack(side=tk.RIGHT)
         self._refresh_editors_label()
 
     # -----------------------------------------------------------------
-    # Gestión de Idiomas / Language Management
+    # DevSec Gateway & Auditor UI
+    # -----------------------------------------------------------------
+    def _build_gateway_tab(self):
+        container = tk.Frame(self.tab_gateway, bg=COL_BASE)
+        container.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
+        
+        # Section 1: AI API Router
+        router_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        router_frame.pack(fill=tk.X, pady=(0, 16))
+        
+        tk.Label(router_frame, text="⚡ Local AI Router", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(anchor="w", padx=16, pady=(12, 4))
+        tk.Label(router_frame, text="Point your IDE to http://127.0.0.1:8080 to bypass cloud AI.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT).pack(anchor="w", padx=16)
+        
+        url_frame = tk.Frame(router_frame, bg=COL_SURFACE0)
+        url_frame.pack(fill=tk.X, padx=16, pady=(10, 0))
+        tk.Label(url_frame, text="Target URL:", bg=COL_SURFACE0, fg=COL_TEXT).pack(side=tk.LEFT)
+        self.target_url_var = tk.StringVar(value=self.config.get("target_url", "http://localhost:11434"))
+        tk.Entry(url_frame, textvariable=self.target_url_var, bg=COL_BASE, fg=COL_TEXT, insertbackground=COL_TEXT, relief="flat").pack(side=tk.LEFT, fill=tk.X, expand=True, padx=8)
+        
+        self.gateway_btn = tk.Button(router_frame, text="▶ Start Gateway", font=(UI_FONT, 10, "bold"), bg=COL_GREEN, fg="#000000", bd=0, command=self._toggle_gateway)
+        self.gateway_btn.pack(fill=tk.X, padx=16, pady=12)
+        
+        # Section 2: Auditor
+        audit_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        audit_frame.pack(fill=tk.BOTH, expand=True)
+        
+        tk.Label(audit_frame, text="🛡️ DevSec Auditor", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(anchor="w", padx=16, pady=(12, 4))
+        tk.Label(audit_frame, text="Analyze running processes using OpenAI API for security recommendations.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT).pack(anchor="w", padx=16)
+        
+        key_frame = tk.Frame(audit_frame, bg=COL_SURFACE0)
+        key_frame.pack(fill=tk.X, padx=16, pady=(10, 0))
+        tk.Label(key_frame, text="OpenAI API Key:", bg=COL_SURFACE0, fg=COL_TEXT).pack(side=tk.LEFT)
+        self.openai_key_var = tk.StringVar(value=self.config.get("openai_key", ""))
+        tk.Entry(key_frame, textvariable=self.openai_key_var, show="*", bg=COL_BASE, fg=COL_TEXT, insertbackground=COL_TEXT, relief="flat").pack(side=tk.LEFT, fill=tk.X, expand=True, padx=8)
+        
+        self.audit_btn = tk.Button(audit_frame, text="Run Security Audit", font=(UI_FONT, 10, "bold"), bg=COL_BLUE, fg="#000000", bd=0, command=self._run_audit)
+        self.audit_btn.pack(fill=tk.X, padx=16, pady=12)
+        
+        self.audit_result = tk.Text(audit_frame, height=8, bg=COL_BASE, fg=COL_TEXT, font=(UI_FONT, 9), relief="flat", wrap=tk.WORD)
+        self.audit_result.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 16))
+        self.audit_result.insert(tk.END, "Awaiting audit...")
+        self.audit_result.configure(state="disabled")
+
+    def _toggle_gateway(self):
+        if not self.gateway_running:
+            target = self.target_url_var.get().strip()
+            self.config["target_url"] = target
+            self._save_current_config()
+            try:
+                self.gateway_server = ThreadingHTTPServer(('127.0.0.1', 8080), GatewayHandler)
+                self.gateway_server.target_url = target
+                threading.Thread(target=self.gateway_server.serve_forever, daemon=True).start()
+                self.gateway_running = True
+                self.gateway_btn.configure(text="■ Stop Gateway", bg=COL_RED)
+                self.log_action("log_gateway_started", url=target)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to start gateway: {e}")
+        else:
+            if self.gateway_server:
+                self.gateway_server.shutdown()
+                self.gateway_server.server_close()
+            self.gateway_running = False
+            self.gateway_btn.configure(text="▶ Start Gateway", bg=COL_GREEN)
+            self.log_action("log_gateway_stopped")
+
+    def _run_audit(self):
+        api_key = self.openai_key_var.get().strip()
+        if not api_key:
+            messagebox.showerror("Error", "Please enter an OpenAI API Key.")
+            return
+            
+        self.config["openai_key"] = api_key
+        self._save_current_config()
+        
+        self.audit_btn.configure(state="disabled", text="Auditing...")
+        self.audit_result.configure(state="normal")
+        self.audit_result.delete("1.0", tk.END)
+        self.audit_result.insert(tk.END, "Gathering active processes and network info...\n")
+        self.audit_result.configure(state="disabled")
+        
+        def task():
+            running = detect_running_ai_editors()
+            running_str = ", ".join(running) if running else "No active AI editors detected."
+            is_blocked, count = get_hosts_status()
+            
+            prompt = (
+                f"You are a DevSecOps AI Auditor. I am running a desktop tool called 'AI Blocker'.\n"
+                f"Current state: Block Active = {is_blocked} ({count} domains blocked).\n"
+                f"Active AI processes detected: {running_str}\n\n"
+                f"Please write a short (max 4 sentences) security analysis of my current development environment. "
+                f"Warn me about potential data leaks if my block is off and editors are running, or commend my setup. "
+                f"Keep it professional and actionable."
+            )
+            
+            req_data = json.dumps({"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]}).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.openai.com/v1/chat/completions", data=req_data, method="POST",
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
+            )
+            
+            try:
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    res_data = json.loads(response.read().decode("utf-8"))
+                    result_text = res_data["choices"][0]["message"]["content"]
+            except Exception as e:
+                result_text = f"Error during audit: {e}"
+                
+            def update_ui():
+                self.audit_result.configure(state="normal")
+                self.audit_result.delete("1.0", tk.END)
+                self.audit_result.insert(tk.END, result_text)
+                self.audit_result.configure(state="disabled")
+                self.audit_btn.configure(state="normal", text="Run Security Audit")
+                
+            self.root.after(0, update_ui)
+            
+        threading.Thread(target=task, daemon=True).start()
+
+    # -----------------------------------------------------------------
+    # Panel Log
     # -----------------------------------------------------------------
     def _on_language_selected(self, event):
         """
@@ -1506,7 +1697,7 @@ class AIBlockerApp:
         s = STRINGS[self.current_lang]
         title = s.get("log_title", "Activity Log")
 
-        self.log_container = tk.Frame(self.root, bg=COL_BASE)
+        self.log_container = tk.Frame(self.tab_blocker, bg=COL_BASE)
         self.log_container.pack(fill=tk.X, padx=24, pady=(12, 0))
 
         log_header = tk.Frame(self.log_container, bg=COL_BASE)
