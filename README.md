@@ -1,9 +1,9 @@
-# 🛡️ AI Network Blocker for Windows
+# 🛡️ AI Network Blocker
 
 > **Take back control. Decide when your AI-powered editors can talk to the cloud.**
 
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D4?logo=windows&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-22c55e)
 ![Release](https://img.shields.io/github/v/release/Akunimal/AI-Blocker?color=blue&label=Latest%20Release)
 
@@ -11,7 +11,7 @@
 
 ## 📖 What is this?
 
-**AI Network Blocker** is a free, open-source, single-click Windows desktop tool that blocks all network traffic between your machine and the major AI cloud providers. It works by editing the Windows `hosts` file — no background processes, no firewall rules, no drivers.
+**AI Network Blocker** is a free, open-source, single-click desktop tool that blocks all network traffic between your machine and the major AI cloud providers. It works by editing the system `hosts` file — no background processes, no firewall rules, no drivers. It supports Windows, Linux, and macOS.
 
 With one click it:
 1. **Kills** running AI editor processes (VS Code, Cursor, Windsurf, Claude, etc.).
@@ -41,13 +41,13 @@ AI coding assistants have deep, unrestricted access to your files, your clipboar
 | 🔒 **One-click toggle** | Block or unblock all AI services instantly |
 | 🌍 **Multilingual support** | 10 languages supported with automatic system detection & manual selector |
 | 🎨 **Premium dark UI** | Modern Catppuccin Mocha theme with color-coded status |
-| 🔑 **Auto UAC elevation** | Automatically requests administrator privileges — no right-click needed |
-| 🧹 **DNS cache flush** | Runs `ipconfig /flushdns` after every change for instant effect |
+| 🔑 **Smart elevation** | Auto UAC on Windows, clear `sudo` instructions on Unix |
+| 🧹 **DNS cache flush** | Automatically flushes DNS for instant effect on all OSes |
 | 👁️ **Live process detection** | Footer shows which AI editors are currently running |
 | 📊 **Category breakdown** | Visual panel listing all blocked providers with domain counts |
-| 📦 **Portable .exe** | Single-file executable (~12 MB), zero installation |
+| 📦 **Portable** | Single-file executable builds available |
 | ⚡ **Non-blocking UI** | All operations run on background threads — the GUI never freezes |
-| 🔍 **Fully auditable** | One Python file, extensively commented in both English and Spanish |
+| 🔍 **Fully auditable** | One Python file, extensively commented |
 
 ---
 
@@ -76,11 +76,13 @@ The default blocklist targets **35+ domains** across 9 categories:
 ### Option A — Download the ready-to-use executable
 
 1. Go to the [**Releases**](https://github.com/Akunimal/AI-Blocker/releases) page.
-2. Download **`AI-Blocker.exe`** from the latest release.
-3. Double-click it. Windows will show a UAC prompt — click **Yes**.
+2. Download the binary for your operating system.
+3. Run the executable.
+   - **Windows**: Double-click `AI-Blocker.exe`. Click **Yes** on the UAC prompt.
+   - **Linux / macOS**: Open a terminal and run `sudo ./AI-Blocker` (root privileges required to modify `/etc/hosts`).
 4. Click the big button to toggle the block on or off. That's it.
 
-> The `.exe` is a self-contained, portable file. No installation, no dependencies, no Python required.
+> The binaries are self-contained and portable. No installation, no dependencies, no Python required.
 
 ### Option B — Run from source code
 
@@ -90,10 +92,12 @@ git clone https://github.com/Akunimal/AI-Blocker.git
 cd AI-Blocker
 
 # 2. Run the script (Python 3.x required)
+# On Windows (auto-elevates via UAC):
 python ai_blocker.py
-```
 
-The script will automatically request admin elevation via UAC. No need to right-click → "Run as administrator" manually.
+# On Linux / macOS (requires sudo):
+sudo python3 ai_blocker.py
+```
 
 ---
 
@@ -110,31 +114,40 @@ If you want to compile the executable from source (to verify it, modify it, or j
 pip install pyinstaller
 ```
 
-### Method 1 — Using the included build script
+### Method 1 — Using the included build scripts
 
 ```bash
-# Just run the batch file:
+# On Windows, run the batch file:
 build.bat
+
+# On Linux / macOS, run the bash script:
+./build.sh
 ```
 
 The script will:
 1. Clean any previous build artifacts (`build/`, `dist/`, `*.spec`)
-2. Compile `ai_blocker.py` into a single `.exe` with admin manifest
-3. Copy the final `AI-Blocker.exe` to the project root
+2. Compile `ai_blocker.py` into a single binary (with admin manifest on Windows)
+3. Copy the final executable to the project root
 
 ### Method 2 — Manual command
 
+**Windows:**
 ```bash
 pyinstaller --onefile --windowed --uac-admin --name "AI-Blocker" --clean ai_blocker.py
+```
+
+**Linux / macOS:**
+```bash
+python3 -m PyInstaller --onefile --windowed --name "AI-Blocker" --clean ai_blocker.py
 ```
 
 **Flags explained:**
 
 | Flag | Purpose |
 |---|---|
-| `--onefile` | Packages everything into a single portable `.exe` |
+| `--onefile` | Packages everything into a single portable binary |
 | `--windowed` | Hides the console window (GUI-only application) |
-| `--uac-admin` | Embeds a Windows manifest that triggers UAC elevation on launch |
+| `--uac-admin` | *(Windows only)* Embeds a manifest that triggers UAC elevation |
 | `--name "AI-Blocker"` | Sets the output filename |
 | `--clean` | Clears PyInstaller cache before building |
 
@@ -147,8 +160,10 @@ The compiled executable will be in the `dist/` folder.
 ```
 AI-Blocker/
 ├── ai_blocker.py      # Full source code (Python 3, tkinter GUI)
-├── build.bat          # One-click build script for compiling to .exe
-├── AI-Blocker.exe     # Pre-compiled portable executable
+├── build.bat          # One-click build script for Windows
+├── build.sh           # One-click build script for Linux/macOS
+├── AI-Blocker.exe     # Pre-compiled portable executable (Windows)
+├── AI-Blocker         # Pre-compiled portable binary (Linux/macOS)
 ├── README.md          # This file
 ├── LICENSE            # MIT License — free as in freedom
 └── .gitignore         # Git ignore rules
@@ -160,20 +175,19 @@ AI-Blocker/
 
 | Requirement | Details |
 |---|---|
-| **Operating System** | Windows 10 or Windows 11 |
-| **Privileges** | Administrator (requested automatically via UAC) |
+| **Operating System** | Windows 10/11, Linux, macOS |
+| **Privileges** | Administrator / root (Windows auto-requests UAC; Linux/macOS run via `sudo`) |
 | **Python** | 3.x — only needed if running from source |
 | **Dependencies** | None. Uses only Python standard library (`tkinter`, `ctypes`, `subprocess`) |
-| **Disk space** | ~12 MB for the `.exe`, ~15 KB for the `.py` source |
+| **Disk space** | ~12 MB for the binary, ~15 KB for the `.py` source |
 
 ---
 
 ## ⚠️ Disclaimer
 
 This tool modifies your system's `hosts` file located at:
-```
-C:\Windows\System32\drivers\etc\hosts
-```
+- **Windows**: `C:\Windows\System32\drivers\etc\hosts`
+- **Linux/macOS**: `/etc/hosts`
 
 It **only** adds or removes lines that contain the marker comment `# AI-Block`. It will **never** touch other entries in your hosts file.
 
@@ -200,7 +214,6 @@ Do whatever you want with it. Fork it, rebrand it, translate it, embed it in you
 
 Contributions are welcome! If you want to:
 - Add new AI domains or providers to the blocklist
-- Add support for other operating systems (Linux, macOS)
 - Improve the UI or add features
 - Translate the interface to another language
 

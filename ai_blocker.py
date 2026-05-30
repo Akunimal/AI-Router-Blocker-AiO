@@ -1,21 +1,30 @@
 # -*- coding: utf-8 -*-
 """
 AI Network Blocker — Kill switch para editores de código con IA.
-Bloquea/desbloquea dominios de IA editando el archivo hosts de Windows.
+Bloquea/desbloquea dominios de IA editando el archivo hosts del sistema.
+Soporte para Windows, Linux y macOS.
 Soporte para 10 idiomas con detección automática y selector manual.
-Requiere privilegios de Administrador.
+Requiere privilegios de Administrador / root.
 
 --- EN ---
 AI Network Blocker — Kill switch for AI-powered code editors.
-Blocks/unblocks AI domains by editing the Windows hosts file.
+Blocks/unblocks AI domains by editing the system hosts file.
+Supports Windows, Linux and macOS.
 Supports 10 languages with automatic detection and manual selector.
-Requires Administrator privileges.
+Requires Administrator / root privileges.
 """
 
 import os
 import sys
-import ctypes
+import platform
+if platform.system() == "Windows":
+    import ctypes
 import locale
+
+# =====================================================================
+# DETECCIÓN DE PLATAFORMA / PLATFORM DETECTION
+# =====================================================================
+CURRENT_OS = platform.system()  # 'Windows', 'Linux', 'Darwin'
 import subprocess
 import tkinter as tk
 from tkinter import messagebox
@@ -66,17 +75,30 @@ BLOCKLIST = {
     ],
 }
 
-PROCESS_LIST = [
-    "Code.exe", "Cursor.exe", "Windsurf.exe", "Claude.exe",
-    "Trae.exe", "Cline.exe", "Roo.exe", "Augment.exe",
-]
+if CURRENT_OS == "Windows":
+    PROCESS_LIST = [
+        "Code.exe", "Cursor.exe", "Windsurf.exe", "Claude.exe",
+        "Trae.exe", "Cline.exe", "Roo.exe", "Augment.exe",
+    ]
+else:
+    # En Linux/macOS los procesos no tienen extensión .exe
+    # On Linux/macOS processes don't have .exe extension
+    PROCESS_LIST = [
+        "code", "cursor", "windsurf", "claude",
+        "trae", "cline", "roo", "augment",
+    ]
 
 COMMENT_TAG = "# AI-Block"
 
-HOSTS_PATH = os.path.join(
-    os.environ.get("SystemRoot", r"C:\Windows"),
-    r"System32\drivers\etc\hosts",
-)
+if CURRENT_OS == "Windows":
+    HOSTS_PATH = os.path.join(
+        os.environ.get("SystemRoot", r"C:\Windows"),
+        r"System32\drivers\etc\hosts",
+    )
+else:
+    # Linux y macOS usan /etc/hosts
+    # Linux and macOS use /etc/hosts
+    HOSTS_PATH = "/etc/hosts"
 
 # =====================================================================
 # PALETA DE COLORES — Catppuccin Mocha (dark premium) / COLOR PALETTE
@@ -91,6 +113,19 @@ COL_GREEN     = "#A6E3A1"   # Verde suave / Soft green
 COL_YELLOW    = "#F9E2AF"   # Amarillo / Yellow
 COL_BLUE      = "#89B4FA"   # Azul accent / Accent blue
 COL_MAUVE     = "#CBA6F7"   # Púrpura accent / Accent purple
+
+# =====================================================================
+# FUENTE DEL SISTEMA / SYSTEM FONT
+# =====================================================================
+def _get_ui_font():
+    if CURRENT_OS == "Windows":
+        return "Segoe UI"
+    elif CURRENT_OS == "Darwin":
+        return "Helvetica Neue"
+    else:
+        return "DejaVu Sans"
+
+UI_FONT = _get_ui_font()
 
 # =====================================================================
 # TRADUCCIONES PARA 10 IDIOMAS / TRANSLATIONS FOR 10 LANGUAGES
@@ -145,7 +180,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Closed processes: ",
         "no_processes_detected": "• No open AI editors detected.",
         "admin_required_title": "Access Denied",
-        "admin_required_msg": "Administrator privileges are required.\n\nRight-click → 'Run as administrator'."
+        "admin_required_msg": "Administrator privileges are required.\n\nRight-click → 'Run as administrator'." if CURRENT_OS == "Windows" else "Root privileges are required.\n\nRun with: sudo python3 ai_blocker.py"
     },
     "es": {
         "protected_title": "PROTEGIDO — Bloqueo activo",
@@ -169,7 +204,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Se cerraron los siguientes procesos: ",
         "no_processes_detected": "• No se detectaron editores de IA abiertos.",
         "admin_required_title": "Acceso Denegado",
-        "admin_required_msg": "Se requieren privilegios de Administrador.\n\nHaz clic derecho → 'Ejecutar como administrador'."
+        "admin_required_msg": "Se requieren privilegios de Administrador.\n\nHaz clic derecho → 'Ejecutar como administrador'." if CURRENT_OS == "Windows" else "Se requieren privilegios de root.\n\nEjecuta con: sudo python3 ai_blocker.py"
     },
     "pt": {
         "protected_title": "PROTEGIDO — Bloqueio ativo",
@@ -193,7 +228,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Processos fechados: ",
         "no_processes_detected": "• Nenhum editor de IA aberto detectado.",
         "admin_required_title": "Acesso Negado",
-        "admin_required_msg": "Privilégios de Administrador são necessários.\n\nClique com o botão direito → 'Executar como administrador'."
+        "admin_required_msg": "Privilégios de Administrador são necessários.\n\nClique com o botão direito → 'Executar como administrador'." if CURRENT_OS == "Windows" else "Privilégios de root são necessários.\n\nExecute com: sudo python3 ai_blocker.py"
     },
     "fr": {
         "protected_title": "PROTÉGÉ — Blocage actif",
@@ -217,7 +252,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Processus fermés : ",
         "no_processes_detected": "• Aucun éditeur d'IA ouvert détecté.",
         "admin_required_title": "Accès Refusé",
-        "admin_required_msg": "Des privilèges d'Administrateur sont requis.\n\nFaites un clic droit → 'Exécuter en tant qu'administrateur'."
+        "admin_required_msg": "Des privilèges d'Administrateur sont requis.\n\nFaites un clic droit → 'Exécuter en tant qu'administrateur'." if CURRENT_OS == "Windows" else "Les privilèges root sont requis.\n\nExécutez avec : sudo python3 ai_blocker.py"
     },
     "de": {
         "protected_title": "GESCHÜTZT — Blockierung aktiv",
@@ -241,7 +276,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Geschlossene Prozesse: ",
         "no_processes_detected": "• Keine geöffneten KI-Editoren erkannt.",
         "admin_required_title": "Zugriff Verweigert",
-        "admin_required_msg": "Administratorrechte sind erforderlich.\n\nRechtsklick → 'Als Administrator ausführen'."
+        "admin_required_msg": "Administratorrechte sind erforderlich.\n\nRechtsklick → 'Als Administrator ausführen'." if CURRENT_OS == "Windows" else "Root-Rechte sind erforderlich.\n\nAusführen mit: sudo python3 ai_blocker.py"
     },
     "it": {
         "protected_title": "PROTETTO — Blocco attivo",
@@ -265,7 +300,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Processi terminati: ",
         "no_processes_detected": "• Nessun editor IA aperto rilevato.",
         "admin_required_title": "Accesso Negato",
-        "admin_required_msg": "Sono richiesti i privilegi di Amministratore.\n\nTasto destro → 'Esegui como amministratore'."
+        "admin_required_msg": "Sono richiesti i privilegi di Amministratore.\n\nTasto destro → 'Esegui como amministratore'." if CURRENT_OS == "Windows" else "Sono richiesti i privilegi di root.\n\nEsegui con: sudo python3 ai_blocker.py"
     },
     "ru": {
         "protected_title": "ЗАЩИЩЕНО — Блокировка активна",
@@ -289,7 +324,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ Закрытые процессы: ",
         "no_processes_detected": "• Запущенных ИИ-редакторов не обнаружено.",
         "admin_required_title": "Доступ запрещен",
-        "admin_required_msg": "Требуются права Администратора.\n\nНажмите правой кнопкой мыши → 'Запуск от имени администратора'."
+        "admin_required_msg": "Требуются права Администратора.\n\nНажмите правой кнопкой мыши → 'Запуск от имени администратора'." if CURRENT_OS == "Windows" else "Требуются права root.\n\nЗапустите с помощью: sudo python3 ai_blocker.py"
     },
     "zh": {
         "protected_title": "已保护 — 拦截处于激活状态",
@@ -313,7 +348,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ 已关闭的进程: ",
         "no_processes_detected": "• 未检测到运行中的 AI 编辑器。",
         "admin_required_title": "拒绝访问",
-        "admin_required_msg": "需要管理员权限。\n\n请右键单击 → 选择 “以管理员身份运行”。"
+        "admin_required_msg": "需要管理员权限。\n\n请右键单击 → 选择 “以管理员身份运行”。" if CURRENT_OS == "Windows" else "需要 root 权限。\n\n请使用此命令运行：sudo python3 ai_blocker.py"
     },
     "ja": {
         "protected_title": "保護中 — ブロック有効",
@@ -337,7 +372,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ 終了したプロセス: ",
         "no_processes_detected": "• 起動中の AI エディタは検出されませんでした。",
         "admin_required_title": "アクセス拒否",
-        "admin_required_msg": "管理者権限が必要です。\n\n右クリック → 「管理者として実行」を選択してください。"
+        "admin_required_msg": "管理者権限が必要です。\n\n右クリック → 「管理者として実行」を選択してください。" if CURRENT_OS == "Windows" else "root 権限が必要です。\n\n次のコマンドで実行してください: sudo python3 ai_blocker.py"
     },
     "ko": {
         "protected_title": "보호됨 — 블록 활성화됨",
@@ -361,7 +396,7 @@ STRINGS = {
         "closed_processes_prefix": "✓ 종료된 프로세스: ",
         "no_processes_detected": "• 실행 중인 AI 에디터가 감지되지 않았습니다.",
         "admin_required_title": "액세스 거부",
-        "admin_required_msg": "관리자 권한이 필요합니다.\n\n오른쪽 마우스 클릭 → '관리자 권한으로 실행'을 선택하세요."
+        "admin_required_msg": "관리자 권한이 필요합니다。\n\n오른쪽 마우스 클릭 → '관리자 권한으로 실행'을 선택하세요." if CURRENT_OS == "Windows" else "root 권한이 필요합니다。\n\n다음 명령으로 실행하세요: sudo python3 ai_blocker.py"
     }
 }
 
@@ -370,49 +405,90 @@ STRINGS = {
 # =====================================================================
 def is_admin():
     """
-    Retorna True si el proceso corre con privilegios de Administrador.
-    Returns True if the process runs with Administrator privileges.
+    Retorna True si el proceso corre con privilegios de Administrador / root.
+    Returns True if the process runs with Administrator / root privileges.
     """
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except Exception:
-        return False
+    if CURRENT_OS == "Windows":
+        try:
+            return ctypes.windll.shell32.IsUserAnAdmin()
+        except Exception:
+            return False
+    else:
+        # Linux / macOS: verificar si somos root (euid == 0)
+        # Linux / macOS: check if we are root (euid == 0)
+        return os.geteuid() == 0
 
 
 def relaunch_as_admin():
     """
-    Re-lanza el ejecutable actual solicitando elevación UAC.
-    Relaunches the current executable requesting UAC elevation.
+    En Windows: re-lanza el ejecutable solicitando elevación UAC.
+    En Linux/macOS: no se auto-relanza, se muestra mensaje al usuario.
+
+    On Windows: relaunches the executable requesting UAC elevation.
+    On Linux/macOS: does not auto-relaunch, shows message to user.
     """
-    try:
-        if getattr(sys, "frozen", False):
-            executable = sys.executable
-        else:
-            executable = sys.executable
-        
-        ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", executable,
-            " ".join(f'"{a}"' for a in sys.argv),
-            None, 1
-        )
-    except Exception:
+    if CURRENT_OS == "Windows":
+        try:
+            if getattr(sys, "frozen", False):
+                executable = sys.executable
+            else:
+                executable = sys.executable
+            
+            ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", executable,
+                " ".join(f'"{a}"' for a in sys.argv),
+                None, 1
+            )
+        except Exception:
+            pass
+        sys.exit(0)
+    else:
+        # En Linux/macOS no intentamos auto-relanzar.
+        # El flujo principal mostrará el mensaje de error.
+        # On Linux/macOS we don't attempt auto-relaunch.
+        # The main flow will show the error message.
         pass
-    sys.exit(0)
+
+
+def _get_subprocess_kwargs():
+    """
+    Retorna argumentos adicionales para subprocess según el OS.
+    En Windows, oculta la ventana de consola. En otros OS, retorna dict vacío.
+
+    Returns additional subprocess arguments based on OS.
+    On Windows, hides the console window. On other OSes, returns empty dict.
+    """
+    if CURRENT_OS == "Windows":
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+        return {"startupinfo": si}
+    return {}
 
 
 def flush_dns():
     """
-    Ejecuta ipconfig /flushdns de manera silenciosa.
-    Silently executes ipconfig /flushdns.
+    Limpia la caché DNS del sistema de forma silenciosa.
+    Silently flushes the system DNS cache.
     """
     try:
-        si = subprocess.STARTUPINFO()
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        si.wShowWindow = subprocess.SW_HIDE
-        subprocess.run(
-            ["ipconfig", "/flushdns"],
-            capture_output=True, startupinfo=si,
-        )
+        kwargs = _get_subprocess_kwargs()
+        if CURRENT_OS == "Windows":
+            subprocess.run(["ipconfig", "/flushdns"], capture_output=True, **kwargs)
+        elif CURRENT_OS == "Darwin":
+            # macOS: dscacheutil + mDNSResponder
+            subprocess.run(["dscacheutil", "-flushcache"], capture_output=True, **kwargs)
+            subprocess.run(["killall", "-HUP", "mDNSResponder"], capture_output=True, **kwargs)
+        else:
+            # Linux: intentar systemd-resolve primero, luego resolvectl
+            # Linux: try systemd-resolve first, then resolvectl
+            result = subprocess.run(
+                ["systemd-resolve", "--flush-caches"], capture_output=True, **kwargs
+            )
+            if result.returncode != 0:
+                subprocess.run(
+                    ["resolvectl", "flush-caches"], capture_output=True, **kwargs
+                )
     except Exception:
         pass
 
@@ -514,18 +590,26 @@ def force_close_processes():
     Force closes running AI editors.
     """
     closed = []
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    si.wShowWindow = subprocess.SW_HIDE
+    kwargs = _get_subprocess_kwargs()
 
     for proc in PROCESS_LIST:
         try:
-            result = subprocess.run(
-                ["taskkill", "/F", "/IM", proc],
-                capture_output=True, text=True, startupinfo=si,
-            )
-            if result.returncode == 0:
-                closed.append(proc.replace(".exe", ""))
+            if CURRENT_OS == "Windows":
+                result = subprocess.run(
+                    ["taskkill", "/F", "/IM", proc],
+                    capture_output=True, text=True, **kwargs,
+                )
+                if result.returncode == 0:
+                    closed.append(proc.replace(".exe", ""))
+            else:
+                # Linux/macOS: usar killall
+                # Linux/macOS: use killall
+                result = subprocess.run(
+                    ["killall", proc],
+                    capture_output=True, text=True, **kwargs,
+                )
+                if result.returncode == 0:
+                    closed.append(proc)
         except Exception:
             pass
     return closed
@@ -537,18 +621,26 @@ def detect_running_ai_editors():
     Detects which AI editors are currently running (without closing them).
     """
     running = []
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    si.wShowWindow = subprocess.SW_HIDE
+    kwargs = _get_subprocess_kwargs()
 
     for proc in PROCESS_LIST:
         try:
-            result = subprocess.run(
-                ["tasklist", "/FI", f"IMAGENAME eq {proc}", "/NH"],
-                capture_output=True, text=True, startupinfo=si,
-            )
-            if proc.lower() in result.stdout.lower():
-                running.append(proc.replace(".exe", ""))
+            if CURRENT_OS == "Windows":
+                result = subprocess.run(
+                    ["tasklist", "/FI", f"IMAGENAME eq {proc}", "/NH"],
+                    capture_output=True, text=True, **kwargs,
+                )
+                if proc.lower() in result.stdout.lower():
+                    running.append(proc.replace(".exe", ""))
+            else:
+                # Linux/macOS: usar pgrep -x para buscar por nombre exacto
+                # Linux/macOS: use pgrep -x for exact name match
+                result = subprocess.run(
+                    ["pgrep", "-x", proc],
+                    capture_output=True, text=True, **kwargs,
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    running.append(proc)
         except Exception:
             pass
     return running
@@ -744,7 +836,7 @@ class AIBlockerApp:
         # Etiqueta de versión / Version label
         self.version_label = tk.Label(
             right_panel, text=f"v{APP_VERSION}",
-            font=("Segoe UI", 9),
+            font=(UI_FONT, 9),
             bg=COL_BASE, fg=COL_SUBTEXT,
         )
         self.version_label.pack(side=tk.RIGHT, pady=(6, 0))
@@ -764,7 +856,7 @@ class AIBlockerApp:
 
         # Indicador de estado (círculo) / Status indicator (dot)
         self.status_dot = tk.Label(
-            inner, text="●", font=("Segoe UI", 22),
+            inner, text="●", font=(UI_FONT, 22),
             bg=COL_SURFACE0,
         )
         self.status_dot.pack(side=tk.LEFT, padx=(0, 10))
@@ -773,13 +865,13 @@ class AIBlockerApp:
         text_col.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         self.status_title = tk.Label(
-            text_col, text="", font=("Segoe UI", 13, "bold"),
+            text_col, text="", font=(UI_FONT, 13, "bold"),
             bg=COL_SURFACE0, fg=COL_TEXT, anchor="w",
         )
         self.status_title.pack(fill=tk.X)
 
         self.status_subtitle = tk.Label(
-            text_col, text="", font=("Segoe UI", 9),
+            text_col, text="", font=(UI_FONT, 9),
             bg=COL_SURFACE0, fg=COL_SUBTEXT, anchor="w",
         )
         self.status_subtitle.pack(fill=tk.X)
@@ -793,7 +885,7 @@ class AIBlockerApp:
 
         self.toggle_btn = tk.Button(
             btn_frame, text="",
-            font=("Segoe UI", 15, "bold"),
+            font=(UI_FONT, 15, "bold"),
             bd=0, cursor="hand2",
             activeforeground="#FFFFFF",
             relief="flat", height=2,
@@ -817,14 +909,14 @@ class AIBlockerApp:
 
         self.categories_title_label = tk.Label(
             self.title_bar, text="",
-            font=("Segoe UI", 10, "bold"),
+            font=(UI_FONT, 10, "bold"),
             bg=COL_SURFACE0, fg=COL_TEXT, anchor="w",
         )
         self.categories_title_label.pack(side=tk.LEFT)
 
         self.categories_total_domains_label = tk.Label(
             self.title_bar, text="",
-            font=("Segoe UI", 9),
+            font=(UI_FONT, 9),
             bg=COL_SURFACE0, fg=COL_MAUVE, anchor="e",
         )
         self.categories_total_domains_label.pack(side=tk.RIGHT)
@@ -854,7 +946,7 @@ class AIBlockerApp:
             icon = self.category_icons.get(cat, "•")
             cat_label = tk.Label(
                 row, text=f"  {icon}  {cat}",
-                font=("Segoe UI", 9), bg=COL_SURFACE0,
+                font=(UI_FONT, 9), bg=COL_SURFACE0,
                 fg=COL_TEXT, anchor="w",
             )
             cat_label.pack(side=tk.LEFT)
@@ -862,7 +954,7 @@ class AIBlockerApp:
 
             tk.Label(
                 row, text=f"{len(domains)}",
-                font=("Segoe UI", 9, "bold"), bg=COL_SURFACE0,
+                font=(UI_FONT, 9, "bold"), bg=COL_SURFACE0,
                 fg=COL_BLUE, anchor="e",
             ).pack(side=tk.RIGHT, padx=(0, 4))
 
@@ -876,7 +968,7 @@ class AIBlockerApp:
         self.footer_label = tk.Label(
             footer,
             text="Open Source · github.com/Akunimal/AI-Blocker",
-            font=("Segoe UI", 8),
+            font=(UI_FONT, 8),
             bg=COL_BASE, fg=COL_SUBTEXT,
         )
         self.footer_label.pack(side=tk.LEFT)
@@ -884,7 +976,7 @@ class AIBlockerApp:
         # Aviso en tiempo real de editores de IA activos / Real-time warning of active AI editors
         self.editors_label = tk.Label(
             footer, text="",
-            font=("Segoe UI", 8),
+            font=(UI_FONT, 8),
             bg=COL_BASE, fg=COL_YELLOW,
         )
         self.editors_label.pack(side=tk.RIGHT)
