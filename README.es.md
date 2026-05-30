@@ -1,9 +1,9 @@
-# 🛡️ AI Network Blocker (Bloqueador de Red de IA)
+# 🛡️ AI DevSec Gateway (antes AI Network Blocker)
 
-> **Retoma el control. Decide cuándo tus editores de IA pueden comunicarse con la nube.**
+> **Retoma el control. Intercepta, audita y enruta el tráfico de IA en tu máquina.**
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Interfaz de AI Network Blocker" width="600">
+  <img src="assets/screenshot.png" alt="Interfaz de AI DevSec Gateway" width="600">
 </p>
 
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
@@ -17,14 +17,14 @@
 
 ## 📖 ¿Qué es esto?
 
-**AI Network Blocker** es una herramienta de escritorio gratuita, de código abierto y de un solo clic que bloquea todo el tráfico de red entre tu máquina y los principales proveedores de IA en la nube. Funciona editando el archivo `hosts` del sistema — sin procesos en segundo plano, sin reglas de firewall, sin drivers. Es compatible con Windows, Linux y macOS.
+**AI DevSec Gateway** es una herramienta de escritorio gratuita y de código abierto que te devuelve el control sobre las herramientas de IA que se ejecutan en tu máquina. Originalmente un simple bloqueador de red, ahora ha evolucionado a un proxy DevSecOps completo.
+
+Te ayuda a **bloquear fugas de datos no autorizadas**, **auditar tu entorno de ejecución utilizando la API de OpenAI** y **enrutar de forma transparente las peticiones a la nube hacia tus propios modelos locales de IA** (como Llama 3 vía Ollama) o tus claves API personales (BYOK).
 
 Con un clic:
-1. **Mata** los procesos de editores de IA en ejecución (VS Code, Cursor, Windsurf, Claude, etc.).
-2. **Redirige** más de 35 dominios de IA a `127.0.0.1` en tu archivo hosts.
-3. **Limpia** la caché DNS para que el bloqueo tenga efecto **inmediatamente**.
-
-Con un segundo clic **deshace todo** limpiamente, eliminando solo las líneas que agregó.
+1. **Bloquea y Redirige** más de 35 dominios de IA a `127.0.0.1` editando tu archivo hosts.
+2. **Enruta** tráfico local mediante un API Gateway transparente hacia tu LLM Local.
+3. **Audita** los procesos activos de tus editores y genera recomendaciones de seguridad a través de la API de OpenAI.
 
 ---
 
@@ -44,17 +44,14 @@ Los asistentes de programación de IA tienen acceso profundo y sin restricciones
 
 | Característica | Descripción |
 |---|---|
-| 🔒 **Interruptor de un clic** | Bloquea o desbloquea todos los servicios de IA al instante |
-| 🌍 **Soporte multilingüe** | 10 idiomas soportados con detección automática del sistema y selector manual |
-| 🎨 **Interfaz oscura premium** | Tema moderno Catppuccin Mocha con estados codificados por colores |
-| 🔑 **Elevación inteligente** | UAC automático en Windows, instrucciones claras de `sudo` en Unix |
-| 🧹 **Limpieza de caché DNS** | Limpia automáticamente el DNS para efecto instantáneo en todos los SO |
-| 👁️ **Detección de procesos en vivo** | El pie de página encuesta continuamente y muestra qué editores de IA se están ejecutando |
-| 🛡️ **Concurrencia segura** | El bloqueo de instancia única evita que múltiples ventanas corrompan el archivo hosts |
-| 📊 **Desglose por categoría** | Panel visual que lista todos los proveedores bloqueados con recuento de dominios |
-| 📦 **Portable** | Ejecutables de un solo archivo disponibles |
-| ⚡ **Interfaz sin bloqueos** | Todas las operaciones se ejecutan en hilos de fondo: la GUI nunca se congela |
-| 🔍 **Totalmente auditable** | Un archivo Python, extensamente comentado |
+| 🔀 **Router de IA Local** | Intercepta el tráfico de Copilot/Cursor y lo envía a tu propio LLM local (Ollama/LM Studio). |
+| 🛡️ **Auditor DevSec de IA** | Análisis en vivo de procesos en ejecución para detectar riesgos de fuga de datos, impulsado por OpenAI. |
+| 🔒 **Interruptor de apagado** | Bloquea o desbloquea todos los servicios de IA al instante vía el archivo `hosts`. |
+| 🌍 **Soporte multilingüe** | 10 idiomas soportados con detección automática del sistema. |
+| 🎨 **Interfaz oscura premium** | Tema moderno Catppuccin Mocha con estados codificados por colores y pestañas. |
+| 🔑 **Elevación inteligente** | UAC automático en Windows, instrucciones claras de `sudo` en Unix. |
+| 👁️ **Detección de procesos** | El pie de página muestra continuamente qué editores de IA se están ejecutando. |
+| 📦 **Portable** | Ejecutables de un solo archivo sin dependencias pesadas. |
 
 ---
 
