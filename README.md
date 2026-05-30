@@ -44,6 +44,7 @@ AI coding assistants have deep, unrestricted access to your files, your clipboar
 | 🔑 **Smart elevation** | Auto UAC on Windows, clear `sudo` instructions on Unix |
 | 🧹 **DNS cache flush** | Automatically flushes DNS for instant effect on all OSes |
 | 👁️ **Live process detection** | Footer shows which AI editors are currently running |
+| 🛡️ **Safe concurrency** | Single instance lock prevents multiple windows from corrupting the hosts file |
 | 📊 **Category breakdown** | Visual panel listing all blocked providers with domain counts |
 | 📦 **Portable** | Single-file executable builds available |
 | ⚡ **Non-blocking UI** | All operations run on background threads — the GUI never freezes |
