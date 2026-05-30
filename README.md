@@ -2,10 +2,16 @@
 
 > **Take back control. Decide when your AI-powered editors can talk to the cloud.**
 
+<p align="center">
+  <img src="assets/screenshot.png" alt="AI Network Blocker Interface" width="600">
+</p>
+
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-22c55e)
 ![Release](https://img.shields.io/github/v/release/Akunimal/AI-Blocker?color=blue&label=Latest%20Release)
+
+[English](README.md) | [Español](README.es.md)
 
 ---
 
