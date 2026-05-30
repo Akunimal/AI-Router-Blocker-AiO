@@ -202,6 +202,17 @@ That said:
 
 ---
 
+## 🗺️ Roadmap & Future Vision
+
+We are actively developing **AI DevSec Gateway** to become the ultimate privacy proxy. Our upcoming features include:
+- **Deep Packet Inspection (DPI):** Intercept HTTPS to block specific API routes (e.g., `/completions`).
+- **Token Cost Dashboard:** Track spending when proxying requests to cloud APIs.
+- **Multi-Provider Auditors:** Support Anthropic and Mistral for the DevSec security audits.
+
+Check out our complete [**ROADMAP.md**](ROADMAP.md) to see where the project is heading and how you can contribute!
+
+---
+
 ## 📜 License — Free as in Freedom
 
 This project is released under the **MIT License** — see [LICENSE](LICENSE) for the full text.

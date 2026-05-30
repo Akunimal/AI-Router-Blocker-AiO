@@ -101,6 +101,17 @@ sudo python3 ai_blocker.py
 
 ---
 
+## 🗺️ Roadmap y Visión Futura
+
+Estamos desarrollando activamente **AI DevSec Gateway** para convertirlo en el proxy de privacidad definitivo. Nuestras próximas características incluyen:
+- **Inspección Profunda de Paquetes (DPI):** Interceptar HTTPS para bloquear rutas API específicas (ej: `/completions`).
+- **Dashboard de Costos de Tokens:** Monitorear el gasto cuando se hacen peticiones proxy a APIs en la nube (BYOK).
+- **Múltiples Auditores:** Soporte para Anthropic y Mistral para las auditorías de seguridad DevSec.
+
+¡Revisa nuestro [**ROADMAP.md**](ROADMAP.md) (en inglés) para ver hacia dónde se dirige el proyecto y cómo puedes contribuir!
+
+---
+
 ## 📜 Licencia — Libre como en la Libertad
 
 Este proyecto se publica bajo la **Licencia MIT** — consulta [LICENSE](LICENSE) para ver el texto completo.
