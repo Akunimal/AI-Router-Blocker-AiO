@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.3] - 2026-05-30
+### Added
+- Implemented real-time polling (every 3 seconds) for the active AI editors warning in the footer.
+- Optimized process scanning using single-pass `tasklist` (Windows) and `ps` (Unix) to drastically reduce CPU usage during background polling.
+
 ## [v1.1.2] - 2026-05-30
 ### Added
 - Added Single Instance Lock (mutex on Windows, flock on Unix) to prevent multiple instances from causing race conditions.

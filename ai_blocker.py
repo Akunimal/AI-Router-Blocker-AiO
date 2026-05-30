@@ -34,7 +34,7 @@ import threading
 # =====================================================================
 # VERSIÓN / VERSION
 # =====================================================================
-APP_VERSION = "1.1.2"
+APP_VERSION = "1.1.3"
 
 # =====================================================================
 # CONFIGURACIÓN DE DOMINIOS A BLOQUEAR / BLOCKLIST DOMAIN CONFIGURATION
@@ -583,63 +583,63 @@ def detect_system_language():
 # =====================================================================
 def force_close_processes():
     """
-    Cierra de forma forzada los editores de IA en ejecución.
-    Force closes running AI editors.
+    Cierra de forma forzada los editores de IA en ejecución de forma optimizada.
+    Force closes running AI editors efficiently.
     """
     closed = []
     kwargs = _get_subprocess_kwargs()
 
-    for proc in PROCESS_LIST:
-        try:
-            if CURRENT_OS == "Windows":
-                result = subprocess.run(
-                    ["taskkill", "/F", "/IM", proc],
-                    capture_output=True, text=True, **kwargs,
-                )
-                if result.returncode == 0:
+    try:
+        if CURRENT_OS == "Windows":
+            args = ["taskkill", "/F"]
+            for proc in PROCESS_LIST:
+                args.extend(["/IM", proc])
+            result = subprocess.run(args, capture_output=True, text=True, **kwargs)
+            out_lower = result.stdout.lower()
+            for proc in PROCESS_LIST:
+                if f'"{proc.lower()}"' in out_lower or f'{proc.lower()}' in out_lower:
                     closed.append(proc.replace(".exe", ""))
-            else:
-                # Linux/macOS: usar killall
-                # Linux/macOS: use killall
-                result = subprocess.run(
-                    ["killall", proc],
-                    capture_output=True, text=True, **kwargs,
-                )
-                if result.returncode == 0:
-                    closed.append(proc)
-        except Exception:
-            pass
+        else:
+            # En Unix, primero detectamos cuáles están abiertos para saber qué cerrar
+            # On Unix, detect which ones are running first
+            active = detect_running_ai_editors()
+            if active:
+                args = ["killall"] + active
+                subprocess.run(args, capture_output=True, text=True, **kwargs)
+                closed = active
+    except Exception:
+        pass
     return closed
 
 
 def detect_running_ai_editors():
     """
-    Detecta qué editores de IA están en ejecución actualmente (sin cerrarlos).
-    Detects which AI editors are currently running (without closing them).
+    Detecta qué editores de IA están en ejecución actualmente de forma optimizada.
+    Detects which AI editors are currently running efficiently.
     """
     running = []
     kwargs = _get_subprocess_kwargs()
 
-    for proc in PROCESS_LIST:
-        try:
-            if CURRENT_OS == "Windows":
-                result = subprocess.run(
-                    ["tasklist", "/FI", f"IMAGENAME eq {proc}", "/NH"],
-                    capture_output=True, text=True, **kwargs,
-                )
-                if proc.lower() in result.stdout.lower():
+    try:
+        if CURRENT_OS == "Windows":
+            result = subprocess.run(["tasklist", "/NH"], capture_output=True, text=True, **kwargs)
+            out_lower = result.stdout.lower()
+            for proc in PROCESS_LIST:
+                if proc.lower() in out_lower:
                     running.append(proc.replace(".exe", ""))
-            else:
-                # Linux/macOS: usar pgrep -x para buscar por nombre exacto
-                # Linux/macOS: use pgrep -x for exact name match
-                result = subprocess.run(
-                    ["pgrep", "-x", proc],
-                    capture_output=True, text=True, **kwargs,
-                )
-                if result.returncode == 0 and result.stdout.strip():
+        else:
+            # En Unix, listamos los comandos activos una sola vez
+            result = subprocess.run(["ps", "-A", "-o", "comm="], capture_output=True, text=True, **kwargs)
+            out_lines = result.stdout.splitlines()
+            active = set()
+            for line in out_lines:
+                active.add(os.path.basename(line.strip()).lower())
+            
+            for proc in PROCESS_LIST:
+                if proc.lower() in active:
                     running.append(proc)
-        except Exception:
-            pass
+    except Exception:
+        pass
     return running
 
 
@@ -764,6 +764,7 @@ class AIBlockerApp:
         # Estado actual del archivo hosts / Current status of the hosts file
         self.is_blocked, _ = get_hosts_status()
         self.is_busy = False
+        self._scan_after_id = None
 
         # Construir la interfaz / Build the interface
         self._build_header()
@@ -1113,9 +1114,13 @@ class AIBlockerApp:
 
     def _refresh_editors_label(self):
         """
-        Efectúa escaneo rápido en segundo plano de editores de IA.
-        Performs a quick background scan of AI editors.
+        Efectúa escaneo rápido y recurrente en segundo plano de editores de IA.
+        Performs a quick, recurring background scan of AI editors.
         """
+        if getattr(self, '_scan_after_id', None):
+            self.root.after_cancel(self._scan_after_id)
+            self._scan_after_id = None
+
         def scan():
             running = detect_running_ai_editors()
             s = STRINGS[self.current_lang]
@@ -1123,7 +1128,12 @@ class AIBlockerApp:
                 text = s["running_warning"].format(editors=", ".join(running))
             else:
                 text = ""
-            self.root.after(0, lambda: self.editors_label.configure(text=text))
+            
+            def update_ui():
+                self.editors_label.configure(text=text)
+                self._scan_after_id = self.root.after(3000, self._refresh_editors_label)
+                
+            self.root.after(0, update_ui)
 
         threading.Thread(target=scan, daemon=True).start()
 
