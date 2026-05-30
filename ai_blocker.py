@@ -432,6 +432,45 @@ def detect_system_language():
     return "en"
 
 
+def set_windows_autostart(enabled=True):
+    if CURRENT_OS != "Windows":
+        return False
+    import winreg
+    key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+    try:
+        if getattr(sys, 'frozen', False):
+            cmd = f'"{sys.executable}" --minimized'
+        else:
+            cmd = f'"{sys.executable}" "{os.path.abspath(__file__)}" --minimized'
+            
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
+        if enabled:
+            winreg.SetValueEx(key, "AIBlocker", 0, winreg.REG_SZ, cmd)
+        else:
+            try:
+                winreg.DeleteValue(key, "AIBlocker")
+            except FileNotFoundError:
+                pass
+        winreg.CloseKey(key)
+        return True
+    except Exception:
+        return False
+
+
+def get_windows_autostart():
+    if CURRENT_OS != "Windows":
+        return False
+    import winreg
+    key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ)
+        val, _ = winreg.QueryValueEx(key, "AIBlocker")
+        winreg.CloseKey(key)
+        return True
+    except Exception:
+        return False
+
+
 # =====================================================================
 # ACCIONES DE BLOQUEO / DESBLOQUEO / BLOCKING / UNBLOCKING ACTIONS
 # =====================================================================
@@ -1052,6 +1091,28 @@ class AIBlockerApp:
         )
         self.footer_label.pack(side=tk.LEFT)
 
+        # Checkbox de auto-inicio (solo Windows) / Autostart checkbox (Windows only)
+        if CURRENT_OS == "Windows":
+            self.autostart_var = tk.BooleanVar(value=get_windows_autostart())
+            self.autostart_chk = tk.Checkbutton(
+                footer,
+                text="", # Will be set in _update_language_ui
+                variable=self.autostart_var,
+                onvalue=True,
+                offvalue=False,
+                command=self._on_autostart_toggled,
+                font=(UI_FONT, 8),
+                bg=COL_BASE,
+                fg=COL_SUBTEXT,
+                selectcolor=COL_BASE,
+                activebackground=COL_BASE,
+                activeforeground=COL_SUBTEXT,
+                bd=0,
+                relief="flat",
+                highlightthickness=0
+            )
+            self.autostart_chk.pack(side=tk.LEFT, padx=(16, 0))
+
         # Aviso en tiempo real de editores de IA activos / Real-time warning of active AI editors
         self.editors_label = tk.Label(
             footer, text="",
@@ -1122,6 +1183,10 @@ class AIBlockerApp:
         # 6. Estado y Botón (usando la lógica de visuals existente) / 6. Status and Button (using existing visuals logic)
         self._update_visuals()
 
+        # 7. Traducir checkbox de auto-inicio / Translate autostart checkbox
+        if CURRENT_OS == "Windows" and hasattr(self, 'autostart_chk'):
+            self.autostart_chk.configure(text=s.get("autostart_label", "Start with Windows"))
+
     # -----------------------------------------------------------------
     # Lógica de Interacción y Estados / Interaction and States Logic
     # -----------------------------------------------------------------
@@ -1188,6 +1253,11 @@ class AIBlockerApp:
             self._handle_reapply_block()
         else:
             self._update_visuals()
+
+    def _on_autostart_toggled(self):
+        if CURRENT_OS == "Windows":
+            enabled = self.autostart_var.get()
+            set_windows_autostart(enabled)
 
     def _handle_reapply_block(self):
         if self.is_busy:
@@ -1551,4 +1621,6 @@ if __name__ == "__main__":
     # Iniciar la aplicación / Start the application
     root = tk.Tk()
     app = AIBlockerApp(root)
+    if "--minimized" in sys.argv and CURRENT_OS == "Windows":
+        root.withdraw()
     root.mainloop()
