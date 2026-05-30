@@ -671,6 +671,8 @@ class AIBlockerApp:
         self.last_visuals_blocked = self.is_blocked
         self._anim_id = 0
         self.active_toasts = []
+        self.logs = self.config.get("logs", [])
+        self.log_expanded = False
 
         # Cargar perfil guardado / Load saved profile
         self.selected_profile_key = self.config.get("profile", "work")
@@ -697,6 +699,7 @@ class AIBlockerApp:
         self._build_status_card()
         self._build_toggle_button()
         self._build_info_panel()
+        self._build_log_panel()
         self._build_footer()
 
         # Actualizar visualización e idioma / Update display and language
@@ -994,6 +997,7 @@ class AIBlockerApp:
                 return
                 
             self._add_custom_domain_to_list(domain, cat)
+            self.log_action("log_custom_domain", domain=domain)
             dialog.destroy()
 
         btn_save = tk.Button(
@@ -1190,6 +1194,12 @@ class AIBlockerApp:
         if CURRENT_OS == "Windows" and hasattr(self, 'autostart_chk'):
             self.autostart_chk.configure(text=s.get("autostart_label", "Start with Windows"))
 
+        # 8. Traducir cabecera del historial / Translate log header
+        if hasattr(self, 'log_toggle_btn'):
+            arrow = "▼" if self.log_expanded else "▶"
+            self.log_toggle_btn.configure(text=f"{arrow}  {s.get('log_title', 'Activity Log')}")
+            self._update_log_display()
+
     # -----------------------------------------------------------------
     # Lógica de Interacción y Estados / Interaction and States Logic
     # -----------------------------------------------------------------
@@ -1224,6 +1234,7 @@ class AIBlockerApp:
                 
         # Save current preferences
         self._save_current_config()
+        self.log_action("log_profile", profile=s[f"profile_{profile_key}"])
 
         # Apply the changes
         if self.is_blocked:
@@ -1251,6 +1262,7 @@ class AIBlockerApp:
         
         # Save current preferences
         self._save_current_config()
+        self.log_action("log_profile", profile=s[f"profile_{self.selected_profile_key}"])
 
         if self.is_blocked:
             self._handle_reapply_block()
@@ -1291,6 +1303,13 @@ class AIBlockerApp:
             s = STRINGS[self.current_lang]
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
             self.show_toast(title, msg, "error")
+            self.log_action("log_error", error=msg)
+        else:
+            actual_blocked, blocked_count = get_hosts_status()
+            if actual_blocked:
+                self.log_action("log_blocked", count=blocked_count)
+            else:
+                self.log_action("log_unblocked")
 
     def _handle_toggle(self):
         """
@@ -1338,11 +1357,116 @@ class AIBlockerApp:
         if ok:
             title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
             self.show_toast(title, msg, "success")
+            actual_blocked, blocked_count = get_hosts_status()
+            if actual_blocked:
+                self.log_action("log_blocked", count=blocked_count)
+            else:
+                self.log_action("log_unblocked")
         else:
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
             self.show_toast(title, msg, "error")
+            self.log_action("log_error", error=msg)
+
+    def log_action(self, event_key, **kwargs):
+        import datetime
+        now = datetime.datetime.now().strftime("%H:%M:%S")
+        s = STRINGS[self.current_lang]
+        template = s.get(event_key, event_key)
+        try:
+            formatted_message = template.format(**kwargs)
+        except Exception:
+            formatted_message = template
+        log_entry = f"{now} — {formatted_message}"
+        
+        self.logs.append(log_entry)
+        if len(self.logs) > 50:
+            self.logs = self.logs[-50:]
+            
+        self.config["logs"] = self.logs
+        self._save_current_config()
+        self._update_log_display()
+
+    def _update_log_display(self):
+        if not hasattr(self, 'log_text') or not self.log_text.winfo_exists():
+            return
+        self.log_text.configure(state="normal")
+        self.log_text.delete("1.0", tk.END)
+        for log in self.logs:
+            self.log_text.insert(tk.END, log + "\n")
+        self.log_text.see(tk.END)
+        self.log_text.configure(state="disabled")
+
+    def _toggle_log_panel(self):
+        s = STRINGS[self.current_lang]
+        title = s.get("log_title", "Activity Log")
+        
+        try:
+            w = self.root.winfo_width()
+            h = self.root.winfo_height()
+            x = self.root.winfo_x()
+            y = self.root.winfo_y()
+        except Exception:
+            w, h, x, y = 520, 650, 100, 100
+
+        if self.log_expanded:
+            self.log_box_frame.pack_forget()
+            self.log_toggle_btn.configure(text=f"▶  {title}")
+            self.log_expanded = False
+            try:
+                new_h = max(600, h - 120)
+                self.root.geometry(f"{w}x{new_h}+{x}+{y}")
+            except Exception:
+                pass
+        else:
+            self.log_box_frame.pack(fill=tk.X, pady=(6, 0))
+            self.log_toggle_btn.configure(text=f"▼  {title}")
+            self.log_expanded = True
+            self._update_log_display()
+            try:
+                new_h = h + 120
+                self.root.geometry(f"{w}x{new_h}+{x}+{y}")
+            except Exception:
+                pass
+
+    def _build_log_panel(self):
+        s = STRINGS[self.current_lang]
+        title = s.get("log_title", "Activity Log")
+
+        self.log_container = tk.Frame(self.root, bg=COL_BASE)
+        self.log_container.pack(fill=tk.X, padx=24, pady=(12, 0))
+
+        log_header = tk.Frame(self.log_container, bg=COL_BASE)
+        log_header.pack(fill=tk.X)
+
+        self.log_toggle_btn = tk.Button(
+            log_header, text=f"▶  {title}",
+            font=(UI_FONT, 9, "bold"),
+            bg=COL_BASE, fg=COL_SUBTEXT,
+            activebackground=COL_BASE, activeforeground=COL_TEXT,
+            bd=0, cursor="hand2", anchor="w",
+            command=self._toggle_log_panel
+        )
+        self.log_toggle_btn.pack(side=tk.LEFT)
+
+        self.log_box_frame = tk.Frame(
+            self.log_container, bg=COL_SURFACE0,
+            highlightbackground=COL_SURFACE1, highlightthickness=1
+        )
+
+        self.log_text = tk.Text(
+            self.log_box_frame, height=5,
+            bg=COL_SURFACE0, fg=COL_TEXT,
+            font=(UI_FONT, 8), relief="flat",
+            state="disabled", wrap=tk.WORD
+        )
+        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(8, 0), pady=6)
+
+        scrollbar = tk.Scrollbar(self.log_box_frame, command=self.log_text.yview, bg=COL_SURFACE0)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 4), pady=6)
+        self.log_text.configure(yscrollcommand=scrollbar.set)
 
     def show_toast(self, title, message, level="info"):
+
         toast = tk.Toplevel(self.root)
         toast.overrideredirect(True)
         toast.configure(bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)

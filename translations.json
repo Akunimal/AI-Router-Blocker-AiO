@@ -45,7 +45,13 @@
       "add_cat_label": "Category:",
       "btn_save": "Save",
       "invalid_domain_msg": "Please enter a valid domain (e.g. example.com).",
-      "autostart_label": "Start with Windows"
+      "autostart_label": "Start with Windows",
+      "log_title": "Activity Log",
+      "log_blocked": "Blocking activated ({count} domains)",
+      "log_unblocked": "Blocking deactivated",
+      "log_custom_domain": "Added custom domain: {domain}",
+      "log_profile": "Profile changed to: {profile}",
+      "log_error": "Error: {error}"
     },
     "es": {
       "protected_title": "PROTEGIDO — Bloqueo activo",
@@ -80,7 +86,13 @@
       "add_cat_label": "Categoría:",
       "btn_save": "Guardar",
       "invalid_domain_msg": "Por favor, introduce un dominio válido (ej: ejemplo.com).",
-      "autostart_label": "Iniciar con Windows"
+      "autostart_label": "Iniciar con Windows",
+      "log_title": "Registro de Actividad",
+      "log_blocked": "Bloqueo activado ({count} dominios)",
+      "log_unblocked": "Bloqueo desactivado",
+      "log_custom_domain": "Dominio personalizado añadido: {domain}",
+      "log_profile": "Perfil cambiado a: {profile}",
+      "log_error": "Error: {error}"
     },
     "pt": {
       "protected_title": "PROTEGIDO — Bloqueio ativo",
@@ -115,7 +127,13 @@
       "add_cat_label": "Categoria:",
       "btn_save": "Salvar",
       "invalid_domain_msg": "Por favor, insira um domínio válido (ex: exemplo.com).",
-      "autostart_label": "Iniciar com o Windows"
+      "autostart_label": "Iniciar com o Windows",
+      "log_title": "Registro de Atividade",
+      "log_blocked": "Bloqueio ativado ({count} domínios)",
+      "log_unblocked": "Bloqueio desativado",
+      "log_custom_domain": "Domínio personalizado adicionado: {domain}",
+      "log_profile": "Perfil alterado para: {profile}",
+      "log_error": "Erro: {error}"
     },
     "fr": {
       "protected_title": "PROTÉGÉ — Blocage actif",
@@ -150,7 +168,13 @@
       "add_cat_label": "Catégorie :",
       "btn_save": "Enregistrer",
       "invalid_domain_msg": "Veuillez entrer un domaine valide (ex : exemple.com).",
-      "autostart_label": "Démarrer avec Windows"
+      "autostart_label": "Démarrer avec Windows",
+      "log_title": "Journal d'activité",
+      "log_blocked": "Blocage activé ({count} domaines)",
+      "log_unblocked": "Blocage désactivé",
+      "log_custom_domain": "Domaine personnalisé ajouté : {domain}",
+      "log_profile": "Profil changé pour : {profile}",
+      "log_error": "Erreur : {error}"
     },
     "de": {
       "protected_title": "GESCHÜTZT — Blockierung aktiv",
@@ -185,7 +209,13 @@
       "add_cat_label": "Kategorie:",
       "btn_save": "Speichern",
       "invalid_domain_msg": "Bitte geben Sie eine gültige Domain ein (z.B. beispiel.de).",
-      "autostart_label": "Mit Windows starten"
+      "autostart_label": "Mit Windows starten",
+      "log_title": "Aktivitätsprotokoll",
+      "log_blocked": "Blockierung aktiviert ({count} Domains)",
+      "log_unblocked": "Blockierung deaktiviert",
+      "log_custom_domain": "Benutzerdefinierte Domain hinzugefügt: {domain}",
+      "log_profile": "Profil geändert auf: {profile}",
+      "log_error": "Fehler: {error}"
     },
     "it": {
       "protected_title": "PROTETTO — Blocco attivo",
@@ -220,7 +250,13 @@
       "add_cat_label": "Categoria:",
       "btn_save": "Salva",
       "invalid_domain_msg": "Inserisci un dominio valido (es: esempio.com).",
-      "autostart_label": "Avvia con Windows"
+      "autostart_label": "Avvia con Windows",
+      "log_title": "Registro di Attività",
+      "log_blocked": "Blocco attivato ({count} domini)",
+      "log_unblocked": "Blocco disattivato",
+      "log_custom_domain": "Dominio personalizzato aggiunto: {domain}",
+      "log_profile": "Profilo modificato in: {profile}",
+      "log_error": "Errore: {error}"
     },
     "ru": {
       "protected_title": "ЗАЩИЩЕНО — Блокировка активна",
@@ -255,7 +291,13 @@
       "add_cat_label": "Категория:",
       "btn_save": "Сохранить",
       "invalid_domain_msg": "Пожалуйста, введите корректный домен (например, example.com).",
-      "autostart_label": "Запуск с Windows"
+      "autostart_label": "Запуск с Windows",
+      "log_title": "Журнал активности",
+      "log_blocked": "Блокировка активирована ({count} доменов)",
+      "log_unblocked": "Блокировка отключена",
+      "log_custom_domain": "Добавлен собственный домен: {domain}",
+      "log_profile": "Профиль изменен на: {profile}",
+      "log_error": "Ошибка: {error}"
     },
     "zh": {
       "protected_title": "已保护 — 拦截处于激活状态",
@@ -290,7 +332,13 @@
       "add_cat_label": "分类:",
       "btn_save": "保存",
       "invalid_domain_msg": "请输入有效的域名 (例如 example.com)。",
-      "autostart_label": "开机自启"
+      "autostart_label": "开机自启",
+      "log_title": "活动日志",
+      "log_blocked": "已启用拦截 ({count} 个域名)",
+      "log_unblocked": "已禁用拦截",
+      "log_custom_domain": "已添加自定义域名: {domain}",
+      "log_profile": "配置设定已更改为: {profile}",
+      "log_error": "错误: {error}"
     },
     "ja": {
       "protected_title": "保護中 — ブロック有効",
@@ -325,7 +373,13 @@
       "add_cat_label": "カテゴリ:",
       "btn_save": "保存",
       "invalid_domain_msg": "有効なドメインを入力してください (例: example.com)。",
-      "autostart_label": "Windows起動時に実行"
+      "autostart_label": "Windows起動時に実行",
+      "log_title": "アクティビティログ",
+      "log_blocked": "ブロック有効化 ({count} ドメイン)",
+      "log_unblocked": "ブロック解除",
+      "log_custom_domain": "カスタムドメイン追加: {domain}",
+      "log_profile": "プロファイル変更: {profile}",
+      "log_error": "エラー: {error}"
     },
     "ko": {
       "protected_title": "보호됨 — 블록 활성화됨",
@@ -360,7 +414,13 @@
       "add_cat_label": "카테고리:",
       "btn_save": "저장",
       "invalid_domain_msg": "올바른 도메인을 입력해 주세요 (예: example.com).",
-      "autostart_label": "Windows와 함께 시작"
+      "autostart_label": "Windows와 함께 시작",
+      "log_title": "활동 로그",
+      "log_blocked": "차단 활성화됨 ({count}개 도메인)",
+      "log_unblocked": "차단 비활성화됨",
+      "log_custom_domain": "사용자 정의 도메인 추가됨: {domain}",
+      "log_profile": "프로필 변경됨: {profile}",
+      "log_error": "오류: {error}"
     }
   }
 }
