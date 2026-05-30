@@ -705,6 +705,9 @@ class AIBlockerApp:
         # Actualizar visualización e idioma / Update display and language
         self._update_language_ui()
 
+        # Iniciar verificación de conectividad activa / Start active connectivity check
+        self._schedule_connectivity_check()
+
     def _setup_ttk_styles(self):
         """
         Configura estilos oscuros modernos para widgets ttk.
@@ -820,6 +823,12 @@ class AIBlockerApp:
             bg=COL_SURFACE0, fg=COL_SUBTEXT, anchor="w",
         )
         self.status_subtitle.pack(fill=tk.X)
+
+        self.verification_label = tk.Label(
+            text_col, text="", font=(UI_FONT, 8, "italic"),
+            bg=COL_SURFACE0, fg=COL_SUBTEXT, anchor="w",
+        )
+        self.verification_label.pack(fill=tk.X, pady=(2, 0))
 
     # -----------------------------------------------------------------
     # Botón toggle principal / Main toggle button
@@ -1299,6 +1308,7 @@ class AIBlockerApp:
         self.toggle_btn.configure(state="normal")
         self._update_visuals()
         self._refresh_editors_label()
+        self._run_connectivity_check()
         if not ok:
             s = STRINGS[self.current_lang]
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
@@ -1352,6 +1362,7 @@ class AIBlockerApp:
         self.toggle_btn.configure(state="normal")
         self._update_visuals()
         self._refresh_editors_label()
+        self._run_connectivity_check()
 
         s = STRINGS[self.current_lang]
         if ok:
@@ -1367,7 +1378,66 @@ class AIBlockerApp:
             self.show_toast(title, msg, "error")
             self.log_action("log_error", error=msg)
 
+    def _run_connectivity_check(self):
+        def task():
+            s = STRINGS[self.current_lang]
+            self.root.after(0, lambda: self.verification_label.configure(text=s.get("verifying_text", "⚡ Verifying connectivity..."), fg=COL_SUBTEXT))
+            
+            import socket
+            domain_to_check = "api.openai.com"
+            try:
+                ip = socket.gethostbyname(domain_to_check)
+                if ip in ("127.0.0.1", "0.0.0.0"):
+                    status_text = s.get("verify_blocked", "🛡️ Active check: api.openai.com is blocked")
+                    color = COL_GREEN
+                else:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(1.2)
+                    try:
+                        sock.connect((domain_to_check, 443))
+                        sock.close()
+                        status_text = s.get("verify_exposed", "⚠️ Active check: api.openai.com is accessible!")
+                        color = COL_RED
+                    except socket.timeout:
+                        status_text = s.get("verify_blocked", "🛡️ Active check: api.openai.com is blocked")
+                        color = COL_GREEN
+                    except Exception:
+                        try:
+                            test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            test_sock.settimeout(1.0)
+                            test_sock.connect(("1.1.1.1", 53))
+                            test_sock.close()
+                            status_text = s.get("verify_blocked", "🛡️ Active check: api.openai.com is blocked")
+                            color = COL_GREEN
+                        except Exception:
+                            status_text = s.get("verify_no_internet", "🔌 Active check: No internet connection")
+                            color = COL_YELLOW
+            except Exception:
+                try:
+                    test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    test_sock.settimeout(1.0)
+                    test_sock.connect(("1.1.1.1", 53))
+                    test_sock.close()
+                    status_text = s.get("verify_blocked", "🛡️ Active check: api.openai.com is blocked")
+                    color = COL_GREEN
+                except Exception:
+                    status_text = s.get("verify_no_internet", "🔌 Active check: No internet connection")
+                    color = COL_YELLOW
+
+            def update_ui():
+                if hasattr(self, 'verification_label') and self.verification_label.winfo_exists():
+                    self.verification_label.configure(text=status_text, fg=color)
+            
+            self.root.after(0, update_ui)
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def _schedule_connectivity_check(self):
+        self._run_connectivity_check()
+        self._conn_check_id = self.root.after(10000, self._schedule_connectivity_check)
+
     def log_action(self, event_key, **kwargs):
+
         import datetime
         now = datetime.datetime.now().strftime("%H:%M:%S")
         s = STRINGS[self.current_lang]

@@ -51,7 +51,11 @@
       "log_unblocked": "Blocking deactivated",
       "log_custom_domain": "Added custom domain: {domain}",
       "log_profile": "Profile changed to: {profile}",
-      "log_error": "Error: {error}"
+      "log_error": "Error: {error}",
+      "verifying_text": "⚡ Verifying connectivity...",
+      "verify_blocked": "🛡️ Active check: api.openai.com is blocked",
+      "verify_exposed": "⚠️ Active check: api.openai.com is accessible!",
+      "verify_no_internet": "🔌 Active check: No internet connection"
     },
     "es": {
       "protected_title": "PROTEGIDO — Bloqueo activo",
@@ -92,7 +96,11 @@
       "log_unblocked": "Bloqueo desactivado",
       "log_custom_domain": "Dominio personalizado añadido: {domain}",
       "log_profile": "Perfil cambiado a: {profile}",
-      "log_error": "Error: {error}"
+      "log_error": "Error: {error}",
+      "verifying_text": "⚡ Verificando conectividad...",
+      "verify_blocked": "🛡️ Verificación real: api.openai.com está bloqueado",
+      "verify_exposed": "⚠️ Verificación real: ¡api.openai.com es accesible!",
+      "verify_no_internet": "🔌 Verificación real: Sin conexión a internet"
     },
     "pt": {
       "protected_title": "PROTEGIDO — Bloqueio ativo",
@@ -133,7 +141,11 @@
       "log_unblocked": "Bloqueio desativado",
       "log_custom_domain": "Domínio personalizado adicionado: {domain}",
       "log_profile": "Perfil alterado para: {profile}",
-      "log_error": "Erro: {error}"
+      "log_error": "Erro: {error}",
+      "verifying_text": "⚡ Verificando conectividade...",
+      "verify_blocked": "🛡️ Verificação real: api.openai.com está bloqueado",
+      "verify_exposed": "⚠️ Verificação real: api.openai.com está acessível!",
+      "verify_no_internet": "🔌 Verificação real: Sem conexão com a internet"
     },
     "fr": {
       "protected_title": "PROTÉGÉ — Blocage actif",
@@ -174,7 +186,11 @@
       "log_unblocked": "Blocage désactivé",
       "log_custom_domain": "Domaine personnalisé ajouté : {domain}",
       "log_profile": "Profil changé pour : {profile}",
-      "log_error": "Erreur : {error}"
+      "log_error": "Erreur : {error}",
+      "verifying_text": "⚡ Vérification de la connectivité...",
+      "verify_blocked": "🛡️ Vérification réelle : api.openai.com est bloqué",
+      "verify_exposed": "⚠️ Vérification réelle : api.openai.com est accessible !",
+      "verify_no_internet": "🔌 Vérification réelle : Pas de connexion Internet"
     },
     "de": {
       "protected_title": "GESCHÜTZT — Blockierung aktiv",
@@ -215,7 +231,11 @@
       "log_unblocked": "Blockierung deaktiviert",
       "log_custom_domain": "Benutzerdefinierte Domain hinzugefügt: {domain}",
       "log_profile": "Profil geändert auf: {profile}",
-      "log_error": "Fehler: {error}"
+      "log_error": "Fehler: {error}",
+      "verifying_text": "⚡ Verbindung wird geprüft...",
+      "verify_blocked": "🛡️ Echtzeit-Prüfung: api.openai.com ist blockiert",
+      "verify_exposed": "⚠️ Echtzeit-Prüfung: api.openai.com ist erreichbar!",
+      "verify_no_internet": "🔌 Echtzeit-Prüfung: Keine Internetverbindung"
     },
     "it": {
       "protected_title": "PROTETTO — Blocco attivo",
@@ -256,7 +276,11 @@
       "log_unblocked": "Blocco disattivato",
       "log_custom_domain": "Dominio personalizzato aggiunto: {domain}",
       "log_profile": "Profilo modificato in: {profile}",
-      "log_error": "Errore: {error}"
+      "log_error": "Errore: {error}",
+      "verifying_text": "⚡ Verifica della connettività...",
+      "verify_blocked": "🛡️ Verifica reale: api.openai.com è bloccato",
+      "verify_exposed": "⚠️ Verifica reale: api.openai.com è accessibile!",
+      "verify_no_internet": "🔌 Verifica reale: Nessuna connessione internet"
     },
     "ru": {
       "protected_title": "ЗАЩИЩЕНО — Блокировка активна",
@@ -297,7 +321,11 @@
       "log_unblocked": "Блокировка отключена",
       "log_custom_domain": "Добавлен собственный домен: {domain}",
       "log_profile": "Профиль изменен на: {profile}",
-      "log_error": "Ошибка: {error}"
+      "log_error": "Ошибка: {error}",
+      "verifying_text": "⚡ Проверка подключения...",
+      "verify_blocked": "🛡️ Проверка: api.openai.com заблокирован",
+      "verify_exposed": "⚠️ Проверка: api.openai.com доступен!",
+      "verify_no_internet": "🔌 Проверка: Нет подключения к интернету"
     },
     "zh": {
       "protected_title": "已保护 — 拦截处于激活状态",
@@ -338,7 +366,11 @@
       "log_unblocked": "已禁用拦截",
       "log_custom_domain": "已添加自定义域名: {domain}",
       "log_profile": "配置设定已更改为: {profile}",
-      "log_error": "错误: {error}"
+      "log_error": "错误: {error}",
+      "verifying_text": "⚡ 正在验证连接...",
+      "verify_blocked": "🛡️ 实际验证: api.openai.com 已被拦截",
+      "verify_exposed": "⚠️ 实际验证: api.openai.com 可正常访问！",
+      "verify_no_internet": "🔌 实际验证: 无网络连接"
     },
     "ja": {
       "protected_title": "保護中 — ブロック有効",
@@ -379,7 +411,11 @@
       "log_unblocked": "ブロック解除",
       "log_custom_domain": "カスタムドメイン追加: {domain}",
       "log_profile": "プロファイル変更: {profile}",
-      "log_error": "エラー: {error}"
+      "log_error": "エラー: {error}",
+      "verifying_text": "⚡ 接続性を確認中...",
+      "verify_blocked": "🛡️ アクティブ検証: api.openai.com はブロックされています",
+      "verify_exposed": "⚠️ アクティブ検証: api.openai.com に接続可能です！",
+      "verify_no_internet": "🔌 アクティブ検証: インターネット接続がありません"
     },
     "ko": {
       "protected_title": "보호됨 — 블록 활성화됨",
@@ -420,7 +456,12 @@
       "log_unblocked": "차단 비활성화됨",
       "log_custom_domain": "사용자 정의 도메인 추가됨: {domain}",
       "log_profile": "프로필 변경됨: {profile}",
-      "log_error": "오류: {error}"
+      "log_error": "오류: {error}",
+      "verifying_text": "⚡ 연결 확인 중...",
+      "verify_blocked": "🛡️ 실시간 확인: api.openai.com 차단됨",
+      "verify_exposed": "⚠️ 실시간 확인: api.openai.com 접속 가능!",
+      "verify_no_internet": "🔌 실시간 확인: 인터넷 연결 없음"
+    }
     }
   }
 }
