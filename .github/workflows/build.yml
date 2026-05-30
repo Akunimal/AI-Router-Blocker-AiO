@@ -9,13 +9,13 @@ on:
   workflow_dispatch: # Permite ejecutar la compilación manualmente desde la pestaña "Actions"
     inputs:
       tag_name:
-        description: 'Tag name (e.g. v1.1.5)'
+        description: 'Tag name (e.g. v1.1.6)'
         required: false
-        default: 'v1.1.5'
+        default: 'v1.1.6'
       release_name:
         description: 'Release name'
         required: false
-        default: 'v1.1.5 - Cross-Platform Build Fixes'
+        default: 'v1.1.6 - AI DevSec Gateway (Proxy & Auditor)'
 
 
 permissions:
@@ -69,12 +69,13 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.release.tag_name || github.event.inputs.tag_name || 'v1.1.5' }}
-          name: ${{ github.event.release.name || github.event.inputs.release_name || 'v1.1.5 - Cross-Platform Build Fixes' }}
+          tag_name: ${{ github.event.release.tag_name || github.event.inputs.tag_name || 'v1.1.6' }}
+          name: ${{ github.event.release.name || github.event.inputs.release_name || 'v1.1.6 - AI DevSec Gateway (Proxy & Auditor)' }}
           body: |
-            ### Fixed
-            - Corrected missing translation data and icons in CI builds.
-            - Fixed macOS bundle and binary extraction in CI workflow.
+            ### 🚀 New Features (AI DevSec Gateway)
+            - **Local AI Router**: Transparently bypass cloud APIs and route your editor's AI traffic (Cursor/Windsurf) to your own Local LLMs (Ollama) or personal API keys via `http://127.0.0.1:8080/v1`.
+            - **DevSec Auditor**: Real-time integration with OpenAI API to analyze running editors and detect potential data leaks in your dev environment.
+            - **Redesigned UI**: Added tabbed navigation and upgraded branding.
           files: dist/AI-Blocker-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

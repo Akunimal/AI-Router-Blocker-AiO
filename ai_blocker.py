@@ -37,7 +37,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 # =====================================================================
 # VERSIÓN / VERSION
 # =====================================================================
-APP_VERSION = "1.1.5"
+APP_VERSION = "1.1.6"
 
 # =====================================================================
 # CONFIGURACIÓN LOCAL / LOCAL CONFIGURATION
