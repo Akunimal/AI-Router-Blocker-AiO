@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.4] - 2026-05-30
+### Added
+- Implemented selective category blocking allowing users to toggle individual AI service categories.
+- Added blocking profiles (Work, Personal, Free, Custom) with a dropdown selector in the header.
+- Implemented Windows system tray minimization with context menu toggle and state-colored tray icons.
+- Added "Start with Windows" option for persistent autostart blocking.
+- Implemented custom domain addition ("+") with local JSON configuration storage.
+- Added smooth color fade transitions between PROTECTED and EXPOSED states.
+- Replaced blocking modal dialogs with non-intrusive, dynamic-height, auto-dismissible toast notifications.
+- Added a collapsible, scrollable Activity Log panel that persists action logs in config JSON.
+- Implemented active background connectivity verification (DNS + TCP socket check to `api.openai.com`) with offline state handling.
+- Generated custom Catppuccin themed shield and padlock icons (`icon.ico`, `icon_green.ico`, `icon_red.ico`).
+- Extracted and separated internationalization strings from code into `translations.json`.
+- Dynamic workflow release tags in GitHub Actions.
+
 ## [v1.1.3] - 2026-05-30
 ### Added
 - Implemented real-time polling (every 3 seconds) for the active AI editors warning in the footer.
