@@ -225,7 +225,7 @@ Just open a Pull Request or an Issue. All contributions, big or small, are value
 
 Trust is everything when a tool touches your system files. AI Network Blocker is:
 
-- **Auditable** — one clean Python file under 1000 lines (including all 10 language dictionaries)
+- **Auditable** — one clean Python file under 1200 lines (including all 10 language dictionaries)
 - **Commented** — every function contains detailed explanations in both English and Spanish
 - **Transparent** — no obfuscation, no compiled binary blobs in source, no telemetry, and zero network calls
 - **Deterministic** — it either edits the hosts file or it doesn't. Nothing else.

@@ -1,6 +1,6 @@
-# 🛡️ AI Network Blocker — v1.0.1 (Multilingual Release)
+# 🛡️ AI Network Blocker — v1.1.0 (Cross-Platform Release)
 
-**Version 1.0.1 introduces full internationalization supporting 10 languages with automatic detection and manual selection.**
+**Version 1.1.0 introduces full cross-platform compatibility, allowing AI Network Blocker to run natively on Windows, Linux, and macOS.**
 
 This is a single-click desktop tool that gives you an on/off kill switch to instantly cut internet access to all major AI coding assistants and their backend APIs. Block them when you're done working. Unblock them when you need them again. Simple as that.
 
@@ -8,55 +8,40 @@ This is a single-click desktop tool that gives you an on/off kill switch to inst
 
 ## ⬇️ Download
 
-| File | Description |
-|---|---|
-| **`AI-Blocker.exe`** | Portable Windows executable (~12 MB). No installation needed. Just double-click. |
+| Operating System | Executable | Description |
+|---|---|---|
+| **Windows** | **`AI-Blocker.exe`** | Portable Windows executable (~12 MB). No installation needed. Just double-click. |
+| **Linux / macOS** | **`AI-Blocker`** | Portable Unix binary. Run from terminal with root privileges. |
 
-> **Note:** Windows may show a SmartScreen warning because the executable is not code-signed. Click "More info" → "Run anyway". The full source code is included in this repository for your review.
+> [!NOTE]
+> - **Windows**: Windows Defender / SmartScreen may show a warning because the executable is not code-signed. Click "More info" → "Run anyway".
+> - **Linux & macOS**: The executable must be run with root privileges (using `sudo`) in order to modify the system hosts file.
 
 ---
 
-## 🆕 What's new in v1.0.1
+## 🆕 What's new in v1.1.0
+
+### 💻 Native Cross-Platform Support
+- **Windows, Linux & macOS support**: The application now detects the host operating system dynamically and adapts its behavior and pathing.
+- **Platform-specific Paths**: Automatically targets `C:\Windows\System32\drivers\etc\hosts` on Windows and `/etc/hosts` on macOS and Linux.
+- **Smart Privilege Management**: Auto-elevates on Windows using standard UAC. On Linux/macOS, it checks if it's running as root (`geteuid() == 0`) and displays clear multilingual instructions to run with `sudo` if launched with normal user privileges.
+- **Adaptive Process Killer**: Terminates running AI editors using the correct OS commands (`taskkill` on Windows, `killall` on Linux/macOS) and resolves the proper process names (handling `.exe` extensions on Windows vs native names on Unix).
+- **Advanced DNS Cache Flushing**: 
+  - **Windows**: Flushes DNS using `ipconfig /flushdns`.
+  - **macOS**: Flushes DNS using `dscacheutil -flushcache` and `killall -HUP mDNSResponder`.
+  - **Linux**: Flushes DNS utilizing `systemd-resolve --flush-caches` or `resolvectl flush-caches` depending on the system's setup.
+- **Native Typography**: Adapts UI fonts to match the operating system's environment (`Segoe UI` for Windows, `Helvetica Neue` for macOS, `DejaVu Sans` for Linux) for a clean, integrated desktop feel.
 
 ### 🌍 Internationalization (i18n) & Localisation
-- **10 languages supported**:
-  - English 🇺🇸
-  - Español 🇪🇸
-  - Português 🇵🇹 / 🇧🇷
-  - Français 🇫🇷
-  - Deutsch 🇩🇪
-  - Italiano 🇮🇹
-  - Русский 🇷🇺
-  - 中文 (简体) 🇨🇳
-  - 日本語 🇯🇵
-  - 한국어 🇰🇷
-- **Automatic detection**: Automatically scans your Windows display language and LCID settings to match your language upon launch. If your system language is not supported, it defaults gracefully to English.
-- **Manual selector**: Added a small, styled dark dropdown menu (`TCombobox`) in the header that lets you switch languages dynamically on the fly. All titles, buttons, descriptions, categories, and logs update instantly.
-
-### Core Features
-- ✅ **One-click block/unblock** of 35+ AI domains (OpenAI, Anthropic, Google, GitHub Copilot, Meta, Mistral, DeepSeek, Perplexity, and more)
-- ✅ **Automatic process termination** — force-closes running AI editors (VS Code, Cursor, Windsurf, Claude, Trae, Augment, Roo, Cline)
-- ✅ **DNS cache flush** (`ipconfig /flushdns`) after every action for instant effect
-- ✅ **Safe hosts file editing** — only adds/removes lines marked with `# AI-Block`, never touches other entries
-- ✅ **Auto UAC elevation** — requests administrator privileges automatically, no manual right-click needed
-
-### User Interface & Styling
-- ✅ **Premium dark theme** (Catppuccin Mocha palette)
-- ✅ **Theme-aware dropdown**: Dropdown menu customized to match the dark aesthetic
-- ✅ **Live status indicator** — green dot = protected, red dot = exposed
-- ✅ **Category panel** — lists all blocked providers with emoji icons and domain counts
-- ✅ **Running editors detection** — footer warns you if AI editors are still active
-- ✅ **Non-blocking operations** — all tasks run in background threads, GUI never freezes
-
-### Distribution & Auditability
-- ✅ **Portable `.exe`** compiled with PyInstaller (single file, no dependencies)
-- ✅ **Full source code** included — one Python file (~350 lines), fully commented in Spanish
-- ✅ **Build script** (`build.bat`) to compile the `.exe` yourself
-- ✅ **MIT License** — free to use, modify, and distribute for any purpose, non-profit
+- **10 languages supported**: Full support for English 🇺🇸, Español 🇪🇸, Português 🇵🇹, Français 🇫🇷, Deutsch 🇩🇪, Italiano 🇮🇹, Русский 🇷🇺, 中文 (简体) 🇨🇳, 日本語 🇯🇵, and 한국어 🇰🇷.
+- **Automatic detection**: Automatically scans your system language on startup and applies the correct translations.
+- **Manual selector**: Easily change the display language on the fly using the modern dark dropdown selector in the header.
 
 ---
 
 ## 🔨 Build from source
+
+To package the binaries yourself:
 
 ```bash
 # Clone the repo
@@ -66,27 +51,31 @@ cd AI-Blocker
 # Install PyInstaller
 pip install pyinstaller
 
-# Build the .exe
+# Build the binary:
+# On Windows:
 build.bat
 
-# Or run directly without compiling:
-python ai_blocker.py
+# On Linux / macOS:
+chmod +x build.sh
+./build.sh
 ```
 
 ---
 
 ## ⚙️ Requirements
 
-- Windows 10 or 11
-- Administrator privileges (requested automatically)
-- Python 3.x (only if running from source)
+| OS | Requirements |
+|---|---|
+| **Windows** | Windows 10 or 11, Administrator privileges (UAC prompt) |
+| **Linux** | Any desktop distribution with Python 3 / Tkinter, running as `root` (via `sudo`) |
+| **macOS** | macOS High Sierra or newer, running as `root` (via `sudo`) |
 
 ---
 
 ## 📜 License
 
 MIT License — free as in freedom. No commercial intent. No strings attached.
-Do whatever you want with this code. See [LICENSE](https://github.com/Akunimal/AI-Blocker/blob/main/LICENSE) for details.
+Do whatever you want with this code. See [LICENSE](LICENSE) for details.
 
 ---
 
