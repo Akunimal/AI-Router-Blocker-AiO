@@ -700,7 +700,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
 class AIBlockerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("AI Network Blocker")
+        self.root.title("AI-Router-Blocker-AiO")
         self.root.geometry("520x650")
         self.root.minsize(480, 600)
         self.root.configure(bg=COL_BASE)
@@ -818,7 +818,7 @@ class AIBlockerApp:
 
         # Título principal / Main title
         self.title_label = tk.Label(
-            header, text="🛡️  AI Network Blocker",
+            header, text="🛡️  AI-Router-Blocker-AiO",
             font=("Segoe UI", 16, "bold"),
             bg=COL_BASE, fg=COL_TEXT,
         )

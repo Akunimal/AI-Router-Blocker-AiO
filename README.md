@@ -9,7 +9,7 @@
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-22c55e)
-![Release](https://img.shields.io/github/v/release/Akunimal/AI-Blocker?color=blue&label=Latest%20Release)
+![Release](https://img.shields.io/github/v/release/Akunimal/AI-Router-Blocker-AiO?color=blue&label=Latest%20Release)
 
 [English](README.md) | [Español](README.es.md)
 
@@ -79,11 +79,11 @@ The default blocklist targets **35+ domains** across 9 categories:
 
 ### Option A — Download the ready-to-use executable
 
-1. Go to the [**Releases**](https://github.com/Akunimal/AI-Blocker/releases) page.
+1. Go to the [**Releases**](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases) page.
 2. Download the binary for your operating system.
 3. Run the executable.
-   - **Windows**: Double-click `AI-Blocker.exe`. Click **Yes** on the UAC prompt.
-   - **Linux / macOS**: Open a terminal and run `sudo ./AI-Blocker` (root privileges required to modify `/etc/hosts`).
+   - **Windows**: Double-click `AI-Router-Blocker-AiO.exe`. Click **Yes** on the UAC prompt.
+   - **Linux / macOS**: Open a terminal and run `sudo ./AI-Router-Blocker-AiO` (root privileges required to modify `/etc/hosts`).
 4. Click the big button to toggle the block on or off. That's it.
 
 > The binaries are self-contained and portable. No installation, no dependencies, no Python required.
@@ -92,8 +92,8 @@ The default blocklist targets **35+ domains** across 9 categories:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Akunimal/AI-Blocker.git
-cd AI-Blocker
+git clone https://github.com/Akunimal/AI-Router-Blocker-AiO.git
+cd AI-Router-Blocker-AiO
 
 # 2. Run the script (Python 3.x required)
 # On Windows (auto-elevates via UAC):
@@ -137,12 +137,12 @@ The script will:
 
 **Windows:**
 ```bash
-pyinstaller --onefile --windowed --uac-admin --name "AI-Blocker" --clean ai_blocker.py
+pyinstaller --onefile --windowed --uac-admin --name "AI-Router-Blocker-AiO" --clean ai_blocker.py
 ```
 
 **Linux / macOS:**
 ```bash
-python3 -m PyInstaller --onefile --windowed --name "AI-Blocker" --clean ai_blocker.py
+python3 -m PyInstaller --onefile --windowed --name "AI-Router-Blocker-AiO" --clean ai_blocker.py
 ```
 
 **Flags explained:**
@@ -152,7 +152,7 @@ python3 -m PyInstaller --onefile --windowed --name "AI-Blocker" --clean ai_block
 | `--onefile` | Packages everything into a single portable binary |
 | `--windowed` | Hides the console window (GUI-only application) |
 | `--uac-admin` | *(Windows only)* Embeds a manifest that triggers UAC elevation |
-| `--name "AI-Blocker"` | Sets the output filename |
+| `--name "AI-Router-Blocker-AiO"` | Sets the output filename |
 | `--clean` | Clears PyInstaller cache before building |
 
 The compiled executable will be in the `dist/` folder.
@@ -162,12 +162,12 @@ The compiled executable will be in the `dist/` folder.
 ## 📁 Project Structure
 
 ```
-AI-Blocker/
+AI-Router-Blocker-AiO/
 ├── ai_blocker.py      # Full source code (Python 3, tkinter GUI)
 ├── build.bat          # One-click build script for Windows
 ├── build.sh           # One-click build script for Linux/macOS
-├── AI-Blocker.exe     # Pre-compiled portable executable (Windows)
-├── AI-Blocker         # Pre-compiled portable binary (Linux/macOS)
+├── AI-Router-Blocker-AiO.exe     # Pre-compiled portable executable (Windows)
+├── AI-Router-Blocker-AiO         # Pre-compiled portable binary (Linux/macOS)
 ├── README.md          # This file
 ├── LICENSE            # MIT License — free as in freedom
 └── .gitignore         # Git ignore rules

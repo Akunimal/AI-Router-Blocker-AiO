@@ -9,7 +9,7 @@
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-22c55e)
-![Release](https://img.shields.io/github/v/release/Akunimal/AI-Blocker?color=blue&label=Última%20Versión)
+![Release](https://img.shields.io/github/v/release/Akunimal/AI-Router-Blocker-AiO?color=blue&label=Última%20Versión)
 
 [English](README.md) | [Español](README.es.md)
 
@@ -80,19 +80,19 @@ La lista de bloqueo por defecto apunta a **más de 35 dominios** en 9 categoría
 
 ### Opción A — Descargar el ejecutable listo para usar
 
-1. Ve a la página de [**Releases**](https://github.com/Akunimal/AI-Blocker/releases).
+1. Ve a la página de [**Releases**](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases).
 2. Descarga el binario para tu sistema operativo.
 3. Ejecuta el archivo.
-   - **Windows**: Haz doble clic en `AI-Blocker.exe`. Haz clic en **Sí** en el aviso de UAC.
-   - **Linux / macOS**: Abre una terminal y ejecuta `sudo ./AI-Blocker`.
+   - **Windows**: Haz doble clic en `AI-Router-Blocker-AiO.exe`. Haz clic en **Sí** en el aviso de UAC.
+   - **Linux / macOS**: Abre una terminal y ejecuta `sudo ./AI-Router-Blocker-AiO`.
 4. Haz clic en el botón grande para activar o desactivar el bloqueo. Eso es todo.
 
 ### Opción B — Ejecutar desde el código fuente
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/Akunimal/AI-Blocker.git
-cd AI-Blocker
+git clone https://github.com/Akunimal/AI-Router-Blocker-AiO.git
+cd AI-Router-Blocker-AiO
 
 # 2. Ejecutar el script (Requiere Python 3.x)
 # En Windows (se eleva automáticamente vía UAC):

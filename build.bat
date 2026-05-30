@@ -42,7 +42,7 @@ python -m PyInstaller ^
     --add-data "icon.ico;." ^
     --add-data "icon_green.ico;." ^
     --add-data "icon_red.ico;." ^
-    --name "AI-Blocker" ^
+    --name "AI-Router-Blocker-AiO" ^
     --clean ^
     ai_blocker.py
 
@@ -54,15 +54,15 @@ if %errorlevel% neq 0 (
 )
 
 echo [3/3] Copiando ejecutable a la raiz del proyecto...
-copy /y "dist\AI-Blocker.exe" "AI-Blocker.exe" >nul
+copy /y "dist\AI-Router-Blocker-AiO.exe" "AI-Router-Blocker-AiO.exe" >nul
 
 echo.
 echo ============================================================
 echo   Build completado exitosamente!
 echo.
-echo   Ejecutable: AI-Blocker.exe
+echo   Ejecutable: AI-Router-Blocker-AiO.exe
 echo   Tamaño:
-for %%A in ("AI-Blocker.exe") do echo     %%~zA bytes
+for %%A in ("AI-Router-Blocker-AiO.exe") do echo     %%~zA bytes
 echo.
 echo   NOTA: El .exe solicita permisos de Administrador
 echo   automaticamente al ejecutarse (UAC).

@@ -45,25 +45,25 @@ jobs:
 
       - name: Build with PyInstaller (Windows)
         if: runner.os == 'Windows'
-        run: pyinstaller --onefile --windowed --uac-admin --add-data "translations.json;." --add-data "icon.ico;." --add-data "icon_green.ico;." --add-data "icon_red.ico;." --name "AI-Blocker" --clean ai_blocker.py
+        run: pyinstaller --onefile --windowed --uac-admin --add-data "translations.json;." --add-data "icon.ico;." --add-data "icon_green.ico;." --add-data "icon_red.ico;." --name "AI-Router-Blocker-AiO" --clean ai_blocker.py
 
       - name: Build with PyInstaller (Unix)
         if: runner.os != 'Windows'
-        run: pyinstaller --onefile --windowed --add-data "translations.json:." --add-data "icon.ico:." --add-data "icon_green.ico:." --add-data "icon_red.ico:." --name "AI-Blocker" --clean ai_blocker.py
+        run: pyinstaller --onefile --windowed --add-data "translations.json:." --add-data "icon.ico:." --add-data "icon_green.ico:." --add-data "icon_red.ico:." --name "AI-Router-Blocker-AiO" --clean ai_blocker.py
 
       - name: Rename and zip assets
         shell: bash
         run: |
           cd dist
           if [ "$RUNNER_OS" == "Windows" ]; then
-            mv "AI-Blocker.exe" "AI-Blocker-Windows.exe"
+            mv "AI-Router-Blocker-AiO.exe" "AI-Router-Blocker-AiO-Windows.exe"
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            if [ -f "AI-Blocker.app/Contents/MacOS/AI-Blocker" ]; then
-              cp "AI-Blocker.app/Contents/MacOS/AI-Blocker" "AI-Blocker-macOS"
+            if [ -f "AI-Router-Blocker-AiO.app/Contents/MacOS/AI-Router-Blocker-AiO" ]; then
+              cp "AI-Router-Blocker-AiO.app/Contents/MacOS/AI-Router-Blocker-AiO" "AI-Router-Blocker-AiO-macOS"
             fi
-            zip -r AI-Blocker-macOS.app.zip AI-Blocker.app
+            zip -r AI-Router-Blocker-AiO-macOS.app.zip AI-Router-Blocker-AiO.app
           else
-            mv "AI-Blocker" "AI-Blocker-Linux"
+            mv "AI-Router-Blocker-AiO" "AI-Router-Blocker-AiO-Linux"
           fi
 
       - name: Upload Release Assets
@@ -76,6 +76,6 @@ jobs:
             - **Local AI Router**: Transparently bypass cloud APIs and route your editor's AI traffic (Cursor/Windsurf) to your own Local LLMs (Ollama) or personal API keys via `http://127.0.0.1:8080/v1`.
             - **DevSec Auditor**: Real-time integration with OpenAI API to analyze running editors and detect potential data leaks in your dev environment.
             - **Redesigned UI**: Added tabbed navigation and upgraded branding.
-          files: dist/AI-Blocker-*
+          files: dist/AI-Router-Blocker-AiO-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
