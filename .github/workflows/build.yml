@@ -42,10 +42,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -94,7 +94,7 @@ jobs:
           fi
 
       - name: Upload CI artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: AI-Router-Blocker-AiO-${{ runner.os }}
           path: dist/AI-Router-Blocker-AiO-*
@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload GitHub Release assets
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.release.tag_name || inputs.tag_name }}
           name: ${{ github.event.release.name || inputs.release_name }}
