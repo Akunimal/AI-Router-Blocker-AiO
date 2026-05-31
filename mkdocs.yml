@@ -1,0 +1,30 @@
+site_name: AI DevSec Gateway
+site_description: Take back control. Intercept, audit, and route your AI traffic.
+site_author: Akunimal
+repo_name: Akunimal/AI-Router-Blocker-AiO
+repo_url: https://github.com/Akunimal/AI-Router-Blocker-AiO
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: deep purple
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: deep purple
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Installation & Usage: installation.md
+  - CLI Reference: cli.md
+  - Architecture: architecture.md
+  - Threat Model: threat_model.md
