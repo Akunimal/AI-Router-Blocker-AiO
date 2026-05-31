@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.3.2] - 2026-05-31
+### Fixed
+- Replaced remaining in-app legacy product name references with AI DevSec Gateway.
+
 ## [v1.3.1] - 2026-05-31
 ### Changed
 - Documented the Local API Gateway's supported HTTP methods and request body forwarding behavior.

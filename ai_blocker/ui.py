@@ -39,7 +39,7 @@ from ai_blocker.tray import WindowsTrayIcon
 class AIBlockerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("AI-Router-Blocker-AiO")
+        self.root.title("AI DevSec Gateway")
         self.root.geometry("520x650")
         self.root.minsize(480, 600)
         self.root.configure(bg=COL_BASE)
@@ -98,9 +98,9 @@ class AIBlockerApp:
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
 
-        # Tab 1: Blocker
+        # Tab 1: Blocker controls
         self.tab_blocker = tk.Frame(self.notebook, bg=COL_BASE)
-        self.notebook.add(self.tab_blocker, text=" 🛡️ AI Blocker ")
+        self.notebook.add(self.tab_blocker, text=" 🛡️ Blocker ")
 
         # Tab 2: DevSec Gateway
         self.tab_gateway = tk.Frame(self.notebook, bg=COL_BASE)
@@ -142,7 +142,7 @@ class AIBlockerApp:
         header.pack(fill=tk.X, padx=24, pady=(20, 0))
 
         self.title_label = tk.Label(
-            header, text="🛡️  AI-Router-Blocker-AiO",
+            header, text="🛡️  AI DevSec Gateway",
             font=(UI_FONT, 16, "bold"),
             bg=COL_BASE, fg=COL_TEXT,
         )
@@ -589,7 +589,7 @@ class AIBlockerApp:
             is_blocked, count = get_hosts_status()
 
             prompt = (
-                f"You are a DevSecOps AI Auditor. I am running a desktop tool called 'AI Blocker'.\n"
+                f"You are a DevSecOps AI Auditor. I am running a desktop tool called 'AI DevSec Gateway'.\n"
                 f"Current state: Block Active = {is_blocked} ({count} domains blocked).\n"
                 f"Active AI processes detected: {running_str}\n\n"
                 f"Please write a short (max 4 sentences) security analysis of my current development environment. "
@@ -635,8 +635,8 @@ class AIBlockerApp:
 
         s = STRINGS[self.current_lang]
 
-        self.title_label.configure(text="🛡️  AI Network Blocker")
-        self.root.title(f"AI Network Blocker v{__version__}")
+        self.title_label.configure(text="🛡️  AI DevSec Gateway")
+        self.root.title(f"AI DevSec Gateway v{__version__}")
 
         try:
             old_index = self.profile_combo.current()

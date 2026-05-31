@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-AI Network Blocker — Wrapper script.
+AI DevSec Gateway — Wrapper script.
 """
 from ai_blocker.__main__ import main
 

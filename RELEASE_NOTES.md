@@ -1,6 +1,6 @@
-# AI DevSec Gateway v1.3.1
+# AI DevSec Gateway v1.3.2
 
-Version 1.3.1 is a gateway compatibility and type-checking maintenance release. It fixes REST method proxying in the Local API Gateway, documents the supported HTTP behavior, and restores a clean `mypy ai_blocker` baseline.
+Version 1.3.2 is a product naming cleanup release. It replaces remaining in-app legacy product name references with AI DevSec Gateway so the desktop UI, tray, CLI, auditor prompt, and build scripts present a consistent product name.
 
 ## Downloads
 
@@ -12,18 +12,14 @@ Version 1.3.1 is a gateway compatibility and type-checking maintenance release. 
 
 ## What's changed
 
-### Local API Gateway
+### Product naming
 
-- PUT, PATCH, and DELETE requests are now proxied instead of being rejected by the base HTTP handler.
-- DELETE request bodies are preserved when `Content-Length` is present.
-- Gateway architecture docs now list all supported HTTP methods and request body forwarding behavior.
-
-### Type checking
-
-- `mypy ai_blocker` now passes cleanly.
-- Translation globals are explicitly typed.
-- Windows tray support uses a typed platform-specific implementation alias.
-- The UI window title now reads the package version instead of a hardcoded release string.
+- Main window title and header now use AI DevSec Gateway.
+- Windows tray tooltip and hidden tray window name now use AI DevSec Gateway.
+- CLI description and single-instance message now use AI DevSec Gateway.
+- DevSec Auditor prompt now refers to AI DevSec Gateway.
+- Build script banners now use AI DevSec Gateway.
+- The first app tab is labeled `Blocker` instead of the legacy product name.
 
 ## Verification
 

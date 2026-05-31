@@ -14,11 +14,11 @@ on:
       tag_name:
         description: "Tag name to publish when release publishing is enabled"
         required: false
-        default: "v1.3.1"
+        default: "v1.3.2"
       release_name:
         description: "Release name to publish when release publishing is enabled"
         required: false
-        default: "v1.3.1 - Gateway Method Support & Type Hygiene"
+        default: "v1.3.2 - Product Name Cleanup"
       publish_release:
         description: "Upload build outputs to the GitHub Release"
         required: false

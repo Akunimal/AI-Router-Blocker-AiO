@@ -64,7 +64,7 @@ if CURRENT_OS == "Windows":
         def __init__(self, app):
             self.app = app
             self.hwnd = None
-            self.tip = "AI Network Blocker"
+            self.tip = "AI DevSec Gateway"
             self._added = False
 
             # Start message loop in a daemon thread
@@ -90,7 +90,7 @@ if CURRENT_OS == "Windows":
             self.wnd_proc_ref = wnd_proc  # Keep reference
 
             hinstance = kernel32.GetModuleHandleW(None)
-            class_name = "AIBlockerTrayClass"
+            class_name = "AIDevSecGatewayTrayClass"
 
             wndclass = WNDCLASSW()
             wndclass.style = 0
@@ -107,7 +107,7 @@ if CURRENT_OS == "Windows":
             user32.RegisterClassW(ctypes.byref(wndclass))
 
             self.hwnd = user32.CreateWindowExW(
-                0, class_name, "AI Blocker Tray Window",
+                0, class_name, "AI DevSec Gateway Tray Window",
                 0, 0, 0, 0, 0,
                 0, 0, hinstance, None
             )

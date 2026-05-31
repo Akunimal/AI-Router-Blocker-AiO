@@ -2,7 +2,7 @@ class AiDevsecGateway < Formula
   desc "Take back control. Intercept, audit, and route your AI traffic"
   homepage "https://github.com/Akunimal/AI-Router-Blocker-AiO"
   url "https://github.com/Akunimal/AI-Router-Blocker-AiO/archive/refs/heads/main.tar.gz"
-  version "1.3.1"
+  version "1.3.2"
   license "MIT"
 
   depends_on "python@3.12"

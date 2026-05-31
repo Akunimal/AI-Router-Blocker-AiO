@@ -1,12 +1,12 @@
 #!/bin/bash
 # =====================================================================
-#  Build script for Linux/macOS - AI Network Blocker
+#  Build script for Linux/macOS - AI DevSec Gateway
 #  Requires: Python 3.x + PyInstaller (pip install pyinstaller)
 # =====================================================================
 
 echo ""
 echo "============================================================"
-echo "  AI Network Blocker - Build Script (Linux/macOS)"
+echo "  AI DevSec Gateway - Build Script (Linux/macOS)"
 echo "============================================================"
 echo ""
 

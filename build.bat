@@ -1,12 +1,12 @@
 @echo off
 REM =====================================================================
-REM  Build script para compilar AI Network Blocker en un .exe portable
+REM  Build script para compilar AI DevSec Gateway en un .exe portable
 REM  Requiere: Python 3.x + PyInstaller (pip install pyinstaller)
 REM =====================================================================
 
 echo.
 echo ============================================================
-echo   AI Network Blocker — Build Script
+echo   AI DevSec Gateway - Build Script
 echo ============================================================
 echo.
 
