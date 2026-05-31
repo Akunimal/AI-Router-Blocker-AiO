@@ -35,6 +35,9 @@ Documentation = "https://github.com/Akunimal/AI-Router-Blocker-AiO#readme"
 Repository = "https://github.com/Akunimal/AI-Router-Blocker-AiO"
 "Bug Tracker" = "https://github.com/Akunimal/AI-Router-Blocker-AiO/issues"
 Changelog = "https://github.com/Akunimal/AI-Router-Blocker-AiO/blob/main/CHANGELOG.md"
+[project.scripts]
+ai-devsec-gateway = "ai_blocker.__main__:main"
+ai-blocker = "ai_blocker.__main__:main"
 
 [project.optional-dependencies]
 dev = [
