@@ -14,17 +14,12 @@ authors = [
 ]
 keywords = ["ai", "security", "privacy", "proxy", "blocker", "devsecops", "hosts", "firewall", "llm", "copilot"]
 
-[project.urls]
-Homepage = "https://github.com/Akunimal/AI-Router-Blocker-AiO"
-Documentation = "https://github.com/Akunimal/AI-Router-Blocker-AiO#readme"
-Repository = "https://github.com/Akunimal/AI-Router-Blocker-AiO"
-"Bug Tracker" = "https://github.com/Akunimal/AI-Router-Blocker-AiO/issues"
-Changelog = "https://github.com/Akunimal/AI-Router-Blocker-AiO/blob/main/CHANGELOG.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
@@ -32,8 +27,14 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Software Development :: Build Tools",
 ]
-
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Akunimal/AI-Router-Blocker-AiO"
+Documentation = "https://github.com/Akunimal/AI-Router-Blocker-AiO#readme"
+Repository = "https://github.com/Akunimal/AI-Router-Blocker-AiO"
+"Bug Tracker" = "https://github.com/Akunimal/AI-Router-Blocker-AiO/issues"
+Changelog = "https://github.com/Akunimal/AI-Router-Blocker-AiO/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
