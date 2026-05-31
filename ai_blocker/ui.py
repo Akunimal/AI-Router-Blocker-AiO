@@ -489,13 +489,22 @@ class AIBlockerApp:
             )
             self.autostart_chk.pack(side=tk.LEFT, padx=(16, 0))
 
-        self.editors_label = tk.Label(
+        self.current_editors = []
+        self.editors_btn = tk.Button(
             footer, text="",
-            font=(UI_FONT, 8),
+            font=(UI_FONT, 8, "bold"),
             bg=COL_BASE, fg=COL_YELLOW,
+            activebackground=COL_BASE, activeforeground=COL_TEXT,
+            bd=0, cursor="hand2", relief="flat",
+            command=self._show_running_editors
         )
-        self.editors_label.pack(side=tk.RIGHT)
         self._refresh_editors_label()
+
+    def _show_running_editors(self):
+        if not self.current_editors:
+            return
+        editors_str = "\n".join(f"• {e}" for e in self.current_editors)
+        self.show_toast("Active AI Editors", editors_str, "warning")
 
     def _build_gateway_tab(self):
         container = tk.Frame(self.tab_gateway, bg=COL_BASE)
@@ -1241,12 +1250,19 @@ class AIBlockerApp:
             running = detect_running_ai_editors()
             s = STRINGS[self.current_lang]
             if running:
-                text = s["running_warning"].format(editors=", ".join(running))
+                text = s["running_warning"].format(editors=f"{len(running)} 💻")
             else:
                 text = ""
 
             def update_ui():
-                self.editors_label.configure(text=text)
+                self.current_editors = running
+                if text:
+                    self.editors_btn.configure(text=text)
+                    if not self.editors_btn.winfo_ismapped():
+                        self.editors_btn.pack(side=tk.RIGHT)
+                else:
+                    if self.editors_btn.winfo_ismapped():
+                        self.editors_btn.pack_forget()
                 self._scan_after_id = self.root.after(3000, self._refresh_editors_label)
 
             self.root.after(0, update_ui)
