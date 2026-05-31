@@ -54,3 +54,43 @@ def test_gateway_handler_proxy_post_with_body():
         ai_blocker.GatewayHandler._proxy_request(handler, "POST")
 
         handler.rfile.read.assert_called_once_with(42)
+
+
+def test_gateway_handler_proxies_mutating_methods():
+    """GatewayHandler should register mutating HTTP methods used by REST APIs."""
+    expected_methods = {
+        "do_PUT": "PUT",
+        "do_PATCH": "PATCH",
+        "do_DELETE": "DELETE",
+    }
+
+    for handler_method, proxied_method in expected_methods.items():
+        handler = MagicMock(spec=ai_blocker.GatewayHandler)
+
+        getattr(ai_blocker.GatewayHandler, handler_method)(handler)
+
+        handler._proxy_request.assert_called_once_with(proxied_method)
+
+
+def test_gateway_handler_proxy_delete_with_body():
+    """GatewayHandler should preserve DELETE bodies when clients send one."""
+    handler = MagicMock(spec=ai_blocker.GatewayHandler)
+    handler.path = "/v1/resources/123"
+    handler.headers = {"Content-Type": "application/json", "Content-Length": "15"}
+    handler.server = MagicMock()
+    handler.server.target_url = "http://localhost:11434"
+    handler.rfile = MagicMock()
+    handler.rfile.read.return_value = b'{"force": true}'
+
+    with patch("ai_blocker.gateway.urllib.request.urlopen") as mock_urlopen:
+        mock_response = MagicMock()
+        mock_response.status = 204
+        mock_response.headers = {}
+        mock_response.read.return_value = b""
+        mock_response.__enter__ = MagicMock(return_value=mock_response)
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_urlopen.return_value = mock_response
+
+        ai_blocker.GatewayHandler._proxy_request(handler, "DELETE")
+
+        handler.rfile.read.assert_called_once_with(15)

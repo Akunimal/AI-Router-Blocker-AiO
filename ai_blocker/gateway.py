@@ -11,6 +11,15 @@ class GatewayHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         self._proxy_request("POST")
 
+    def do_PUT(self):
+        self._proxy_request("PUT")
+
+    def do_PATCH(self):
+        self._proxy_request("PATCH")
+
+    def do_DELETE(self):
+        self._proxy_request("DELETE")
+
     def do_OPTIONS(self):
         self._proxy_request("OPTIONS")
 
@@ -22,7 +31,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 headers[k] = v
 
         data = None
-        if method in ['POST', 'PUT', 'PATCH']:
+        if method in ['POST', 'PUT', 'PATCH', 'DELETE']:
             content_length = int(self.headers.get('Content-Length', 0))
             if content_length > 0:
                 data = self.rfile.read(content_length)

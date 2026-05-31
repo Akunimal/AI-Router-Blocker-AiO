@@ -81,11 +81,12 @@ sequenceDiagram
     GW->>IDE: Forward response
 ```
 
-**Implementation:** Uses Python's `http.server.ThreadingHTTPServer` with a custom `BaseHTTPRequestHandler` to proxy GET, POST, and OPTIONS requests.
+**Implementation:** Uses Python's `http.server.ThreadingHTTPServer` with a custom `BaseHTTPRequestHandler` to proxy GET, POST, PUT, PATCH, DELETE, and OPTIONS requests.
 
 **Key design decisions:**
 - **No TLS termination** — The gateway operates on plain HTTP at `127.0.0.1` (loopback only). TLS interception is planned for Phase 2.
 - **No external dependencies** — Uses `urllib.request` from the stdlib instead of `requests` or `httpx`.
+- **Request body preservation** — Mutating methods preserve request bodies when `Content-Length` is present, including DELETE requests from REST clients.
 - **Streaming support** — Reads and forwards response data in 1KB chunks for SSE compatibility.
 
 ### 3. DevSec Auditor (LLM-Powered Security Analysis)

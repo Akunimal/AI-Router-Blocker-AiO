@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import threading
+from typing import Any
 
 from ai_blocker.constants import CURRENT_OS
+
+_tray_icon_class: type[Any]
 
 if CURRENT_OS == "Windows":
     import ctypes
@@ -57,7 +60,7 @@ if CURRENT_OS == "Windows":
             ("hBalloonIcon", wintypes.HICON),
         ]
 
-    class WindowsTrayIcon:
+    class _WindowsTrayIconImpl:
         def __init__(self, app):
             self.app = app
             self.hwnd = None
@@ -166,12 +169,18 @@ if CURRENT_OS == "Windows":
                 shell32.Shell_NotifyIconW(NIM_DELETE, ctypes.byref(nid))
                 self._added = False
 
+    _tray_icon_class = _WindowsTrayIconImpl
+
 else:
     # Stub implementation for non-Windows platforms
-    class WindowsTrayIcon:
+    class _WindowsTrayIconStub:
         def __init__(self, app):
             pass
         def update_icon(self):
             pass
         def remove(self):
             pass
+
+    _tray_icon_class = _WindowsTrayIconStub
+
+WindowsTrayIcon = _tray_icon_class

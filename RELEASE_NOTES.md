@@ -1,6 +1,6 @@
-# AI DevSec Gateway v1.2.1
+# AI DevSec Gateway v1.3.1
 
-Version 1.2.1 is a security and release-flow maintenance release. It keeps the DevSec Auditor usable while preventing API keys from being written to local configuration, and it fixes the GitHub Actions flow so release binaries are produced cleanly for Windows, Linux, and macOS.
+Version 1.3.1 is a gateway compatibility and type-checking maintenance release. It fixes REST method proxying in the Local API Gateway, documents the supported HTTP behavior, and restores a clean `mypy ai_blocker` baseline.
 
 ## Downloads
 
@@ -12,23 +12,24 @@ Version 1.2.1 is a security and release-flow maintenance release. It keeps the D
 
 ## What's changed
 
-### DevSec Auditor key handling
+### Local API Gateway
 
-- OpenAI API keys entered in the auditor tab are no longer saved to `config.json`.
-- Existing `openai_key` values are stripped from config the next time the app loads or saves settings.
-- The auditor can pre-fill the key from the `OPENAI_API_KEY` environment variable for users who prefer shell-managed secrets.
+- PUT, PATCH, and DELETE requests are now proxied instead of being rejected by the base HTTP handler.
+- DELETE request bodies are preserved when `Content-Length` is present.
+- Gateway architecture docs now list all supported HTTP methods and request body forwarding behavior.
 
-### Release workflow
+### Type checking
 
-- Pushes and pull requests now build CI artifacts without publishing them to an existing GitHub Release.
-- GitHub Release assets are uploaded only when a release is published, or when the workflow is manually dispatched with release publishing enabled.
-- The release body is sourced from this file so release notes stay versioned with the code.
+- `mypy ai_blocker` now passes cleanly.
+- Translation globals are explicitly typed.
+- Windows tray support uses a typed platform-specific implementation alias.
+- The UI window title now reads the package version instead of a hardcoded release string.
 
 ## Verification
 
-- `ai_blocker.py` compiles with Python.
-- `translations.json` validates as JSON.
-- The config writer was checked to ensure sensitive keys are removed before writing to disk.
+- `python -m pytest -q`
+- `python -m ruff check .`
+- `python -m mypy ai_blocker`
 
 ## Requirements
 

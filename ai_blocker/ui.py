@@ -631,10 +631,12 @@ class AIBlockerApp:
             self._save_current_config()
 
     def _update_language_ui(self):
+        from ai_blocker import __version__
+
         s = STRINGS[self.current_lang]
 
         self.title_label.configure(text="🛡️  AI Network Blocker")
-        self.root.title("AI Network Blocker v1.2.1")
+        self.root.title(f"AI Network Blocker v{__version__}")
 
         try:
             old_index = self.profile_combo.current()

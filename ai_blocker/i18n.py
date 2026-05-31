@@ -9,7 +9,7 @@ from ai_blocker.constants import CURRENT_OS
 if CURRENT_OS == "Windows":
     import ctypes
 
-LANG_DISPLAY_MAP = {
+LANG_DISPLAY_MAP: dict[str, str] = {
     "English": "en",
     "Español": "es",
     "Português": "pt",
@@ -23,8 +23,8 @@ LANG_DISPLAY_MAP = {
 }
 LANG_CODE_MAP = {v: k for k, v in LANG_DISPLAY_MAP.items()}
 
-CATEGORY_TRANSLATIONS = {}
-STRINGS = {}
+CATEGORY_TRANSLATIONS: dict[str, dict[str, str]] = {}
+STRINGS: dict[str, dict[str, str]] = {}
 
 def load_translations():
     global CATEGORY_TRANSLATIONS, STRINGS

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.3.1] - 2026-05-31
+### Changed
+- Documented the Local API Gateway's supported HTTP methods and request body forwarding behavior.
+
+### Fixed
+- Fixed the Local API Gateway so PUT, PATCH, and DELETE requests are proxied instead of being rejected by the base HTTP handler.
+- Fixed the `mypy ai_blocker` baseline by annotating translation globals and using a typed platform-specific tray alias.
+- Fixed the UI window title to use the package version instead of a hardcoded release string.
+
 ## [v1.2.1] - 2026-05-30
 ### Changed
 - Updated the release workflow so pushes and pull requests build CI artifacts without publishing to an existing GitHub Release.

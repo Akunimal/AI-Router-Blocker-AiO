@@ -53,8 +53,9 @@ Responsible for reading the OS hosts file (`/etc/hosts` or `System32\drivers\etc
 After editing, it calls system executables (`ipconfig /flushdns`, `resolvectl`, `dscacheutil`) to silently flush the system DNS cache.
 
 ### 2. Local Proxy Gateway (`gateway.py`)
-Uses standard library HTTP handlers (`BaseHTTPRequestHandler`) to spin up a threaded proxy server. It captures outbound requests (GET, POST, OPTIONS) and forwards them to a configured URL (e.g. `http://localhost:11434` for Ollama).
+Uses standard library HTTP handlers (`BaseHTTPRequestHandler`) to spin up a threaded proxy server. It captures outbound requests (GET, POST, PUT, PATCH, DELETE, OPTIONS) and forwards them to a configured URL (e.g. `http://localhost:11434` for Ollama).
 *   **SSE Streaming Support:** Features streaming response redirection in 1KB chunks to preserve Server-Sent Events (SSE) for real-time editor completion lists.
+*   **Request Body Preservation:** For mutating methods, request bodies are forwarded whenever `Content-Length` is present, including DELETE requests from REST clients.
 *   **Zero-Dependency:** Uses `urllib.request` exclusively, avoiding dependency bloat.
 
 ### 3. Active Process Monitor (`block_actions.py`)
