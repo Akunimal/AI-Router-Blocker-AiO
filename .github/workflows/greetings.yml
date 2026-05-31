@@ -16,12 +16,12 @@ jobs:
     steps:
     - uses: actions/first-interaction@v3
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: |
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_message: |
           Hello! Thank you for opening your first issue in this repository. 🛡️
           
           A maintainer will review this issue shortly. In the meantime, please verify that you have provided all requested information in our Bug Report or Feature Request template.
-        pr-message: |
+        pr_message: |
           Hello! Thank you for submitting your first Pull Request to AI DevSec Gateway. 🚀
           
           We appreciate your contribution! A maintainer will review your code changes shortly. Please ensure your PR follows our contributing guidelines and has passed all local tests.
