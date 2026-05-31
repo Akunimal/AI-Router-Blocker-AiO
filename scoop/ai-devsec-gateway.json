@@ -1,0 +1,18 @@
+{
+    "version": "1.2.1",
+    "description": "Take back control. Intercept, audit, and route your AI traffic.",
+    "homepage": "https://github.com/Akunimal/AI-Router-Blocker-AiO",
+    "license": "MIT",
+    "url": "https://github.com/Akunimal/AI-Router-Blocker-AiO/archive/refs/heads/main.zip",
+    "extract_dir": "AI-Router-Blocker-AiO-main",
+    "bin": "ai_blocker.py",
+    "shortcuts": [
+        [
+            "ai_blocker.py",
+            "AI DevSec Gateway"
+        ]
+    ],
+    "suggest": {
+        "python": "python"
+    }
+}
