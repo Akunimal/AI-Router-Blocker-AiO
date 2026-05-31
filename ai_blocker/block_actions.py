@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import subprocess
-from ai_blocker.constants import CURRENT_OS, PROCESS_LIST, HOSTS_PATH, COMMENT_TAG, BLOCKLIST
+
+from ai_blocker.constants import BLOCKLIST, COMMENT_TAG, CURRENT_OS, HOSTS_PATH, PROCESS_LIST
 from ai_blocker.i18n import STRINGS
 from ai_blocker.system_utils import _get_subprocess_kwargs, flush_dns
+
 
 def force_close_processes():
     closed = []

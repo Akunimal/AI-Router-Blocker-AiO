@@ -1,13 +1,14 @@
-import sys
+import argparse
 import ctypes
+import sys
 import tkinter as tk
 from tkinter import messagebox
-import argparse
 
 from ai_blocker.constants import CURRENT_OS
 from ai_blocker.i18n import STRINGS, detect_system_language
-from ai_blocker.system_utils import is_admin, relaunch_as_admin, get_hosts_status
+from ai_blocker.system_utils import get_hosts_status, is_admin, relaunch_as_admin
 from ai_blocker.ui import AIBlockerApp
+
 
 def acquire_single_instance_lock():
     if CURRENT_OS == "Windows":
@@ -31,7 +32,7 @@ def main():
     parser.add_argument("--block", choices=["work", "personal", "free"], help="Activate blocking for the specified profile")
     parser.add_argument("--unblock", action="store_true", help="Deactivate all AI domain blocks")
     parser.add_argument("--status", action="store_true", help="Show current blocking status and active editors")
-    
+
     args, unknown = parser.parse_known_args()
 
     # CLI execution path
@@ -40,7 +41,7 @@ def main():
             is_blocked, count = get_hosts_status()
             print(f"Status: {'PROTECTED (Blocking active)' if is_blocked else 'EXPOSED (No protection)'}")
             print(f"Blocked domains: {count}")
-            
+
             from ai_blocker.block_actions import detect_running_ai_editors
             editors = detect_running_ai_editors()
             if editors:
@@ -102,7 +103,7 @@ def main():
         sys.exit(1)
 
     root = tk.Tk()
-    app = AIBlockerApp(root)
+    AIBlockerApp(root)
     if "--minimized" in sys.argv and CURRENT_OS == "Windows":
         root.withdraw()
     root.mainloop()

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import subprocess
-from ai_blocker.constants import CURRENT_OS, HOSTS_PATH, COMMENT_TAG, BLOCKLIST
+import sys
+
+from ai_blocker.constants import BLOCKLIST, COMMENT_TAG, CURRENT_OS, HOSTS_PATH
 
 if CURRENT_OS == "Windows":
     import ctypes

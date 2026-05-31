@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import sys
-import json
+
 from ai_blocker.constants import CURRENT_OS
 
 SENSITIVE_CONFIG_KEYS = {"openai_key"}

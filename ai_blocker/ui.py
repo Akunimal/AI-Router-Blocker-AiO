@@ -1,28 +1,40 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-import time
 import datetime
-import socket
-import threading
 import json
-import urllib.request
-import urllib.error
+import os
+import socket
+import sys
+import threading
+import time
 import tkinter as tk
-from tkinter import messagebox, ttk
+import urllib.error
+import urllib.request
 from http.server import ThreadingHTTPServer
+from tkinter import messagebox, ttk
 
-from ai_blocker.constants import (
-    CURRENT_OS, BLOCKLIST, CATEGORY_ICONS, PROCESS_LIST, COMMENT_TAG, HOSTS_PATH,
-    COL_BASE, COL_SURFACE0, COL_SURFACE1, COL_TEXT, COL_SUBTEXT, COL_RED,
-    COL_GREEN, COL_YELLOW, COL_BLUE, COL_MAUVE, UI_FONT
-)
-from ai_blocker.config import load_config, save_config, get_windows_autostart, set_windows_autostart
-from ai_blocker.i18n import STRINGS, LANG_DISPLAY_MAP, LANG_CODE_MAP, CATEGORY_TRANSLATIONS, detect_system_language
-from ai_blocker.system_utils import count_total_domains, get_hosts_status
 from ai_blocker.block_actions import activate_block, deactivate_block, detect_running_ai_editors
+from ai_blocker.config import get_windows_autostart, load_config, save_config, set_windows_autostart
+from ai_blocker.constants import (
+    BLOCKLIST,
+    CATEGORY_ICONS,
+    COL_BASE,
+    COL_BLUE,
+    COL_GREEN,
+    COL_MAUVE,
+    COL_RED,
+    COL_SUBTEXT,
+    COL_SURFACE0,
+    COL_SURFACE1,
+    COL_TEXT,
+    COL_YELLOW,
+    CURRENT_OS,
+    UI_FONT,
+)
 from ai_blocker.gateway import GatewayHandler
+from ai_blocker.i18n import CATEGORY_TRANSLATIONS, LANG_CODE_MAP, LANG_DISPLAY_MAP, STRINGS, detect_system_language
+from ai_blocker.system_utils import count_total_domains, get_hosts_status
 from ai_blocker.tray import WindowsTrayIcon
+
 
 class AIBlockerApp:
     def __init__(self, root):
@@ -613,7 +625,7 @@ class AIBlockerApp:
         s = STRINGS[self.current_lang]
 
         self.title_label.configure(text="🛡️  AI Network Blocker")
-        self.root.title(f"AI Network Blocker v1.2.1")
+        self.root.title("AI Network Blocker v1.2.1")
 
         try:
             old_index = self.profile_combo.current()
@@ -819,7 +831,6 @@ class AIBlockerApp:
             s = STRINGS[self.current_lang]
             self.root.after(0, lambda: self.verification_label.configure(text=s.get("verifying_text", "⚡ Verifying connectivity..."), fg=COL_SUBTEXT))
 
-            import socket
             domain_to_check = "api.openai.com"
             try:
                 ip = socket.gethostbyname(domain_to_check)

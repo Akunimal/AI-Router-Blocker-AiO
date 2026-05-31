@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import urllib.request
 import urllib.error
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import urllib.request
+from http.server import BaseHTTPRequestHandler
+
 
 class GatewayHandler(BaseHTTPRequestHandler):
     def do_GET(self):

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 import json
 import locale
+import os
+import sys
+
 from ai_blocker.constants import CURRENT_OS
 
 if CURRENT_OS == "Windows":
@@ -35,15 +36,15 @@ def load_translations():
             base_dir = os.path.dirname(os.path.abspath(__file__))
 
         trans_path = os.path.join(base_dir, "translations.json")
-        
+
         # Fallback to parent directory if in development subfolder
         if not os.path.exists(trans_path):
             trans_path = os.path.join(os.path.dirname(base_dir), "translations.json")
-            
+
         # Try PyInstaller temporary folder fallback (if bundled as data file)
         if not os.path.exists(trans_path) and hasattr(sys, '_MEIPASS'):
             trans_path = os.path.join(sys._MEIPASS, "translations.json")
-            
+
         # Fallback if still not found
         if not os.path.exists(trans_path):
             trans_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations.json")

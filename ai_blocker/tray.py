@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import threading
-import tkinter as tk
-from ai_blocker.constants import CURRENT_OS, COL_SURFACE0, COL_TEXT, COL_BLUE, UI_FONT
-from ai_blocker.i18n import STRINGS
+
+from ai_blocker.constants import CURRENT_OS
 
 if CURRENT_OS == "Windows":
     import ctypes
