@@ -1,0 +1,35 @@
+{
+  "en": {
+    "welcome": "Welcome",
+    "goodbye": "Goodbye",
+    "thank_you": "Thank you",
+    "yes": "Yes",
+    "no": "No",
+    "error": {
+      "not_found": "Not found",
+      "server_error": "Server error"
+    }
+  },
+  "de": {
+    "welcome": "Willkommen",
+    "goodbye": "Auf Wiedersehen",
+    "thank_you": "Danke",
+    "yes": "Ja",
+    "no": "Nein",
+    "error": {
+      "not_found": "Nicht gefunden",
+      "server_error": "Serverfehler"
+    }
+  },
+  "fr": {
+    "welcome": "Bienvenue",
+    "goodbye": "Au revoir",
+    "thank_you": "Merci",
+    "yes": "Oui",
+    "no": "Non",
+    "error": {
+      "not_found": "Non trouvé",
+      "server_error": "Erreur serveur"
+    }
+  }
+}
