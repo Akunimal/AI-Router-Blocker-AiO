@@ -15,8 +15,9 @@ Requires Administrator / root privileges.
 """
 
 import os
-import sys
 import platform
+import sys
+
 if platform.system() == "Windows":
     import ctypes
 import locale
@@ -26,13 +27,12 @@ import locale
 # =====================================================================
 CURRENT_OS = platform.system()  # 'Windows', 'Linux', 'Darwin'
 import subprocess
-import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
 import threading
-import urllib.request
+import tkinter as tk
 import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from tkinter import messagebox, ttk
 
 # =====================================================================
 # VERSIÓN / VERSION
@@ -222,14 +222,14 @@ def load_translations():
             base_dir = os.path.dirname(sys.executable)
         else:
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            
+
         trans_path = os.path.join(base_dir, "translations.json")
         # Try PyInstaller temporary folder fallback (if bundled as data file)
         if not os.path.exists(trans_path) and hasattr(sys, '_MEIPASS'):
             trans_path = os.path.join(sys._MEIPASS, "translations.json")
         if not os.path.exists(trans_path):
             trans_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations.json")
-            
+
         with open(trans_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             CATEGORY_TRANSLATIONS = data["category_translations"]
@@ -314,7 +314,7 @@ def relaunch_as_admin():
             else:
                 executable = sys.executable
                 params = " ".join(f'"{a}"' for a in sys.argv)
-            
+
             ctypes.windll.shell32.ShellExecuteW(
                 None, "runas", executable, params, None, 1
             )
@@ -432,7 +432,7 @@ def detect_system_language():
                     return code
     except Exception:
         pass
-    
+
     # Alternativa en Windows / Windows alternative
     if CURRENT_OS == "Windows":
         try:
@@ -453,7 +453,7 @@ def detect_system_language():
                     return v
         except Exception:
             pass
-        
+
     return "en"
 
 
@@ -467,7 +467,7 @@ def set_windows_autostart(enabled=True):
             cmd = f'"{sys.executable}" --minimized'
         else:
             cmd = f'"{sys.executable}" "{os.path.abspath(__file__)}" --minimized'
-            
+
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
         if enabled:
             winreg.SetValueEx(key, "AIBlocker", 0, winreg.REG_SZ, cmd)
@@ -552,7 +552,7 @@ def detect_running_ai_editors():
             active = set()
             for line in out_lines:
                 active.add(os.path.basename(line.strip()).lower())
-            
+
             for proc in PROCESS_LIST:
                 if proc.lower() in active:
                     running.append(proc)
@@ -665,26 +665,26 @@ def deactivate_block(lang):
 class GatewayHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self._proxy_request("GET")
-    
+
     def do_POST(self):
         self._proxy_request("POST")
 
     def do_OPTIONS(self):
         self._proxy_request("OPTIONS")
-        
+
     def _proxy_request(self, method):
         target = self.server.target_url.rstrip("/") + self.path
         headers = {}
         for k, v in self.headers.items():
             if k.lower() not in ['host', 'accept-encoding']:
                 headers[k] = v
-        
+
         data = None
         if method in ['POST', 'PUT', 'PATCH']:
             content_length = int(self.headers.get('Content-Length', 0))
             if content_length > 0:
                 data = self.rfile.read(content_length)
-                
+
         req = urllib.request.Request(target, data=data, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=30) as response:
@@ -693,7 +693,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
                     if k.lower() not in ['transfer-encoding']:
                         self.send_header(k, v)
                 self.end_headers()
-                
+
                 while True:
                     chunk = response.read(1024)
                     if not chunk:
@@ -741,7 +741,7 @@ class AIBlockerApp:
         self.current_lang = self.config.get("language", detect_system_language())
         if self.current_lang not in STRINGS:
             self.current_lang = "en"
-        
+
         # Estado actual del archivo hosts / Current status of the hosts file
         self.is_blocked, _ = get_hosts_status()
         self.is_busy = False
@@ -875,11 +875,11 @@ class AIBlockerApp:
             font=("Segoe UI", 9)
         )
         self.lang_combo.pack(side=tk.LEFT, padx=(0, 10), pady=(4, 0))
-        
+
         # Sincronizar el valor inicial del Combobox con el idioma detectado / Synchronize initial Combobox value with detected language
         initial_display = LANG_CODE_MAP.get(self.current_lang, "English")
         self.lang_combo.set(initial_display)
-        
+
         self.lang_combo.bind("<<ComboboxSelected>>", self._on_language_selected)
 
         # Etiqueta de versión / Version label
@@ -1047,7 +1047,7 @@ class AIBlockerApp:
                 font=(UI_FONT, 9, "bold"), bg=COL_SURFACE0,
                 fg=COL_BLUE, anchor="e",
             ).pack(side=tk.RIGHT, padx=(0, 4))
-            
+
         # Traducir nombres al idioma actual / Translate names to current language
         translations = CATEGORY_TRANSLATIONS.get(self.current_lang, CATEGORY_TRANSLATIONS["en"])
         for cat, chk in self.category_checkboxes.items():
@@ -1079,17 +1079,17 @@ class AIBlockerApp:
 
         # Input labels and entries
         s = STRINGS[self.current_lang]
-        
+
         lbl_domain = tk.Label(dialog, text=s.get("add_domain_label", "Domain (e.g. example.com):"), bg=COL_BASE, fg=COL_TEXT, font=(UI_FONT, 9))
         lbl_domain.pack(anchor="w", padx=20, pady=(20, 0))
-        
+
         entry_domain = tk.Entry(dialog, bg=COL_SURFACE0, fg=COL_TEXT, insertbackground=COL_TEXT, bd=1, relief="flat", font=(UI_FONT, 9))
         entry_domain.pack(fill=tk.X, padx=20, pady=(4, 0))
         entry_domain.focus_set()
 
         lbl_cat = tk.Label(dialog, text=s.get("add_cat_label", "Category:"), bg=COL_BASE, fg=COL_TEXT, font=(UI_FONT, 9))
         lbl_cat.pack(anchor="w", padx=20, pady=(10, 0))
-        
+
         entry_cat = tk.Entry(dialog, bg=COL_SURFACE0, fg=COL_TEXT, insertbackground=COL_TEXT, bd=1, relief="flat", font=(UI_FONT, 9))
         entry_cat.pack(fill=tk.X, padx=20, pady=(4, 0))
         entry_cat.insert(0, s.get("profile_custom", "Custom"))
@@ -1097,15 +1097,15 @@ class AIBlockerApp:
         def save():
             domain = entry_domain.get().strip().lower()
             cat = entry_cat.get().strip()
-            
+
             if not domain:
                 return
-                
+
             # Basic domain validation
             if "." not in domain or len(domain) < 4:
                 self.show_toast(s.get("unexpected_error_title", "Error"), s.get("invalid_domain_msg", "Please enter a valid domain."), "error")
                 return
-                
+
             self._add_custom_domain_to_list(domain, cat)
             self.log_action("log_custom_domain", domain=domain)
             dialog.destroy()
@@ -1121,33 +1121,33 @@ class AIBlockerApp:
     def _add_custom_domain_to_list(self, domain, cat):
         if not cat:
             cat = "Otros"
-            
+
         # Ensure category is in BLOCKLIST
         if cat not in BLOCKLIST:
             BLOCKLIST[cat] = []
         if domain not in BLOCKLIST[cat]:
             BLOCKLIST[cat].append(domain)
-            
+
         # Update config
         custom_domains = self.config.get("custom_domains", {})
         if cat not in custom_domains:
             custom_domains[cat] = []
         if domain not in custom_domains[cat]:
             custom_domains[cat].append(domain)
-            
+
         self.config["custom_domains"] = custom_domains
         self._save_current_config()
-        
+
         # Repopulate UI list
         self._populate_category_list()
-        
+
         # Update domain count labels
         s = STRINGS[self.current_lang]
         total_domains = count_total_domains()
         self.categories_total_domains_label.configure(
             text=s["domains_label"].format(total=total_domains)
         )
-        
+
         # Re-apply block if active
         if self.is_blocked:
             self._handle_reapply_block()
@@ -1180,16 +1180,16 @@ class AIBlockerApp:
                 activebackground=COL_BLUE, activeforeground="#000000",
                 font=(UI_FONT, 9)
             )
-            
+
         self.tray_menu.delete(0, tk.END)
         s = STRINGS[self.current_lang]
-        
+
         toggle_text = s["btn_unblock"] if self.is_blocked else s["btn_block"]
         self.tray_menu.add_command(label=toggle_text, command=self._handle_toggle)
         self.tray_menu.add_separator()
         self.tray_menu.add_command(label=s.get("menu_show", "Show App"), command=self.show_window)
         self.tray_menu.add_command(label=s.get("menu_exit", "Exit"), command=self.exit_app)
-        
+
         x, y = self.root.winfo_pointerxy()
         self.tray_menu.post(x, y)
 
@@ -1245,39 +1245,39 @@ class AIBlockerApp:
     def _build_gateway_tab(self):
         container = tk.Frame(self.tab_gateway, bg=COL_BASE)
         container.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
-        
+
         # Section 1: AI API Router
         router_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
         router_frame.pack(fill=tk.X, pady=(0, 16))
-        
+
         tk.Label(router_frame, text="⚡ Local AI Router", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(anchor="w", padx=16, pady=(12, 4))
         tk.Label(router_frame, text="Point your IDE to http://127.0.0.1:8080 to bypass cloud AI.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT).pack(anchor="w", padx=16)
-        
+
         url_frame = tk.Frame(router_frame, bg=COL_SURFACE0)
         url_frame.pack(fill=tk.X, padx=16, pady=(10, 0))
         tk.Label(url_frame, text="Target URL:", bg=COL_SURFACE0, fg=COL_TEXT).pack(side=tk.LEFT)
         self.target_url_var = tk.StringVar(value=self.config.get("target_url", "http://localhost:11434"))
         tk.Entry(url_frame, textvariable=self.target_url_var, bg=COL_BASE, fg=COL_TEXT, insertbackground=COL_TEXT, relief="flat").pack(side=tk.LEFT, fill=tk.X, expand=True, padx=8)
-        
+
         self.gateway_btn = tk.Button(router_frame, text="▶ Start Gateway", font=(UI_FONT, 10, "bold"), bg=COL_GREEN, fg="#000000", bd=0, command=self._toggle_gateway)
         self.gateway_btn.pack(fill=tk.X, padx=16, pady=12)
-        
+
         # Section 2: Auditor
         audit_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
         audit_frame.pack(fill=tk.BOTH, expand=True)
-        
+
         tk.Label(audit_frame, text="🛡️ DevSec Auditor", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(anchor="w", padx=16, pady=(12, 4))
         tk.Label(audit_frame, text="Analyze running processes using OpenAI API for security recommendations.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT).pack(anchor="w", padx=16)
-        
+
         key_frame = tk.Frame(audit_frame, bg=COL_SURFACE0)
         key_frame.pack(fill=tk.X, padx=16, pady=(10, 0))
         tk.Label(key_frame, text="OpenAI API Key (not saved):", bg=COL_SURFACE0, fg=COL_TEXT).pack(side=tk.LEFT)
         self.openai_key_var = tk.StringVar(value=os.environ.get("OPENAI_API_KEY", ""))
         tk.Entry(key_frame, textvariable=self.openai_key_var, show="*", bg=COL_BASE, fg=COL_TEXT, insertbackground=COL_TEXT, relief="flat").pack(side=tk.LEFT, fill=tk.X, expand=True, padx=8)
-        
+
         self.audit_btn = tk.Button(audit_frame, text="Run Security Audit", font=(UI_FONT, 10, "bold"), bg=COL_BLUE, fg="#000000", bd=0, command=self._run_audit)
         self.audit_btn.pack(fill=tk.X, padx=16, pady=12)
-        
+
         self.audit_result = tk.Text(audit_frame, height=8, bg=COL_BASE, fg=COL_TEXT, font=(UI_FONT, 9), relief="flat", wrap=tk.WORD)
         self.audit_result.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 16))
         self.audit_result.insert(tk.END, "Awaiting audit...")
@@ -1310,20 +1310,20 @@ class AIBlockerApp:
         if not api_key:
             messagebox.showerror("Error", "Please enter an OpenAI API Key.")
             return
-            
+
         self._save_current_config()
-        
+
         self.audit_btn.configure(state="disabled", text="Auditing...")
         self.audit_result.configure(state="normal")
         self.audit_result.delete("1.0", tk.END)
         self.audit_result.insert(tk.END, "Gathering active processes and network info...\n")
         self.audit_result.configure(state="disabled")
-        
+
         def task():
             running = detect_running_ai_editors()
             running_str = ", ".join(running) if running else "No active AI editors detected."
             is_blocked, count = get_hosts_status()
-            
+
             prompt = (
                 f"You are a DevSecOps AI Auditor. I am running a desktop tool called 'AI Blocker'.\n"
                 f"Current state: Block Active = {is_blocked} ({count} domains blocked).\n"
@@ -1332,29 +1332,29 @@ class AIBlockerApp:
                 f"Warn me about potential data leaks if my block is off and editors are running, or commend my setup. "
                 f"Keep it professional and actionable."
             )
-            
+
             req_data = json.dumps({"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]}).encode("utf-8")
             req = urllib.request.Request(
                 "https://api.openai.com/v1/chat/completions", data=req_data, method="POST",
                 headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
             )
-            
+
             try:
                 with urllib.request.urlopen(req, timeout=15) as response:
                     res_data = json.loads(response.read().decode("utf-8"))
                     result_text = res_data["choices"][0]["message"]["content"]
             except Exception as e:
                 result_text = f"Error during audit: {e}"
-                
+
             def update_ui():
                 self.audit_result.configure(state="normal")
                 self.audit_result.delete("1.0", tk.END)
                 self.audit_result.insert(tk.END, result_text)
                 self.audit_result.configure(state="disabled")
                 self.audit_btn.configure(state="normal", text="Run Security Audit")
-                
+
             self.root.after(0, update_ui)
-            
+
         threading.Thread(target=task, daemon=True).start()
 
     # -----------------------------------------------------------------
@@ -1367,7 +1367,7 @@ class AIBlockerApp:
         """
         selected_display = self.lang_combo.get()
         selected_code = LANG_DISPLAY_MAP.get(selected_display, "en")
-        
+
         if selected_code != self.current_lang:
             self.current_lang = selected_code
             self._update_language_ui()
@@ -1379,10 +1379,10 @@ class AIBlockerApp:
         Updates all GUI labels to the current language.
         """
         s = STRINGS[self.current_lang]
-        
+
         # 1. Título de la aplicación en la cabecera / 1. Application title in the header
         self.title_label.configure(text="🛡️  AI Network Blocker")
-        
+
         # 2. Título de la ventana / 2. Window title
         self.root.title(f"AI Network Blocker v{APP_VERSION}")
 
@@ -1442,10 +1442,10 @@ class AIBlockerApp:
             if s.get(f"profile_{key}", "") == selected_display:
                 profile_key = key
                 break
-        
+
         if not profile_key or profile_key == "custom":
             return
-            
+
         self.selected_profile_key = profile_key
 
         # Update category variables
@@ -1459,7 +1459,7 @@ class AIBlockerApp:
         elif profile_key == "free":
             for cat in self.category_vars:
                 self.category_vars[cat].set(False)
-                
+
         # Save current preferences
         self._save_current_config()
         self.log_action("log_profile", profile=s[f"profile_{profile_key}"])
@@ -1475,7 +1475,7 @@ class AIBlockerApp:
         active_cats = self._get_active_categories()
         all_cats = list(self.category_vars.keys())
         copilot_cats = [c for c in all_cats if "copilot" in c.lower()]
-        
+
         s = STRINGS[self.current_lang]
         if len(active_cats) == len(all_cats):
             self.selected_profile_key = "work"
@@ -1485,9 +1485,9 @@ class AIBlockerApp:
             self.selected_profile_key = "personal"
         else:
             self.selected_profile_key = "custom"
-            
+
         self.profile_combo.set(s[f"profile_{self.selected_profile_key}"])
-        
+
         # Save current preferences
         self._save_current_config()
         self.log_action("log_profile", profile=s[f"profile_{self.selected_profile_key}"])
@@ -1515,7 +1515,7 @@ class AIBlockerApp:
                 ok, msg = deactivate_block(self.current_lang)
             else:
                 ok, msg = activate_block(self.current_lang, active_cats)
-            
+
             if ok:
                 self.is_blocked = bool(active_cats)
             self.root.after(0, lambda: self._on_reapply_done(ok, msg))
@@ -1525,13 +1525,13 @@ class AIBlockerApp:
     def _on_reapply_done(self, ok, msg):
         self.is_busy = False
         self.toggle_btn.configure(state="normal")
-        
+
         if ok:
             import time
             self.last_toggle_time = time.time()
             self.config["last_toggle_time"] = self.last_toggle_time
             self._save_current_config()
-            
+
         self._update_visuals()
         self._refresh_editors_label()
         self._run_connectivity_check()
@@ -1555,7 +1555,7 @@ class AIBlockerApp:
         if self.is_busy:
             return
         self.is_busy = True
-        
+
         s = STRINGS[self.current_lang]
         self.toggle_btn.configure(state="disabled", text=s["busy_text"])
 
@@ -1586,13 +1586,13 @@ class AIBlockerApp:
         """
         self.is_busy = False
         self.toggle_btn.configure(state="normal")
-        
+
         if ok:
             import time
             self.last_toggle_time = time.time()
             self.config["last_toggle_time"] = self.last_toggle_time
             self._save_current_config()
-            
+
         self._update_visuals()
         self._refresh_editors_label()
         self._run_connectivity_check()
@@ -1615,7 +1615,7 @@ class AIBlockerApp:
         def task():
             s = STRINGS[self.current_lang]
             self.root.after(0, lambda: self.verification_label.configure(text=s.get("verifying_text", "⚡ Verifying connectivity..."), fg=COL_SUBTEXT))
-            
+
             import socket
             domain_to_check = "api.openai.com"
             try:
@@ -1660,7 +1660,7 @@ class AIBlockerApp:
             def update_ui():
                 if hasattr(self, 'verification_label') and self.verification_label.winfo_exists():
                     self.verification_label.configure(text=status_text, fg=color)
-            
+
             self.root.after(0, update_ui)
 
         threading.Thread(target=task, daemon=True).start()
@@ -1680,11 +1680,11 @@ class AIBlockerApp:
         except Exception:
             formatted_message = template
         log_entry = f"{now} — {formatted_message}"
-        
+
         self.logs.append(log_entry)
         if len(self.logs) > 50:
             self.logs = self.logs[-50:]
-            
+
         self.config["logs"] = self.logs
         self._save_current_config()
         self._update_log_display()
@@ -1711,7 +1711,7 @@ class AIBlockerApp:
     def _toggle_log_panel(self):
         s = STRINGS[self.current_lang]
         title = s.get("log_title", "Activity Log")
-        
+
         try:
             w = self.root.winfo_width()
             h = self.root.winfo_height()
@@ -1792,7 +1792,7 @@ class AIBlockerApp:
         toast = tk.Toplevel(self.root)
         toast.overrideredirect(True)
         toast.configure(bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
-        
+
         # Prevent stealing focus on show
         try:
             toast.attributes("-topmost", True)
@@ -1887,9 +1887,9 @@ class AIBlockerApp:
         toast_width = 340
         margin_x = 20
         margin_y = 60 # above taskbar
-        
+
         self.active_toasts = [t for t in self.active_toasts if t.winfo_exists()]
-        
+
         current_y = screen_height - margin_y
         for toast in self.active_toasts:
             h = getattr(toast, "toast_height", 90)
@@ -1953,16 +1953,16 @@ class AIBlockerApp:
             self.status_dot.configure(fg=dst_hl)
             self.toggle_btn.configure(bg=dst_bg, fg=dst_fg)
             return
-            
+
         factor = current_step / total_steps
         curr_hl = self._interpolate_color(src_hl, dst_hl, factor)
         curr_bg = self._interpolate_color(src_bg, dst_bg, factor)
         curr_fg = self._interpolate_color(src_fg, dst_fg, factor)
-        
+
         self.card_frame.configure(highlightbackground=curr_hl)
         self.status_dot.configure(fg=curr_hl)
         self.toggle_btn.configure(bg=curr_bg, fg=curr_fg)
-        
+
         self.root.after(15, lambda: self._animation_tick(
             anim_id, src_hl, dst_hl, src_bg, dst_bg, src_fg, dst_fg, total_steps, current_step + 1
         ))
@@ -2014,7 +2014,7 @@ class AIBlockerApp:
         if self.last_visuals_blocked != self.is_blocked:
             # We are transitioning states, animate!
             self._anim_id += 1
-            
+
             # Source colors are the opposite state
             if self.is_blocked:
                 # Transitioning from EXPOSED to PROTECTED
@@ -2062,11 +2062,11 @@ class AIBlockerApp:
                 text = s["running_warning"].format(editors=", ".join(running))
             else:
                 text = ""
-            
+
             def update_ui():
                 self.editors_label.configure(text=text)
                 self._scan_after_id = self.root.after(3000, self._refresh_editors_label)
-                
+
             self.root.after(0, update_ui)
 
         threading.Thread(target=scan, daemon=True).start()
@@ -2078,7 +2078,7 @@ class AIBlockerApp:
 if CURRENT_OS == "Windows":
     import ctypes
     from ctypes import wintypes
-    
+
     WM_USER = 1024
     WM_TRAYICON = WM_USER + 20
     NIM_ADD = 0
@@ -2090,11 +2090,11 @@ if CURRENT_OS == "Windows":
     WM_LBUTTONDBLCLK = 515
     WM_RBUTTONUP = 517
     WM_DESTROY = 2
-    
+
     user32 = ctypes.windll.user32
     shell32 = ctypes.windll.shell32
     kernel32 = ctypes.windll.kernel32
-    
+
     class WNDCLASSW(ctypes.Structure):
         _fields_ = [
             ("style", wintypes.UINT),
@@ -2108,7 +2108,7 @@ if CURRENT_OS == "Windows":
             ("lpszMenuName", wintypes.LPCWSTR),
             ("lpszClassName", wintypes.LPCWSTR),
         ]
-        
+
     class NOTIFYICONDATAW(ctypes.Structure):
         _fields_ = [
             ("cbSize", wintypes.DWORD),
@@ -2134,14 +2134,14 @@ if CURRENT_OS == "Windows":
             self.hwnd = None
             self.tip = "AI Network Blocker"
             self._added = False
-            
+
             # Start message loop in a daemon thread
             self.thread = threading.Thread(target=self._run_loop, daemon=True)
             self.thread.start()
-            
+
         def _run_loop(self):
             WndProcType = ctypes.WINFUNCTYPE(ctypes.c_int64, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
-            
+
             @WndProcType
             def wnd_proc(hwnd, msg, wparam, lparam):
                 if msg == WM_TRAYICON:
@@ -2154,12 +2154,12 @@ if CURRENT_OS == "Windows":
                     user32.PostQuitMessage(0)
                     return 0
                 return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
-                
+
             self.wnd_proc_ref = wnd_proc  # Keep reference
-            
+
             hinstance = kernel32.GetModuleHandleW(None)
             class_name = "AIBlockerTrayClass"
-            
+
             wndclass = WNDCLASSW()
             wndclass.style = 0
             wndclass.lpfnWndProc = wnd_proc
@@ -2171,43 +2171,43 @@ if CURRENT_OS == "Windows":
             wndclass.hbrBackground = 0
             wndclass.lpszMenuName = None
             wndclass.lpszClassName = class_name
-            
+
             user32.RegisterClassW(ctypes.byref(wndclass))
-            
+
             self.hwnd = user32.CreateWindowExW(
                 0, class_name, "AI Blocker Tray Window",
                 0, 0, 0, 0, 0,
                 0, 0, hinstance, None
             )
-            
+
             self.update_icon()
-            
+
             msg = wintypes.MSG()
             while user32.GetMessageW(ctypes.byref(msg), 0, 0, 0) != 0:
                 user32.TranslateMessage(ctypes.byref(msg))
                 user32.DispatchMessageW(ctypes.byref(msg))
-                
+
         def update_icon(self):
             if not self.hwnd:
                 return
-                
+
             # Try to load state-specific icon
             if self.app.is_blocked:
                 icon_name = "icon_green.ico"
             else:
                 icon_name = "icon_red.ico"
-                
+
             icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), icon_name)
             if not os.path.exists(icon_path):
                 # Fallback to standard icon.ico
                 icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.ico")
-                
+
             hicon = 0
             if os.path.exists(icon_path):
                 hicon = user32.LoadImageW(
                     0, icon_path, 1, 0, 0, 16 | 80  # IMAGE_ICON, LR_LOADFROMFILE | LR_DEFAULTSIZE
                 )
-                
+
             nid = NOTIFYICONDATAW()
             nid.cbSize = ctypes.sizeof(NOTIFYICONDATAW)
             nid.hWnd = self.hwnd
@@ -2216,13 +2216,13 @@ if CURRENT_OS == "Windows":
             nid.uCallbackMessage = WM_TRAYICON
             nid.hIcon = hicon
             nid.szTip = self.tip
-            
+
             if self._added:
                 shell32.Shell_NotifyIconW(NIM_MODIFY, ctypes.byref(nid))
             else:
                 shell32.Shell_NotifyIconW(NIM_ADD, ctypes.byref(nid))
                 self._added = True
-                
+
         def remove(self):
             if self.hwnd and self._added:
                 nid = NOTIFYICONDATAW()
@@ -2272,12 +2272,12 @@ if __name__ == "__main__":
     # Check administrator privileges before launching the app
     if not is_admin():
         relaunch_as_admin()
-        
+
         # En caso de que falle la auto-elevación UAC, se muestra el error traducido detectado
         # In case UAC auto-elevation fails, show the detected translated error
         detected_lang = detect_system_language()
         s = STRINGS[detected_lang]
-        
+
         root_temp = tk.Tk()
         root_temp.withdraw()
         messagebox.showerror(

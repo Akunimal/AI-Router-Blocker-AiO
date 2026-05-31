@@ -1,11 +1,11 @@
-import sys
 import os
-import pytest
+import sys
 from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import ai_blocker
+
 
 def test_detect_system_language_env():
     """Verify that env var LANGUAGE takes priority and returns matching supported language."""

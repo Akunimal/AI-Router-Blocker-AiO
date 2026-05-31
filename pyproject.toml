@@ -44,8 +44,10 @@ filterwarnings = [
 
 [tool.ruff]
 line-length = 120
-select = ["E", "F", "W", "I"]
-ignore = []
 
-[tool.ruff.isort]
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501", "E402", "E741"]
+
+[tool.ruff.lint.isort]
 known-first-party = ["ai_blocker"]
