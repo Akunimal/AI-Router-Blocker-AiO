@@ -123,6 +123,12 @@ BLOCKLIST = {
     ],
 }
 
+CATEGORY_ICONS = {
+    "OpenAI": "🟢", "Anthropic": "🟠", "GitHub Copilot": "🐙",
+    "Google AI": "🔵", "Meta AI": "🔷", "Mistral AI": "🌊",
+    "Microsoft Copilot": "🟦", "DeepSeek": "🔮", "xAI": "🤖", "Otros": "📦",
+}
+
 # Merge custom domains from local config into BLOCKLIST at startup
 _startup_config = load_config()
 _custom_domains = _startup_config.get("custom_domains", {})

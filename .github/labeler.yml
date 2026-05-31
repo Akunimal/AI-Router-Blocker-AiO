@@ -1,0 +1,29 @@
+# Configurations for the PR Labeler Action
+
+code:
+  - changed-files:
+    - any-glob-to-any-file: 'ai_blocker.py'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**/*'
+
+i18n:
+  - changed-files:
+    - any-glob-to-any-file: 'translations.json'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'README.md'
+      - 'README.es.md'
+      - 'CHANGELOG.md'
+      - 'ROADMAP.md'
+      - 'RELEASE_NOTES.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'SECURITY.md'
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows/**/*'

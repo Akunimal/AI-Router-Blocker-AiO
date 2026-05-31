@@ -1,4 +1,4 @@
-# 🛡️ AI DevSec Gateway (formerly AI Network Blocker)
+# 🛡️ AI DevSec Gateway (formerly AI Network Blocker)
 
 > **Take back control. Intercept, audit, and route your AI traffic.**
 
@@ -6,10 +6,12 @@
   <img src="assets/screenshot.png" alt="AI DevSec Gateway Interface" width="600">
 </p>
 
-![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-22c55e)
-![Release](https://img.shields.io/github/v/release/Akunimal/AI-Router-Blocker-AiO?color=blue&label=Latest%20Release)
+[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)](#-system-requirements)
+[![Test Suite Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml)
+[![Security Scan Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml)
+[![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/Akunimal/AI-Router-Blocker-AiO?color=blue&label=Latest%20Release)](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases)
 
 [English](README.md) | [Español](README.es.md)
 
@@ -59,6 +61,19 @@ AI coding assistants have deep, unrestricted access to your files, your clipboar
 
 The default blocklist targets **38+ domains** across 10 categories:
 
+| 🔒 **One-click Kill Switch** | Block or unblock all AI services instantly via the system `hosts` file. |
+| 🌍 **Multilingual support** | 10 languages supported with automatic system detection. |
+| 🎨 **Premium dark UI** | Modern Catppuccin Mocha theme with color-coded status and tabs. |
+| 🔑 **Smart elevation** | Auto UAC on Windows, clear `sudo` instructions on Unix. |
+| 👁️ **Live process detection** | Continuously polls and shows which AI editors are currently running. |
+| 📦 **Portable** | Single-file executable builds available without heavy dependencies. |
+
+---
+
+## 🎯 Blocked Providers & Domains
+
+The default blocklist targets **38+ domains** across 10 categories:
+
 | Provider | # Domains | Key domains |
 |---|---|---|
 | 🟢 OpenAI | 9 | `api.openai.com` · `chatgpt.com` · `platform.openai.com` |
@@ -73,6 +88,62 @@ The default blocklist targets **38+ domains** across 10 categories:
 | 📦 Others | 3 | `perplexity.ai` · `app.wordware.ai` |
 
 > **Want to add or remove domains?** Edit the `BLOCKLIST` dictionary at the top of [`ai_blocker.py`](ai_blocker.py). It's a simple Python dict — no recompilation needed if you run from source.
+
+---
+
+## 🏗️ Architecture & Flow
+
+AI DevSec Gateway works as a local interceptor and routing engine. It overrides public AI hostnames at the OS resolver level and runs a local proxy server to capture requests.
+
+```mermaid
+graph TD
+    subgraph Client ["Developer Machine"]
+        IDE[IDE / Editor <br> Cursor, VS Code, etc.]
+        App[AI DevSec Gateway GUI]
+        Proxy[Transparent Local Gateway <br> HTTP Server: 127.0.0.1]
+        Hosts[OS Hosts File]
+    end
+
+    subgraph External ["Public Cloud & API"]
+        Ollama[Local LLM <br> Ollama / LM Studio]
+        OpenAI[OpenAI / Anthropic Cloud]
+    end
+
+    IDE -->|1. Resolve domain| Hosts
+    Hosts -->|2. Loopback redirection| IDE
+    IDE -->|3. Route requests| Proxy
+    
+    Proxy -->|If Blocked| Loopback[127.0.0.1: Connection Refused]
+    Proxy -->|4. If Route active| Ollama
+    Proxy -.->|Audit telemetry| OpenAI
+```
+
+### Key Components:
+- **DNS Overrider (Hosts Engine):** Inserts custom comments (`# AI-Block`) to route domains like `api.openai.com` to loopback.
+- **Local API Gateway:** Spin up an HTTP server locally to capture network requests from IDEs and proxy them transparently.
+- **Active Connection Auditor:** Performs runtime socket verification to determine blocking status and alert developers immediately.
+
+---
+
+## 🔒 Security Model
+
+### Zero-Persistence BYOK
+API keys used for the DevSec Auditor are **never** stored on disk or cached in configuration files. They are:
+- Provided via runtime environment variables (`OPENAI_API_KEY`), or
+- Entered in memory in the UI and cleared immediately upon application exit.
+
+### Minimal hosts file modification
+Our engine uses standard system calls to edit `hosts`. It isolates modifications strictly within lines containing the `# AI-Block` tag, ensuring that your system's existing mappings are completely untouched.
+
+---
+
+## 🤝 Project Governance & Community
+
+This project is built and maintained following open-source best practices:
+- **[Contributing Guide](CONTRIBUTING.md):** Conventions, branch structure, and style rules.
+- **[Code of Conduct](CODE_OF_CONDUCT.md):** Community standards of respect and empathy.
+- **[Security Policy](SECURITY.md):** Guidelines for private vulnerability reporting.
+- **[License](LICENSE):** MIT Licensed — completely free of trackers, ads, or telemetry.
 
 ---
 
@@ -94,7 +165,6 @@ The default blocklist targets **38+ domains** across 10 categories:
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Akunimal/AI-Router-Blocker-AiO.git
-cd AI-Router-Blocker-AiO
 
 # 2. Run the script (Python 3.x required)
 # On Windows (auto-elevates via UAC):

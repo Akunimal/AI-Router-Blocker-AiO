@@ -1,0 +1,74 @@
+name: 🐛 Bug Report
+description: Report an issue to help us improve AI DevSec Gateway
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide as much detail as possible to help us reproduce and fix it.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Explain how we can reproduce this behavior.
+      placeholder: |
+        1. Run the application
+        2. Click on...
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: What should have happened...
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which operating system are you running the application on?
+      options:
+        - Windows 11
+        - Windows 10
+        - Linux (Ubuntu/Debian)
+        - Linux (Arch/Fedora/Other)
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Application Version
+      description: Version of the app (e.g., v1.2.1, or running from source commit hash).
+      placeholder: e.g., v1.2.1
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Activity Logs or Console Output
+      description: Copy and paste the logs from the "Activity Log" panel or the console output.
+      render: shell
+      placeholder: Paste log contents here...
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklists
+      options:
+        - label: I have verified this bug exists on the latest release/commit.
+          required: true
+        - label: I have searched the existing issues and verified this is not a duplicate.
+          required: true

@@ -1,0 +1,9 @@
+# Designate code owners for automated review requests
+
+# Global owners for all files
+*       @Akunimal
+
+# Specific paths if needed
+/ai_blocker.py     @Akunimal
+/translations.json  @Akunimal
+/.github/           @Akunimal
