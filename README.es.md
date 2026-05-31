@@ -1,15 +1,18 @@
 # 🛡️ AI DevSec Gateway (antes AI Network Blocker)
 
-> **Retoma el control. Intercepta, audita y enruta el tráfico de IA en tu máquina.**
+> **Interceptor, auditor y enrutador Zero-Trust para todo tu tráfico de IA.**
 
 <p align="center">
   <img src="assets/screenshot.png" alt="Interfaz de AI DevSec Gateway" width="600">
 </p>
 
-![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-22c55e)
-![Release](https://img.shields.io/github/v/release/Akunimal/AI-Router-Blocker-AiO?color=blue&label=Última%20Versión)
+[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)](#-inicio-rápido)
+[![Test Suite Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml)
+[![Security Scan Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO/graph/badge.svg)](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO)
+[![PyPI version](https://img.shields.io/pypi/v/ai-devsec-gateway?color=blue&label=PyPI)](https://pypi.org/project/ai-devsec-gateway/)
+[![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 
 [English](README.md) | [Español](README.es.md)
 
@@ -17,126 +20,148 @@
 
 ## 📖 ¿Qué es esto?
 
-**AI DevSec Gateway** es una herramienta de escritorio gratuita y de código abierto que te devuelve el control sobre las herramientas de IA que se ejecutan en tu máquina. Originalmente un simple bloqueador de red, ahora ha evolucionado a un proxy DevSecOps completo.
+**AI DevSec Gateway** es un proxy y herramienta DevSecOps de código abierto y nivel empresarial que intercepta, audita y enruta el tráfico de IA que sale de tu máquina local.
 
-Te ayuda a **bloquear fugas de datos no autorizadas**, **auditar tu entorno de ejecución utilizando la API de OpenAI** y **enrutar de forma transparente las peticiones a la nube hacia tus propios modelos locales de IA** (como Llama 3 vía Ollama) o tus claves API personales (BYOK).
+Creado originalmente como una simple interfaz gráfica para bloquear dominios de IA, ha evolucionado hasta convertirse en un **Gateway Zero-Trust** completo. Permite a los desarrolladores y equipos de seguridad monitorear exactamente qué datos están exfiltrando sus asistentes de código de IA (como Copilot, Cursor o extensiones), interceptar esas solicitudes y enrutarlas a LLMs privados, locales o corporativos.
 
-Con un clic:
-1. **Bloquea y Redirige** más de 38 dominios de IA a `127.0.0.1` editando tu archivo hosts.
-2. **Enruta** tráfico local mediante un API Gateway transparente hacia tu LLM Local.
-3. **Audita** los procesos activos de tus editores y genera recomendaciones de seguridad a través de la API de OpenAI.
-
----
-
-## 🤔 ¿Por qué existe esto?
-
-Los asistentes de programación de IA tienen acceso profundo y sin restricciones a tus archivos, tu portapapeles y tu terminal. Incluso cuando dejas de usarlos, sus procesos siguen ejecutándose en segundo plano, manteniendo conexiones abiertas con servidores remotos de forma silenciosa. Eso significa:
-
-- El código que escribiste *hace horas* podría seguir transmitiéndose.
-- Los prompts que contienen lógica propietaria podrían almacenarse en caché o registrarse en servidores de terceros.
-- No tienes **ninguna visibilidad** sobre qué datos se envían, o cuándo.
-
-**AI Network Blocker te da un interruptor de apagado duro y determinista.** Sin ambigüedades. Sin necesidad de confiar. El archivo hosts es una anulación a nivel de sistema: si un dominio se resuelve en `127.0.0.1`, nada pasa. Punto.
+1. **Interceptar y Bloquear:** Una anulación determinista a nivel del sistema operativo mediante el archivo `hosts` que descarta conexiones salientes no autorizadas a más de 38 dominios de IA.
+2. **Enrutar:** Un proxy HTTP local transparente que intercepta las solicitudes a APIs en la nube y las redirige a LLMs locales (como Ollama, LM Studio o vLLM).
+3. **Auditar:** Análisis semántico en tiempo real de los entornos de desarrollo activos para prevenir la fuga de datos y la exposición de lógica propietaria.
 
 ---
 
-## ✨ Características (Features)
+## ✨ Características
 
-| Característica | Descripción |
+| Función | Descripción |
 |---|---|
-| 🔀 **Router de IA Local** | Intercepta el tráfico de Copilot/Cursor y lo envía a tu propio LLM local (Ollama/LM Studio). |
-| 🛡️ **Auditor DevSec de IA** | Análisis en vivo de procesos en ejecución para detectar riesgos de fuga de datos, impulsado por OpenAI. Las claves API se leen en tiempo de ejecución y no se guardan en disco. |
-| 🔒 **Interruptor de apagado** | Bloquea o desbloquea todos los servicios de IA al instante vía el archivo `hosts`. |
-| 🌍 **Soporte multilingüe** | 10 idiomas soportados con detección automática del sistema. |
-| 🎨 **Interfaz oscura premium** | Tema moderno Catppuccin Mocha con estados codificados por colores y pestañas. |
-| 🔑 **Elevación inteligente** | UAC automático en Windows, instrucciones claras de `sudo` en Unix. |
-| 👁️ **Detección de procesos** | El pie de página muestra continuamente qué editores de IA se están ejecutando. |
-| 📦 **Portable** | Ejecutables de un solo archivo sin dependencias pesadas. |
+| 🔀 **Enrutador API Transparente** | Redirige sin problemas el tráfico HTTP de Copilot/Cursor a tus propios servidores locales de inferencia LLM. |
+| 🛡️ **Auditor AI DevSec** | Análisis en vivo y a nivel de socket de los procesos en ejecución para detectar fugas de telemetría. Impulsado por auditorías de OpenAI bajo demanda (Zero-Persistence). |
+| 💻 **Interfaz CLI Nativa** | Control completo desde la terminal para entornos CI/CD. Usa `ai-blocker --status` o `ai-devsec-gateway --block`. |
+| 🔒 **Interruptor de Apagado Determinista** | Bloqueo a nivel de sistema operativo (redirección a `127.0.0.1`). Sin ambigüedades ni dependencia de servidores de filtrado DNS. |
+| 📦 **Distribución Universal** | Instalable vía `pip`, `brew`, `scoop`, o como un único binario ejecutable portable para Windows/Linux/macOS. |
+| 🌍 **Interfaz Multilingüe** | Una interfaz gráfica premium (Catppuccin Mocha) con 10 idiomas soportados y elevación inteligente de privilegios del SO (UAC/sudo). |
 
 ---
 
-## 🎯 Proveedores y Dominios Bloqueados
+## 🎯 Proveedores Soportados
 
-La lista de bloqueo por defecto apunta a **más de 38 dominios** en 10 categorías:
+El motor de intercepción por defecto apunta a **más de 38 dominios** de los principales proveedores:
 
-| Proveedor | # Dominios | Dominios clave |
-|---|---|---|
-| 🟢 OpenAI | 9 | `api.openai.com` · `chatgpt.com` · `platform.openai.com` |
-| 🟠 Anthropic | 4 | `claude.ai` · `api.anthropic.com` · `anthropic.com` |
-| 🐙 GitHub Copilot | 4 | `copilot.github.com` · `api.githubcopilot.com` |
-| 🔵 Google AI | 4 | `gemini.google.com` · `aistudio.google.com` |
-| 🟦 Microsoft Copilot | 3 | `copilot.microsoft.com` · `bing.com` |
-| 🔷 Meta AI | 2 | `meta.ai` · `ai.meta.com` |
-| 🌊 Mistral AI | 2 | `mistral.ai` · `api.mistral.ai` |
-| 🔮 DeepSeek | 2 | `deepseek.com` · `api.deepseek.com` |
-| 🤖 xAI | 3 | `x.ai` · `api.x.ai` · `grok.x.ai` |
-| 📦 Otros | 3 | `perplexity.ai` · `app.wordware.ai` |
+| Proveedor | Dominios clave interceptados |
+|---|---|
+| 🟢 **OpenAI** | `api.openai.com`, `chatgpt.com`, `platform.openai.com` |
+| 🟠 **Anthropic** | `claude.ai`, `api.anthropic.com`, `anthropic.com` |
+| 🐙 **GitHub Copilot** | `copilot.github.com`, `api.githubcopilot.com`, `telemetry.githubcopilot.com` |
+| 🔵 **Google AI** | `gemini.google.com`, `aistudio.google.com` |
+| 🟦 **Microsoft** | `copilot.microsoft.com`, `bing.com` |
+| 🔷 **Meta AI** | `meta.ai`, `ai.meta.com` |
+| 🌊 **Mistral / DeepSeek / xAI** | `mistral.ai`, `api.deepseek.com`, `api.x.ai` |
 
-> **¿Quieres agregar o quitar dominios?** Edita el diccionario `BLOCKLIST` en [`ai_blocker/constants.py`](ai_blocker/constants.py). Es un diccionario de Python simple — no requiere recompilación si lo ejecutas desde el código fuente.
+> *La lista de bloqueo es configurable dinámicamente desde [`ai_blocker/constants.py`](ai_blocker/constants.py).*
 
 ---
 
-## 📁 Estructura del Proyecto
+## 🏗️ Arquitectura
 
-Desde la versión 1.2.1, el proyecto ha sido modularizado para mejorar el mantenimiento del código:
+AI DevSec Gateway opera en la frontera entre tu entorno de desarrollo local y la nube.
 
+```mermaid
+graph TD
+    subgraph Entorno Local ["Red de Desarrollo Local"]
+        IDE[VS Code / Cursor / IDE]
+        CLI[CLI ai-blocker]
+        GUI[GUI DevSec Gateway]
+        
+        Gateway((Gateway API Local <br> 127.0.0.1))
+        OS_Hosts[(Archivo Hosts del SO)]
+    end
+
+    subgraph Externo ["Inferencia de Destino"]
+        LocalLLM[LLM Local Privado <br> Ollama / vLLM]
+        PublicCloud[Nube Pública <br> OpenAI / Anthropic]
+    end
+
+    IDE -->|1. Solicitud API Saliente| OS_Hosts
+    OS_Hosts -->|2. Interceptada| Gateway
+    
+    Gateway -->|3a. Ruta activa| LocalLLM
+    Gateway -.->|3b. Paso auditado| PublicCloud
+    Gateway -->|3c. Bloqueo activo| Drop[Conexión Rechazada]
 ```
-ai_blocker/
-├── __init__.py         # Punto de entrada del paquete y versión
-├── __main__.py         # Punto de ejecución (single instance y chequeo de privilegios)
-├── constants.py        # Dominios bloqueados y códigos de color de Catppuccin
-├── config.py           # Preferencias de usuario y registro de auto-inicio
-├── i18n.py             # Cargador de traducciones de idiomas
-├── system_utils.py     # Operaciones de SO (chequeo de admin, limpieza de DNS)
-├── block_actions.py    # Cierre de procesos y edición de archivo hosts
-├── gateway.py          # Servidor proxy HTTP transparente
-├── tray.py             # Integración con la bandeja del sistema de Windows
-└── ui.py               # Interfaz gráfica de Tkinter y estilos visuales
-```
+
+Para sumergirte en profundidad en nuestra estructura modular, los planes de Inspección Profunda de Paquetes (DPI) y los Modelos de Amenazas, lee nuestra **[Documentación de Arquitectura](docs/architecture.md)**.
 
 ---
 
 ## 🚀 Inicio Rápido
 
-### Opción A — Descargar el ejecutable listo para usar
-
-1. Ve a la página de [**Releases**](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases).
-2. Descarga el binario para tu sistema operativo.
-3. Ejecuta el archivo.
-   - **Windows**: Haz doble clic en `AI-Router-Blocker-AiO.exe`. Haz clic en **Sí** en el aviso de UAC.
-   - **Linux / macOS**: Abre una terminal y ejecuta `sudo ./AI-Router-Blocker-AiO`.
-4. Haz clic en el botón grande para activar o desactivar el bloqueo. Eso es todo.
-
-### Opción B — Ejecutar desde el código fuente
+### 1. Paquete de Python (Pip)
+La forma más rápida de empezar a usar la interfaz CLI (terminal).
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/Akunimal/AI-Router-Blocker-AiO.git
-cd AI-Router-Blocker-AiO
+pip install ai-devsec-gateway
 
-# 2. Ejecutar el script (Requiere Python 3.x)
-# En Windows (se eleva automáticamente vía UAC):
-python ai_blocker.py
-
-# En Linux / macOS (requiere sudo):
-sudo python3 ai_blocker.py
+# Los comandos CLI nativos estarán disponibles globalmente:
+ai-blocker --status
+ai-devsec-gateway --block
+ai-devsec-gateway --unblock
 ```
+
+### 2. Gestores de Paquetes (macOS y Windows)
+
+**macOS (Homebrew):**
+```bash
+brew tap Akunimal/ai-devsec-gateway https://github.com/Akunimal/AI-Router-Blocker-AiO
+brew install ai-devsec-gateway
+sudo ai-blocker --status
+```
+
+**Windows (Scoop):**
+```powershell
+scoop bucket add ai-devsec-gateway https://github.com/Akunimal/AI-Router-Blocker-AiO.git
+scoop install ai-devsec-gateway
+ai-blocker --status
+```
+
+### 3. Binarios GUI Portables
+Si prefieres una interfaz gráfica enriquecida sin tener que instalar Python:
+1. Visita la página de [**Releases**](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases).
+2. Descarga el ejecutable correspondiente a tu sistema operativo (`.exe`, binario macOS o Linux AppImage).
+3. Ejecuta la aplicación (automáticamente pedirá privilegios de Administrador/sudo al intentar encender el interruptor de red).
+
+---
+
+## 🔒 Modelo de Seguridad
+
+- **Zero-Persistence BYOK:** Las claves de API del auditor semántico se mantienen estrictamente en la memoria RAM. Nunca se guardan en el disco duro, previniendo el robo de credenciales en la cadena de suministro.
+- **Modificaciones Quirúrgicas del SO:** El motor utiliza análisis tipo `sed` para inyectar los marcadores `# AI-Block` en el archivo hosts. Garantiza aislamiento total respecto al resto de tus reglas de DNS existentes.
+- **Telemetría Aislada:** La aplicación en sí misma tiene absolutamente cero rastreo, análisis de uso o mecanismos ocultos de conexión en segundo plano (phone-home).
+
+---
+
+## 🤝 Código Abierto y Gobernanza
+
+Creemos firmemente que las herramientas de seguridad deben ser 100% transparentes. Este proyecto está construido bajo una gobernanza estricta de código abierto:
+- **[Guía de Arquitectura](docs/architecture.md):** Especificaciones técnicas completas.
+- **[Guía de Contribución](CONTRIBUTING.md):** Estándares y plantillas de PR.
+- **[Código de Conducta](CODE_OF_CONDUCT.md):** Fomentamos una comunidad acogedora.
+- **[Política de Seguridad](SECURITY.md):** Reporte responsable de vulnerabilidades.
+- **[Licencia](LICENSE):** Licencia MIT.
 
 ---
 
 ## 🗺️ Roadmap y Visión Futura
 
-Estamos desarrollando activamente **AI DevSec Gateway** para convertirlo en el proxy de privacidad definitivo. Nuestras próximas características incluyen:
-- **Inspección Profunda de Paquetes (DPI):** Interceptar HTTPS para bloquear rutas API específicas (ej: `/completions`).
-- **Dashboard de Costos de Tokens:** Monitorear el gasto cuando se hacen peticiones proxy a APIs en la nube (BYOK).
-- **Múltiples Auditores:** Soporte para Anthropic y Mistral para las auditorías de seguridad DevSec.
+Estamos evolucionando activamente hacia ser un **Motor DLP Zero-Trust** corporativo. Nuestros próximos hitos incluyen:
+- **Sanitización DLP en Tiempo Real:** Expresiones regulares heurísticas al vuelo para eliminar PII (Información Personal Identificable) antes de enrutar el código.
+- **Telemetría de Kernel eBPF:** Detectar fuga de archivos como `.git/config` directamente a nivel del núcleo de Linux.
+- **Confidential Computing:** Ejecutar el Gateway de forma blindada dentro de Entornos de Ejecución Confiables (TEEs) como Intel SGX.
 
-¡Revisa nuestro [**ROADMAP.md**](ROADMAP.md) (en inglés) para ver hacia dónde se dirige el proyecto y cómo puedes contribuir!
+Explora nuestro [**ROADMAP.md**](ROADMAP.md) para conocer la visión completa.
 
 ---
 
-## 📜 Licencia — Libre como en la Libertad
-
-Este proyecto se publica bajo la **Licencia MIT** — consulta [LICENSE](LICENSE) para ver el texto completo.
-
-**Este es un proyecto impulsado por la comunidad y sin fines de lucro.** Sin anuncios. Sin telemetría. Sin rastreo. Sin monetización. Nunca.
+<p align="center">
+  <strong>Audita lo invisible. Enruta lo restringido. No confíes en ningún paquete.</strong><br>
+  <em>El Gateway DevSecOps para la era de la IA.</em>
+</p>
