@@ -56,7 +56,7 @@ def test_color_palette_hex_format():
 
 def test_flush_dns_does_not_raise():
     """flush_dns should handle all OS paths gracefully without exceptions."""
-    with patch("ai_blocker.subprocess.run") as mock_run:
+    with patch("ai_blocker.system_utils.subprocess.run") as mock_run:
         mock_run.return_value = MagicMock(returncode=0)
         # Should not raise regardless of OS
         try:

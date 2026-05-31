@@ -72,6 +72,28 @@ La lista de bloqueo por defecto apunta a **más de 38 dominios** en 10 categorí
 | 🤖 xAI | 3 | `x.ai` · `api.x.ai` · `grok.x.ai` |
 | 📦 Otros | 3 | `perplexity.ai` · `app.wordware.ai` |
 
+> **¿Quieres agregar o quitar dominios?** Edita el diccionario `BLOCKLIST` en [`ai_blocker/constants.py`](ai_blocker/constants.py). Es un diccionario de Python simple — no requiere recompilación si lo ejecutas desde el código fuente.
+
+---
+
+## 📁 Estructura del Proyecto
+
+Desde la versión 1.2.1, el proyecto ha sido modularizado para mejorar el mantenimiento del código:
+
+```
+ai_blocker/
+├── __init__.py         # Punto de entrada del paquete y versión
+├── __main__.py         # Punto de ejecución (single instance y chequeo de privilegios)
+├── constants.py        # Dominios bloqueados y códigos de color de Catppuccin
+├── config.py           # Preferencias de usuario y registro de auto-inicio
+├── i18n.py             # Cargador de traducciones de idiomas
+├── system_utils.py     # Operaciones de SO (chequeo de admin, limpieza de DNS)
+├── block_actions.py    # Cierre de procesos y edición de archivo hosts
+├── gateway.py          # Servidor proxy HTTP transparente
+├── tray.py             # Integración con la bandeja del sistema de Windows
+└── ui.py               # Interfaz gráfica de Tkinter y estilos visuales
+```
+
 ---
 
 ## 🚀 Inicio Rápido
@@ -116,4 +138,5 @@ Estamos desarrollando activamente **AI DevSec Gateway** para convertirlo en el p
 ## 📜 Licencia — Libre como en la Libertad
 
 Este proyecto se publica bajo la **Licencia MIT** — consulta [LICENSE](LICENSE) para ver el texto completo.
+
 **Este es un proyecto impulsado por la comunidad y sin fines de lucro.** Sin anuncios. Sin telemetría. Sin rastreo. Sin monetización. Nunca.

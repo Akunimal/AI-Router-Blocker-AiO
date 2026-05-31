@@ -6,10 +6,12 @@
   <img src="assets/screenshot.png" alt="AI DevSec Gateway Interface" width="600">
 </p>
 
-[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)](#-system-requirements)
 [![Test Suite Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml)
 [![Security Scan Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO/graph/badge.svg)](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO)
+[![PyPI version](https://img.shields.io/pypi/v/ai-devsec-gateway?color=blue&label=PyPI)](https://pypi.org/project/ai-devsec-gateway/)
 [![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 [![Latest Release](https://img.shields.io/github/v/release/Akunimal/AI-Router-Blocker-AiO?color=blue&label=Latest%20Release)](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases)
 
@@ -74,7 +76,7 @@ The default blocklist targets **38+ domains** across 10 categories:
 | 🤖 xAI | 3 | `x.ai` · `api.x.ai` · `grok.x.ai` |
 | 📦 Others | 3 | `perplexity.ai` · `app.wordware.ai` |
 
-> **Want to add or remove domains?** Edit the `BLOCKLIST` dictionary at the top of [`ai_blocker.py`](ai_blocker.py). It's a simple Python dict — no recompilation needed if you run from source.
+> **Want to add or remove domains?** Edit the `BLOCKLIST` dictionary inside [`ai_blocker/constants.py`](ai_blocker/constants.py). It's a simple Python dict — no recompilation needed if you run from source.
 
 ---
 
@@ -110,6 +112,24 @@ graph TD
 - **Local API Gateway:** Spin up an HTTP server locally to capture network requests from IDEs and proxy them transparently.
 - **Active Connection Auditor:** Performs runtime socket verification to determine blocking status and alert developers immediately.
 
+### 📁 Project Structure
+
+Since v1.2.1, the project has been modularized for improved maintainability:
+
+```
+ai_blocker/
+├── __init__.py         # Package entry and versioning
+├── __main__.py         # Run entry point (single instance & elevation check)
+├── constants.py        # Blocklist domains and Catppuccin color codes
+├── config.py           # User preferences and autostart registration
+├── i18n.py             # Language translations loader
+├── system_utils.py     # OS operations (admin checking, DNS flushing)
+├── block_actions.py    # Process closing and hosts file editing
+├── gateway.py          # HTTP transparent proxy server
+├── tray.py             # Native Windows system tray integration
+└── ui.py               # Tkinter application interfaces and themes
+```
+
 ---
 
 ## 🔒 Security Model
@@ -127,6 +147,7 @@ Our engine uses standard system calls to edit `hosts`. It isolates modifications
 ## 🤝 Project Governance & Community
 
 This project is built and maintained following open-source best practices:
+- **[Architecture Guide](ARCHITECTURE.md):** System design, data flow, security model, and design decisions.
 - **[Contributing Guide](CONTRIBUTING.md):** Conventions, branch structure, and style rules.
 - **[Code of Conduct](CODE_OF_CONDUCT.md):** Community standards of respect and empathy.
 - **[Security Policy](SECURITY.md):** Guidelines for private vulnerability reporting.
@@ -159,6 +180,13 @@ python ai_blocker.py
 
 # On Linux / macOS (requires sudo):
 sudo python3 ai_blocker.py
+```
+
+### Option C — Install via pip
+
+```bash
+pip install ai-devsec-gateway
+python -m ai_devsec_gateway
 ```
 
 ### DevSec Auditor API keys
@@ -202,65 +230,8 @@ The script will:
 pyinstaller --onefile --windowed --uac-admin --name "AI-Router-Blocker-AiO" --clean ai_blocker.py
 ```
 
-**Linux / macOS:**
-```bash
-python3 -m PyInstaller --onefile --windowed --name "AI-Router-Blocker-AiO" --clean ai_blocker.py
-```
-
-**Flags explained:**
-
-| Flag | Purpose |
-|---|---|
-| `--onefile` | Packages everything into a single portable binary |
-| `--windowed` | Hides the console window (GUI-only application) |
-| `--uac-admin` | *(Windows only)* Embeds a manifest that triggers UAC elevation |
-| `--name "AI-Router-Blocker-AiO"` | Sets the output filename |
-| `--clean` | Clears PyInstaller cache before building |
-
-The compiled executable will be in the `dist/` folder.
-
----
-
-## 📁 Project Structure
-
-```
-AI-Router-Blocker-AiO/
-├── ai_blocker.py              # Full source code (Python 3, tkinter GUI)
-├── translations.json          # Externalized i18n strings for 10 languages
-├── pyproject.toml             # PEP 621 project metadata & tool configs
-├── tests/                     # Automated test suite (pytest)
-│   ├── test_blocklist.py
-│   ├── test_config.py
-│   ├── test_hosts_operations.py
-│   └── test_language_detection.py
-├── .github/
-│   ├── workflows/             # CI/CD pipelines
-│   │   ├── build.yml          # Cross-platform binary builds
-│   │   ├── test.yml           # Multi-OS, multi-Python test matrix
-│   │   └── codeql.yml         # Automated security scanning
-│   ├── ISSUE_TEMPLATE/        # Structured bug/feature forms
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   ├── CODEOWNERS
-│   └── dependabot.yml         # Automated dependency updates
-├── build.bat / build.sh       # One-click build scripts
-├── CONTRIBUTING.md            # Contribution guide
-├── CODE_OF_CONDUCT.md         # Community standards
-├── SECURITY.md                # Vulnerability reporting policy
-├── CHANGELOG.md               # Keep-a-Changelog format
-├── ROADMAP.md                 # Technical vision & milestones
-├── LICENSE                    # MIT License
-└── .gitignore
-```
-
----
-
-## ⚙️ System Requirements
-
-| Requirement | Details |
-|---|---|
-| **Operating System** | Windows 10/11, Linux, macOS |
 | **Privileges** | Administrator / root (Windows auto-requests UAC; Linux/macOS run via `sudo`) |
-| **Python** | 3.x — only needed if running from source |
+| **Python** | 3.10+ (3.10, 3.11, 3.12, 3.13) — only needed if running from source |
 | **Dependencies** | None. Uses only Python standard library (`tkinter`, `ctypes`, `subprocess`) |
 | **Disk space** | ~12 MB for the binary, ~15 KB for the `.py` source |
 

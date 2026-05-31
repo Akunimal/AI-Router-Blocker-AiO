@@ -17,7 +17,7 @@ def test_gateway_handler_proxy_get():
     handler.server = MagicMock()
     handler.server.target_url = "http://localhost:11434"
 
-    with patch("ai_blocker.urllib.request.urlopen") as mock_urlopen:
+    with patch("ai_blocker.gateway.urllib.request.urlopen") as mock_urlopen:
         mock_response = MagicMock()
         mock_response.status = 200
         mock_response.headers = {}
@@ -42,7 +42,7 @@ def test_gateway_handler_proxy_post_with_body():
     handler.rfile = MagicMock()
     handler.rfile.read.return_value = b'{"model": "llama3", "messages": []}'
 
-    with patch("ai_blocker.urllib.request.urlopen") as mock_urlopen:
+    with patch("ai_blocker.gateway.urllib.request.urlopen") as mock_urlopen:
         mock_response = MagicMock()
         mock_response.status = 200
         mock_response.headers = {}

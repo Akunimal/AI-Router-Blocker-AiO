@@ -47,10 +47,10 @@ def test_get_hosts_status_unblocked(mock_exists):
         assert is_blocked is False
         assert count == 0
 
-@patch("ai_blocker.HOSTS_PATH", "/mock/hosts")
+@patch("ai_blocker.block_actions.HOSTS_PATH", "/mock/hosts")
 @patch("os.path.exists")
-@patch("ai_blocker.force_close_processes")
-@patch("ai_blocker.flush_dns")
+@patch("ai_blocker.block_actions.force_close_processes")
+@patch("ai_blocker.block_actions.flush_dns")
 def test_activate_block(mock_flush, mock_close, mock_exists):
     """Test block activation writes correct hosts format."""
     mock_exists.return_value = True
@@ -78,9 +78,9 @@ def test_activate_block(mock_flush, mock_close, mock_exists):
         has_openai = any("api.openai.com" in line for line in written_lines)
         assert has_openai is True
 
-@patch("ai_blocker.HOSTS_PATH", "/mock/hosts")
+@patch("ai_blocker.block_actions.HOSTS_PATH", "/mock/hosts")
 @patch("os.path.exists")
-@patch("ai_blocker.flush_dns")
+@patch("ai_blocker.block_actions.flush_dns")
 def test_deactivate_block(mock_flush, mock_exists):
     """Test block deactivation removes all block lines."""
     mock_exists.return_value = True

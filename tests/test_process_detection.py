@@ -14,7 +14,7 @@ def test_detect_running_editors_with_no_processes():
     mock_result = MagicMock()
     mock_result.stdout = "System\nsvchost.exe\nexplorer.exe\n"
 
-    with patch("ai_blocker.subprocess.run", return_value=mock_result):
+    with patch("ai_blocker.block_actions.subprocess.run", return_value=mock_result):
         result = ai_blocker.detect_running_ai_editors()
         assert isinstance(result, list)
         assert len(result) == 0
@@ -28,7 +28,7 @@ def test_detect_running_editors_finds_vscode():
     mock_result = MagicMock()
     mock_result.stdout = "Code.exe  12345 Console  1  100,000 K\nsvchost.exe\n"
 
-    with patch("ai_blocker.subprocess.run", return_value=mock_result):
+    with patch("ai_blocker.block_actions.subprocess.run", return_value=mock_result):
         result = ai_blocker.detect_running_ai_editors()
         assert "Code" in result
 
@@ -38,7 +38,7 @@ def test_force_close_returns_list():
     mock_result = MagicMock()
     mock_result.stdout = ""
 
-    with patch("ai_blocker.subprocess.run", return_value=mock_result):
+    with patch("ai_blocker.block_actions.subprocess.run", return_value=mock_result):
         result = ai_blocker.force_close_processes()
         assert isinstance(result, list)
 

@@ -93,6 +93,14 @@ jobs:
             mv "AI-Router-Blocker-AiO" "AI-Router-Blocker-AiO-Linux"
           fi
 
+      - name: Generate SHA256 checksums
+        shell: bash
+        run: |
+          cd dist
+          for f in AI-Router-Blocker-AiO-*; do
+            sha256sum "$f" > "$f.sha256"
+          done
+
       - name: Upload CI artifacts
         uses: actions/upload-artifact@v7
         with:

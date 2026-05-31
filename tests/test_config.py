@@ -18,7 +18,7 @@ def test_sensitive_keys_filtering():
 
     m_open = mock_open()
     with patch("builtins.open", m_open):
-        with patch("ai_blocker.get_config_path", return_value="/mock/config.json"):
+        with patch("ai_blocker.config.get_config_path", return_value="/mock/config.json"):
             ai_blocker.save_config(config_data)
 
             # Verify open was called
@@ -45,7 +45,7 @@ def test_load_config_filters_sensitive_keys(mock_exists):
     }
 
     with patch("builtins.open", mock_open(read_data=json.dumps(raw_config))):
-        with patch("ai_blocker.get_config_path", return_value="/mock/config.json"):
+        with patch("ai_blocker.config.get_config_path", return_value="/mock/config.json"):
             config = ai_blocker.load_config()
             assert config["language"] == "pt"
             assert "openai_key" not in config

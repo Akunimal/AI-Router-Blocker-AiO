@@ -30,6 +30,6 @@ def test_detect_system_language_fallback():
     with patch.dict(os.environ, {}, clear=True):
         with patch("locale.getlocale", return_value=(None, None)):
             with patch("platform.system", return_value="Linux"):
-                with patch("ai_blocker.CURRENT_OS", "Linux"):
+                with patch("ai_blocker.i18n.CURRENT_OS", "Linux"):
                     lang = ai_blocker.detect_system_language()
                     assert lang == "en"
