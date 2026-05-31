@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a Security Vulnerability
+    url: https://github.com/Akunimal/AI-Router-Blocker-AiO/security/advisories/new
+    about: Please report security vulnerabilities through GitHub Security Advisories, not public issues.
+  - name: 💬 Discussions & Questions
+    url: https://github.com/Akunimal/AI-Router-Blocker-AiO/discussions
+    about: Ask questions, share ideas, or discuss features in our GitHub Discussions.

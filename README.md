@@ -61,19 +61,6 @@ AI coding assistants have deep, unrestricted access to your files, your clipboar
 
 The default blocklist targets **38+ domains** across 10 categories:
 
-| 🔒 **One-click Kill Switch** | Block or unblock all AI services instantly via the system `hosts` file. |
-| 🌍 **Multilingual support** | 10 languages supported with automatic system detection. |
-| 🎨 **Premium dark UI** | Modern Catppuccin Mocha theme with color-coded status and tabs. |
-| 🔑 **Smart elevation** | Auto UAC on Windows, clear `sudo` instructions on Unix. |
-| 👁️ **Live process detection** | Continuously polls and shows which AI editors are currently running. |
-| 📦 **Portable** | Single-file executable builds available without heavy dependencies. |
-
----
-
-## 🎯 Blocked Providers & Domains
-
-The default blocklist targets **38+ domains** across 10 categories:
-
 | Provider | # Domains | Key domains |
 |---|---|---|
 | 🟢 OpenAI | 9 | `api.openai.com` · `chatgpt.com` · `platform.openai.com` |
@@ -238,14 +225,31 @@ The compiled executable will be in the `dist/` folder.
 
 ```
 AI-Router-Blocker-AiO/
-├── ai_blocker.py      # Full source code (Python 3, tkinter GUI)
-├── build.bat          # One-click build script for Windows
-├── build.sh           # One-click build script for Linux/macOS
-├── AI-Router-Blocker-AiO.exe     # Pre-compiled portable executable (Windows)
-├── AI-Router-Blocker-AiO         # Pre-compiled portable binary (Linux/macOS)
-├── README.md          # This file
-├── LICENSE            # MIT License — free as in freedom
-└── .gitignore         # Git ignore rules
+├── ai_blocker.py              # Full source code (Python 3, tkinter GUI)
+├── translations.json          # Externalized i18n strings for 10 languages
+├── pyproject.toml             # PEP 621 project metadata & tool configs
+├── tests/                     # Automated test suite (pytest)
+│   ├── test_blocklist.py
+│   ├── test_config.py
+│   ├── test_hosts_operations.py
+│   └── test_language_detection.py
+├── .github/
+│   ├── workflows/             # CI/CD pipelines
+│   │   ├── build.yml          # Cross-platform binary builds
+│   │   ├── test.yml           # Multi-OS, multi-Python test matrix
+│   │   └── codeql.yml         # Automated security scanning
+│   ├── ISSUE_TEMPLATE/        # Structured bug/feature forms
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── CODEOWNERS
+│   └── dependabot.yml         # Automated dependency updates
+├── build.bat / build.sh       # One-click build scripts
+├── CONTRIBUTING.md            # Contribution guide
+├── CODE_OF_CONDUCT.md         # Community standards
+├── SECURITY.md                # Vulnerability reporting policy
+├── CHANGELOG.md               # Keep-a-Changelog format
+├── ROADMAP.md                 # Technical vision & milestones
+├── LICENSE                    # MIT License
+└── .gitignore
 ```
 
 ---
@@ -315,7 +319,7 @@ Just open a Pull Request or an Issue. All contributions, big or small, are value
 
 Trust is everything when a tool touches your system files. AI DevSec Gateway is:
 
-- **Auditable** — one clean Python file under 1200 lines (including all 10 language dictionaries)
+- **Auditable** — readable, well-commented Python source with a comprehensive test suite
 - **Commented** — every function contains detailed explanations in both English and Spanish
 - **Transparent** — no obfuscation, no compiled binary blobs in source, and no telemetry. Network access is limited to user-visible features such as the router, auditor, and connectivity checks.
 - **Deterministic** — it either edits the hosts file or it doesn't. Nothing else.
