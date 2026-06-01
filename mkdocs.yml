@@ -28,3 +28,4 @@ nav:
   - CLI Reference: cli.md
   - Architecture: architecture.md
   - Threat Model: threat_model.md
+  - Codex for OSS Notes: codex_for_oss.md

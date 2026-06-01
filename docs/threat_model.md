@@ -35,6 +35,10 @@ As a DevSecOps utility that operates with elevated system privileges and manages
 *   **Description:** A malicious update to a third-party dependency compromises the build package.
 *   **Mitigation:** The application is built with **zero runtime third-party dependencies**. It relies entirely on Python's standard library (`tkinter`, `urllib`, `ctypes`, `subprocess`).
 
+### Threat 6 — Experimental Network Backend Misuse
+*   **Description:** A user enables an experimental firewall/redirect backend and unintentionally applies broad or platform-specific network rules.
+*   **Mitigation:** The hosts backend remains the default. Experimental backends require explicit CLI selection, expose dry-run command planning, and are documented separately from the stable runtime path. Kernel-level eBPF/WFP interception remains future work, not active behavior.
+
 ---
 
 ## 3. Privilege Isolation Matrix
@@ -46,3 +50,4 @@ As a DevSecOps utility that operates with elevated system privileges and manages
 | **Process Detection** | ❌ No | Queries running tasks via `ps` or `tasklist`. |
 | **Hosts Writer** | ✅ Yes | Requires write access to write to `/etc/hosts` or `etc/hosts`. |
 | **DNS Cache Flusher** | ✅ Yes | Requires rights to run flush commands. |
+| **Firewall Redirect Backend** | ✅ Yes | Experimental opt-in backend; inspect with `--dry-run` before applying. |

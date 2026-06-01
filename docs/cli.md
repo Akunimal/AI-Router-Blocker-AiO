@@ -21,6 +21,9 @@ python ai_blocker.py [options]
 | `--block` | `work` \| `personal` \| `free` | Activate system hosts blocking using the specified profile template. |
 | `--unblock` | *(None)* | Remove all AI-Block comments and restore normal network access. |
 | `--status` | *(None)* | Query the hosts file state and list active editor processes. |
+| `--list-backends` | *(None)* | List available network backends and mark experimental ones. |
+| `--backend` | `hosts` \| `firewall-redirect` | Select the network backend. Defaults to `hosts`. |
+| `--dry-run` | *(None)* | Show the planned backend action without changing hosts or network rules. |
 | `-h`, `--help` | *(None)* | Show help menu and list parameters. |
 
 ---
@@ -69,3 +72,19 @@ Block successfully deactivated!
 ✓ 38 entries removed from hosts file.
 ✓ DNS cache flushed.
 ```
+
+### Inspect Available Backends
+```bash
+python ai_blocker.py --list-backends
+```
+**Output:**
+```
+- hosts: Hosts file redirection to 127.0.0.1 (default backend).
+- firewall-redirect [experimental]: Firewall/redirect command backend (experimental, opt-in).
+```
+
+### Dry-Run Experimental Firewall Backend
+```bash
+python ai_blocker.py --backend firewall-redirect --block work --dry-run
+```
+This prints the planned commands without applying firewall or redirect rules. Use this mode before any experimental backend run.

@@ -1,13 +1,11 @@
 import argparse
 import ctypes
 import sys
-import tkinter as tk
-from tkinter import messagebox
 
 from ai_blocker.constants import CURRENT_OS
 from ai_blocker.i18n import STRINGS, detect_system_language
+from ai_blocker.network_backends import list_network_backends
 from ai_blocker.system_utils import get_hosts_status, is_admin, relaunch_as_admin
-from ai_blocker.ui import AIBlockerApp
 
 
 def acquire_single_instance_lock():
@@ -32,10 +30,19 @@ def main():
     parser.add_argument("--block", choices=["work", "personal", "free"], help="Activate blocking for the specified profile")
     parser.add_argument("--unblock", action="store_true", help="Deactivate all AI domain blocks")
     parser.add_argument("--status", action="store_true", help="Show current blocking status and active editors")
+    parser.add_argument("--list-backends", action="store_true", help="List available network backends")
+    parser.add_argument("--backend", choices=["hosts", "firewall-redirect"], default="hosts", help="Select network backend")
+    parser.add_argument("--dry-run", action="store_true", help="Show planned actions without applying changes")
 
     args, unknown = parser.parse_known_args()
 
     # CLI execution path
+    if args.list_backends:
+        for backend in list_network_backends():
+            suffix = " [experimental]" if backend.experimental else ""
+            print(f"- {backend.name}{suffix}: {backend.description}")
+        sys.exit(0)
+
     if args.block or args.unblock or args.status:
         if args.status:
             is_blocked, count = get_hosts_status()
@@ -50,8 +57,8 @@ def main():
                 print("No active AI editors detected.")
             sys.exit(0)
 
-        # For block/unblock, verify admin privileges
-        if not is_admin():
+        # Dry-run must be inspectable without elevated privileges.
+        if not args.dry_run and not is_admin():
             print("Error: Administrator/root privileges are required for this action.")
             if CURRENT_OS == "Windows":
                 print("Requesting Administrator elevation...")
@@ -61,7 +68,7 @@ def main():
         from ai_blocker.block_actions import activate_block, deactivate_block
 
         if args.unblock:
-            ok, msg = deactivate_block("en")
+            ok, msg = deactivate_block("en", backend_name=args.backend, dry_run=args.dry_run)
             print(msg.strip())
             sys.exit(0 if ok else 1)
 
@@ -75,9 +82,9 @@ def main():
                 cats = []
 
             if not cats:
-                ok, msg = deactivate_block("en")
+                ok, msg = deactivate_block("en", backend_name=args.backend, dry_run=args.dry_run)
             else:
-                ok, msg = activate_block("en", cats)
+                ok, msg = activate_block("en", cats, backend_name=args.backend, dry_run=args.dry_run)
             print(msg.strip())
             sys.exit(0 if ok else 1)
 
@@ -93,6 +100,9 @@ def main():
         detected_lang = detect_system_language()
         s = STRINGS[detected_lang]
 
+        import tkinter as tk
+        from tkinter import messagebox
+
         root_temp = tk.Tk()
         root_temp.withdraw()
         messagebox.showerror(
@@ -101,6 +111,10 @@ def main():
         )
         root_temp.destroy()
         sys.exit(1)
+
+    import tkinter as tk
+
+    from ai_blocker.ui import AIBlockerApp
 
     root = tk.Tk()
     AIBlockerApp(root)

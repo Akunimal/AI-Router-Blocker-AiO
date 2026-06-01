@@ -1,6 +1,6 @@
 # 🛡️ AI DevSec Gateway (formerly AI Network Blocker)
 
-> **Zero-Trust interceptor, auditor, and router for all your AI traffic.**
+> **Local controls for blocking, auditing, and routing AI developer traffic.**
 
 <p align="center">
   <img src="assets/screenshot.png" alt="AI DevSec Gateway Interface" width="600">
@@ -20,13 +20,13 @@
 
 ## 📖 What is this?
 
-**AI DevSec Gateway** is an enterprise-grade, open-source proxy and DevSecOps tool that intercepts, audits, and routes AI traffic leaving your local machine.
+**AI DevSec Gateway** is an open-source privacy and DevSecOps tool for developers adopting AI coding assistants. It provides local controls to block known AI endpoints, route API traffic to local inference servers, and audit active AI editor processes.
 
-Originally created as a simple GUI to block AI endpoints, it has evolved into a comprehensive **Zero-Trust Gateway**. It empowers developers and security teams to monitor exactly what data their AI coding assistants (like Copilot, Cursor, or extensions) are exfiltrating, intercept those requests, and route them to private, local, or corporate LLMs.
+Originally created as a simple GUI to block AI endpoints, it is evolving into a **Zero-Trust Gateway** for safer AI-assisted development. The current release focuses on deterministic hosts-file blocking, a local HTTP router, safe-by-default CLI controls, and a security auditor that keeps API keys in memory only.
 
-1. **Intercept & Block:** A deterministic OS-level override via the `hosts` file that drops unauthorized outbound connections to 38+ AI domains.
-2. **Route:** A transparent local HTTP proxy that intercepts cloud API requests and reroutes them to local LLMs (like Ollama, LM Studio, or vLLM).
-3. **Audit:** Real-time semantic analysis of active development environments to prevent data leakage and proprietary logic exposure.
+1. **Block:** A deterministic OS-level override via the `hosts` file that drops connections to 38+ known AI domains.
+2. **Route:** A local HTTP proxy that can route compatible API clients to local LLMs such as Ollama, LM Studio, or vLLM.
+3. **Audit:** Process-aware security checks that help identify active AI tools and data-leak risk signals.
 
 ---
 
@@ -35,9 +35,9 @@ Originally created as a simple GUI to block AI endpoints, it has evolved into a 
 | Feature | Description |
 |---|---|
 | 🔀 **Transparent API Router** | Seamlessly reroute Copilot/Cursor HTTP traffic to your own Local LLM inference servers. |
-| 🛡️ **AI DevSec Auditor** | Live, socket-level analysis of running processes to detect telemetry leaks. Powered by on-demand OpenAI audits (Zero-Persistence). |
+| 🛡️ **AI DevSec Auditor** | Live process analysis with on-demand OpenAI recommendations. API keys are memory-only and never persisted. |
 | 💻 **Native CLI Interface** | Full headless control for CI/CD environments. Use `ai-blocker --status` or `ai-devsec-gateway --block`. |
-| 🔒 **Deterministic Kill Switch** | Hard OS-level blocking (`127.0.0.1` redirection). No ambiguity, no reliance on DNS filtering servers. |
+| 🔒 **Deterministic Kill Switch** | Hard OS-level blocking through managed `hosts` entries. No reliance on remote DNS filtering servers. |
 | 📦 **Universal Distribution** | Install via `pip`, `brew`, `scoop`, or as a portable single-file binary for Windows/Linux/macOS. |
 | 🌍 **Multilingual GUI** | A premium Catppuccin Mocha interface with 10 supported languages and smart OS elevation (UAC/sudo). |
 
@@ -93,6 +93,22 @@ For an in-depth dive into our modular structure, Deep Packet Inspection (DPI) pl
 
 ---
 
+## ✅ Current Capabilities vs Roadmap
+
+This project is intentionally explicit about what is implemented today and what remains future work.
+
+| Area | Current status |
+|---|---|
+| Hosts-file blocking | Implemented and used by default in GUI/CLI. |
+| Local API gateway | Implemented for loopback HTTP routing to compatible local LLM servers. |
+| Backend selection | Implemented in CLI with `hosts` default and experimental `firewall-redirect` dry-run support. |
+| TLS/DPI interception | Planned, not implemented. No root CA is installed by current releases. |
+| eBPF/WFP kernel interception | Planned future backend work, not active runtime behavior. |
+
+The roadmap is ambitious, but releases should be evaluated by the implemented capabilities above.
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Python Package (Pip)
@@ -105,6 +121,20 @@ pip install ai-devsec-gateway
 ai-blocker --status
 ai-devsec-gateway --block
 ai-devsec-gateway --unblock
+```
+
+### 1.1 Backend Selection & Dry-Run
+Use hosts as the default backend, or explicitly inspect the experimental firewall backend with dry-run first:
+
+```bash
+# Show available backends
+ai-blocker --list-backends
+
+# Default behavior (hosts backend)
+ai-blocker --backend hosts --block work
+
+# Experimental backend plan only (no network changes applied)
+ai-blocker --backend firewall-redirect --block work --dry-run
 ```
 
 ### 2. Package Managers (macOS & Windows)

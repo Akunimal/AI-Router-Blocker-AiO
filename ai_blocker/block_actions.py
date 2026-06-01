@@ -4,7 +4,13 @@ import subprocess
 
 from ai_blocker.constants import BLOCKLIST, CURRENT_OS, HOSTS_PATH, PROCESS_LIST
 from ai_blocker.i18n import STRINGS
-from ai_blocker.network_backends import HostsBackend, get_network_backend, unique_domains
+from ai_blocker.network_backends import (
+    HostsBackend,
+    get_network_backend,
+    plan_backend_activation,
+    plan_backend_deactivation,
+    unique_domains,
+)
 from ai_blocker.system_utils import _get_subprocess_kwargs, flush_dns
 
 
@@ -71,7 +77,13 @@ def _get_backend(backend_name):
     return get_network_backend(backend_name)
 
 
-def activate_block(lang, categories_to_block=None, backend_name="hosts"):
+def _format_command_plan(commands):
+    if not commands:
+        return "No command plan available for this backend."
+    return "\n".join(" ".join(cmd) for cmd in commands)
+
+
+def activate_block(lang, categories_to_block=None, backend_name="hosts", dry_run=False):
     if categories_to_block is None:
         categories_to_block = list(BLOCKLIST.keys())
 
@@ -79,8 +91,17 @@ def activate_block(lang, categories_to_block=None, backend_name="hosts"):
     s = STRINGS[lang]
 
     try:
+        domains = _domains_for_categories(categories_to_block)
+        if dry_run:
+            planned_commands = plan_backend_activation(backend_name, domains)
+            msg = (
+                f"[DRY-RUN] Backend '{backend_name}' activation plan for {len(domains)} domains:\n"
+                f"{_format_command_plan(planned_commands)}"
+            )
+            return True, msg
+
         backend = _get_backend(backend_name)
-        result = backend.activate(_domains_for_categories(categories_to_block))
+        result = backend.activate(domains)
 
         if closed_list:
             process_details = f"{s['closed_processes_prefix']}{', '.join(closed_list)}"
@@ -98,9 +119,17 @@ def activate_block(lang, categories_to_block=None, backend_name="hosts"):
     except Exception as e:
         return False, s["unexpected_error_msg"].format(error=str(e))
 
-def deactivate_block(lang, backend_name="hosts"):
+def deactivate_block(lang, backend_name="hosts", dry_run=False):
     s = STRINGS[lang]
     try:
+        if dry_run:
+            planned_commands = plan_backend_deactivation(backend_name)
+            msg = (
+                f"[DRY-RUN] Backend '{backend_name}' deactivation plan:\n"
+                f"{_format_command_plan(planned_commands)}"
+            )
+            return True, msg
+
         backend = _get_backend(backend_name)
         result = backend.deactivate()
         msg = s["unblock_success_msg"].format(removed=result.count)

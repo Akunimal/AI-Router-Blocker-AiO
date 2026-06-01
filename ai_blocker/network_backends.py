@@ -21,6 +21,16 @@ class BackendResult:
     error: str | None = None
 
 
+@dataclass(frozen=True)
+class BackendInfo:
+    name: str
+    description: str
+    requires_admin: bool
+    supports_apply: bool
+    supports_status: bool
+    experimental: bool = False
+
+
 class NetworkBackend(Protocol):
     name: str
 
@@ -193,7 +203,53 @@ class FirewallRedirectBackend:
         return subprocess.run(command, capture_output=True, text=True, check=False, **_get_subprocess_kwargs())
 
 
+BACKEND_REGISTRY: dict[str, BackendInfo] = {
+    HostsBackend.name: BackendInfo(
+        name=HostsBackend.name,
+        description="Hosts file redirection to 127.0.0.1 (default backend).",
+        requires_admin=True,
+        supports_apply=True,
+        supports_status=True,
+        experimental=False,
+    ),
+    FirewallRedirectBackend.name: BackendInfo(
+        name=FirewallRedirectBackend.name,
+        description="Firewall/redirect command backend (experimental, opt-in).",
+        requires_admin=True,
+        supports_apply=True,
+        supports_status=False,
+        experimental=True,
+    ),
+}
+
+
+def list_network_backends() -> list[BackendInfo]:
+    return list(BACKEND_REGISTRY.values())
+
+
+def get_backend_info(name: str) -> BackendInfo:
+    info = BACKEND_REGISTRY.get(name)
+    if info is None:
+        raise ValueError(f"Unknown network backend: {name}")
+    return info
+
+
+def plan_backend_activation(name: str, domains: Iterable[str]) -> list[list[str]]:
+    backend = get_network_backend(name)
+    if hasattr(backend, "plan_activate"):
+        return backend.plan_activate(domains)
+    return []
+
+
+def plan_backend_deactivation(name: str) -> list[list[str]]:
+    backend = get_network_backend(name)
+    if hasattr(backend, "plan_deactivate"):
+        return backend.plan_deactivate()
+    return []
+
+
 def get_network_backend(name: str = "hosts") -> NetworkBackend:
+    get_backend_info(name)
     if name == HostsBackend.name:
         return HostsBackend()
     if name == FirewallRedirectBackend.name:

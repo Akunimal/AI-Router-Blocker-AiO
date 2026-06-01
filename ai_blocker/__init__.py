@@ -43,11 +43,16 @@ from ai_blocker.i18n import (
     load_translations,
 )
 from ai_blocker.network_backends import (
+    BackendInfo,
     BackendResult,
     FirewallRedirectBackend,
     HostsBackend,
     NetworkBackend,
+    get_backend_info,
     get_network_backend,
+    list_network_backends,
+    plan_backend_activation,
+    plan_backend_deactivation,
 )
 from ai_blocker.system_utils import (
     _get_subprocess_kwargs,

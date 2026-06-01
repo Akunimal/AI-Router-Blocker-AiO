@@ -1,6 +1,6 @@
 # 🛡️ AI DevSec Gateway (antes AI Network Blocker)
 
-> **Interceptor, auditor y enrutador Zero-Trust para todo tu tráfico de IA.**
+> **Controles locales para bloquear, auditar y enrutar tráfico de IA en entornos de desarrollo.**
 
 <p align="center">
   <img src="assets/screenshot.png" alt="Interfaz de AI DevSec Gateway" width="600">
@@ -20,13 +20,13 @@
 
 ## 📖 ¿Qué es esto?
 
-**AI DevSec Gateway** es un proxy y herramienta DevSecOps de código abierto y nivel empresarial que intercepta, audita y enruta el tráfico de IA que sale de tu máquina local.
+**AI DevSec Gateway** es una herramienta open-source de privacidad y DevSecOps para desarrolladores que adoptan asistentes de código con IA. Ofrece controles locales para bloquear endpoints conocidos de IA, enrutar tráfico API hacia servidores de inferencia locales y auditar procesos activos de editores con IA.
 
-Creado originalmente como una simple interfaz gráfica para bloquear dominios de IA, ha evolucionado hasta convertirse en un **Gateway Zero-Trust** completo. Permite a los desarrolladores y equipos de seguridad monitorear exactamente qué datos están exfiltrando sus asistentes de código de IA (como Copilot, Cursor o extensiones), interceptar esas solicitudes y enrutarlas a LLMs privados, locales o corporativos.
+Creado originalmente como una simple interfaz gráfica para bloquear dominios de IA, está evolucionando hacia un **Gateway Zero-Trust** para desarrollo asistido por IA más seguro. La versión actual se centra en bloqueo determinista por archivo `hosts`, router HTTP local, controles CLI seguros por defecto y un auditor de seguridad que mantiene las claves API solo en memoria.
 
-1. **Interceptar y Bloquear:** Una anulación determinista a nivel del sistema operativo mediante el archivo `hosts` que descarta conexiones salientes no autorizadas a más de 38 dominios de IA.
-2. **Enrutar:** Un proxy HTTP local transparente que intercepta las solicitudes a APIs en la nube y las redirige a LLMs locales (como Ollama, LM Studio o vLLM).
-3. **Auditar:** Análisis semántico en tiempo real de los entornos de desarrollo activos para prevenir la fuga de datos y la exposición de lógica propietaria.
+1. **Bloquear:** Una anulación determinista a nivel del sistema operativo mediante el archivo `hosts` que descarta conexiones a más de 38 dominios conocidos de IA.
+2. **Enrutar:** Un proxy HTTP local que puede dirigir clientes API compatibles hacia LLMs locales como Ollama, LM Studio o vLLM.
+3. **Auditar:** Revisiones de seguridad conscientes de procesos activos para detectar herramientas de IA y señales de riesgo de fuga de datos.
 
 ---
 
@@ -35,9 +35,9 @@ Creado originalmente como una simple interfaz gráfica para bloquear dominios de
 | Función | Descripción |
 |---|---|
 | 🔀 **Enrutador API Transparente** | Redirige sin problemas el tráfico HTTP de Copilot/Cursor a tus propios servidores locales de inferencia LLM. |
-| 🛡️ **Auditor AI DevSec** | Análisis en vivo y a nivel de socket de los procesos en ejecución para detectar fugas de telemetría. Impulsado por auditorías de OpenAI bajo demanda (Zero-Persistence). |
+| 🛡️ **Auditor AI DevSec** | Análisis en vivo de procesos con recomendaciones de OpenAI bajo demanda. Las claves API se mantienen solo en memoria. |
 | 💻 **Interfaz CLI Nativa** | Control completo desde la terminal para entornos CI/CD. Usa `ai-blocker --status` o `ai-devsec-gateway --block`. |
-| 🔒 **Interruptor de Apagado Determinista** | Bloqueo a nivel de sistema operativo (redirección a `127.0.0.1`). Sin ambigüedades ni dependencia de servidores de filtrado DNS. |
+| 🔒 **Interruptor de Apagado Determinista** | Bloqueo a nivel de sistema operativo mediante entradas administradas en `hosts`. Sin dependencia de servidores remotos de filtrado DNS. |
 | 📦 **Distribución Universal** | Instalable vía `pip`, `brew`, `scoop`, o como un único binario ejecutable portable para Windows/Linux/macOS. |
 | 🌍 **Interfaz Multilingüe** | Una interfaz gráfica premium (Catppuccin Mocha) con 10 idiomas soportados y elevación inteligente de privilegios del SO (UAC/sudo). |
 
@@ -93,6 +93,22 @@ Para sumergirte en profundidad en nuestra estructura modular, los planes de Insp
 
 ---
 
+## ✅ Capacidades Actuales vs Roadmap
+
+El proyecto distingue explícitamente qué está implementado hoy y qué sigue como trabajo futuro.
+
+| Área | Estado actual |
+|---|---|
+| Bloqueo por archivo hosts | Implementado y usado por defecto en GUI/CLI. |
+| Gateway API local | Implementado para routing HTTP en loopback hacia servidores LLM locales compatibles. |
+| Selección de backend | Implementada en CLI con `hosts` por defecto y soporte experimental `firewall-redirect` en dry-run. |
+| Intercepción TLS/DPI | Planificada, no implementada. Las versiones actuales no instalan root CA. |
+| Intercepción kernel eBPF/WFP | Trabajo futuro como backend dedicado, no comportamiento activo en runtime. |
+
+El roadmap es ambicioso, pero cada release debe evaluarse por las capacidades implementadas arriba.
+
+---
+
 ## 🚀 Inicio Rápido
 
 ### 1. Paquete de Python (Pip)
@@ -105,6 +121,20 @@ pip install ai-devsec-gateway
 ai-blocker --status
 ai-devsec-gateway --block
 ai-devsec-gateway --unblock
+```
+
+### 1.1 Selección de Backend y Dry-Run
+Puedes usar `hosts` como backend por defecto, o inspeccionar explícitamente el backend experimental de firewall usando `dry-run` antes de aplicar cambios:
+
+```bash
+# Mostrar backends disponibles
+ai-blocker --list-backends
+
+# Comportamiento por defecto (backend hosts)
+ai-blocker --backend hosts --block work
+
+# Plan del backend experimental (no aplica cambios de red)
+ai-blocker --backend firewall-redirect --block work --dry-run
 ```
 
 ### 2. Gestores de Paquetes (macOS y Windows)
