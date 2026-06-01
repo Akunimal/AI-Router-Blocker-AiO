@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from ai_blocker.constants import BLOCKLIST, COMMENT_TAG, CURRENT_OS, HOSTS_PATH
+from ai_blocker.constants import BLOCKLIST, CURRENT_OS
 
 if CURRENT_OS == "Windows":
     import ctypes
@@ -68,17 +68,8 @@ def count_total_domains():
     return len(seen)
 
 def get_hosts_status():
-    is_blocked = False
-    count = 0
-    if not os.path.exists(HOSTS_PATH):
-        return is_blocked, count
     try:
-        with open(HOSTS_PATH, "r", encoding="utf-8") as f:
-            for line in f:
-                if COMMENT_TAG in line:
-                    is_blocked = True
-                    if line.strip() and not line.strip().startswith("#"):
-                        count += 1
+        from ai_blocker.network_backends import HostsBackend
+        return HostsBackend().status()
     except Exception:
-        pass
-    return is_blocked, count
+        return False, 0

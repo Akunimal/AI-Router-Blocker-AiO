@@ -12,7 +12,7 @@ This roadmap outlines our technical vision, showing our completed work and upcom
 |---|---|---|---|
 | **Phase 0** | Core Desktop Blocker & i18n | Q1 2026 | `██████████` 100% |
 | **Phase 1** | Modularization, CLI & Multi-Provider | Q2 2026 (Current) | `██████████` 100% |
-| **Phase 2** | Kernel-Level Interception & TLS Decryption | Q3 2026 | `░░░░░░░░░░` 0% |
+| **Phase 2** | Network Backend Abstraction, Firewall Redirects & TLS Decryption | Q3 2026 | `██░░░░░░░░` 20% |
 | **Phase 3** | DLP Sanitization & Real-time Semantic Guardrails | Q4 2026 | `░░░░░░░░░░` 0% |
 | **Phase 4** | System Daemons, TPM 2.0 & Enterprise MDM | Q1 2027 | `░░░░░░░░░░` 0% |
 | **Phase 5** | Confidential Computing & eBPF Telemetry | Q2 2027 | `░░░░░░░░░░` 0% |
@@ -34,14 +34,21 @@ This roadmap outlines our technical vision, showing our completed work and upcom
 - [x] **Custom Domain Additions:** Interactively add domains to local configuration settings.
 - [x] **Granular Category Toggles:** Profile-level category selectors (Work, Personal, Free) to control block scopes.
 
-## 🧪 Phase 2: Kernel-Level Interception & HTTPS TLS Decryption (v1.3 - v1.5)
-- [x] **Deep Packet Inspection (DPI) & TLS Decryption:**
+## 🧪 Phase 2: Network Interception & HTTPS TLS Decryption (v1.3 - v1.5)
+- [x] **Internal Network Backend Interface:**
+  * Introduce a pluggable backend boundary so hosts-file blocking, firewall redirects, and future kernel-level interceptors can be implemented behind the same activate/deactivate/status contract.
+  * Keep the hosts-file backend as the default behavior for existing GUI and CLI workflows.
+- [x] **Non-kernel Firewall/Redirect Backend Foundation:**
+  * Add a testable backend that can plan and execute OS firewall/redirect commands through an injectable command runner.
+  * Treat firewall redirects as an intermediate layer before kernel drivers, not a replacement for eBPF/WFP.
+- [ ] **Deep Packet Inspection (DPI) & TLS Decryption:**
   * Build on-the-fly local Root Certificate Authority (CA) generator.
   * Integrate generated CA certificates automatically into OS trust stores (Windows Registry, macOS Keychain, Linux ca-certificates) and specific IDE trust chains.
   * Surgical endpoint blocking (e.g. block `/v1/chat/completions` payload transmissions while keeping `/v1/models` structural reads open).
 - [ ] **Kernel-Level Socket Redirection:**
   * **Linux:** Implement eBPF (Extended Berkeley Packet Filter) socket filters to redirect TCP ports `443` for specific AI IP subnets directly at the kernel layer, eliminating hosts file dependency.
   * **Windows:** Develop a Windows Filtering Platform (WFP) network driver to intercept outbound connections programmatically.
+  * eBPF and WFP are future backend implementations behind the internal network backend interface.
 - [ ] **Dynamic Regular Expression Domain Matching:** Real-time wildcard resolution for dynamic content delivery networks (CDNs).
 
 ## 📊 Phase 3: DLP Sanitization & Real-Time Semantic Guardrails (v1.6 - v1.7)

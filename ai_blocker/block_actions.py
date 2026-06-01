@@ -2,8 +2,9 @@
 import os
 import subprocess
 
-from ai_blocker.constants import BLOCKLIST, COMMENT_TAG, CURRENT_OS, HOSTS_PATH, PROCESS_LIST
+from ai_blocker.constants import BLOCKLIST, CURRENT_OS, HOSTS_PATH, PROCESS_LIST
 from ai_blocker.i18n import STRINGS
+from ai_blocker.network_backends import HostsBackend, get_network_backend, unique_domains
 from ai_blocker.system_utils import _get_subprocess_kwargs, flush_dns
 
 
@@ -56,7 +57,21 @@ def detect_running_ai_editors():
         pass
     return running
 
-def activate_block(lang, categories_to_block=None):
+def _domains_for_categories(categories_to_block):
+    domains_to_block = []
+    for cat in categories_to_block:
+        if cat in BLOCKLIST:
+            domains_to_block.extend(BLOCKLIST[cat])
+    return unique_domains(domains_to_block)
+
+
+def _get_backend(backend_name):
+    if backend_name == HostsBackend.name:
+        return HostsBackend(HOSTS_PATH, flush_func=flush_dns)
+    return get_network_backend(backend_name)
+
+
+def activate_block(lang, categories_to_block=None, backend_name="hosts"):
     if categories_to_block is None:
         categories_to_block = list(BLOCKLIST.keys())
 
@@ -64,35 +79,8 @@ def activate_block(lang, categories_to_block=None):
     s = STRINGS[lang]
 
     try:
-        existing_lines = []
-        if os.path.exists(HOSTS_PATH):
-            with open(HOSTS_PATH, "r", encoding="utf-8") as f:
-                existing_lines = f.readlines()
-
-        cleaned_lines = [l for l in existing_lines if COMMENT_TAG not in l]
-
-        if cleaned_lines and not cleaned_lines[-1].endswith("\n"):
-            cleaned_lines[-1] += "\n"
-
-        new_entries = []
-        added_count = 0
-
-        domains_to_block = []
-        for cat in categories_to_block:
-            if cat in BLOCKLIST:
-                for domain in BLOCKLIST[cat]:
-                    if domain not in domains_to_block:
-                        domains_to_block.append(domain)
-
-        for domain in domains_to_block:
-            entry = f"127.0.0.1 {domain} {COMMENT_TAG}\n"
-            new_entries.append(entry)
-            added_count += 1
-
-        with open(HOSTS_PATH, "w", encoding="utf-8") as f:
-            f.writelines(cleaned_lines + new_entries)
-
-        flush_dns()
+        backend = _get_backend(backend_name)
+        result = backend.activate(_domains_for_categories(categories_to_block))
 
         if closed_list:
             process_details = f"{s['closed_processes_prefix']}{', '.join(closed_list)}"
@@ -100,7 +88,7 @@ def activate_block(lang, categories_to_block=None):
             process_details = s["no_processes_detected"]
 
         msg = s["block_success_msg"].format(
-            added_count=added_count,
+            added_count=result.count,
             process_details=process_details
         )
         return True, msg
@@ -110,25 +98,12 @@ def activate_block(lang, categories_to_block=None):
     except Exception as e:
         return False, s["unexpected_error_msg"].format(error=str(e))
 
-def deactivate_block(lang):
+def deactivate_block(lang, backend_name="hosts"):
     s = STRINGS[lang]
     try:
-        if not os.path.exists(HOSTS_PATH):
-            return True, s["unblock_success_msg"].format(removed=0)
-
-        with open(HOSTS_PATH, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-
-        original_count = len(lines)
-        cleaned = [l for l in lines if COMMENT_TAG not in l]
-        removed = original_count - len(cleaned)
-
-        with open(HOSTS_PATH, "w", encoding="utf-8") as f:
-            f.writelines(cleaned)
-
-        flush_dns()
-
-        msg = s["unblock_success_msg"].format(removed=removed)
+        backend = _get_backend(backend_name)
+        result = backend.deactivate()
+        msg = s["unblock_success_msg"].format(removed=result.count)
         return True, msg
 
     except PermissionError:

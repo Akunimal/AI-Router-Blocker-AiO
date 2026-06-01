@@ -13,8 +13,8 @@ AI DevSec Gateway is a **single-binary, zero-dependency desktop application** th
 │                  AI DevSec Gateway                  │
 │                                                     │
 │  ┌──────────────┐  ┌──────────┐  ┌──────────────┐  │
-│  │ Hosts Engine │  │ API      │  │ DevSec       │  │
-│  │ (DNS Override│  │ Gateway  │  │ Auditor      │  │
+│  │ Network      │  │ API      │  │ DevSec       │  │
+│  │ Backends     │  │ Gateway  │  │ Auditor      │  │
 │  │  & Kill      │  │ (Proxy)  │  │ (LLM-powered)│  │
 │  │  Switch)     │  │          │  │              │  │
 │  └──────────────┘  └──────────┘  └──────────────┘  │
@@ -46,7 +46,22 @@ graph TD
 
 ## Core Components
 
-### 1. Hosts Engine (DNS Override & Kill Switch)
+### 1. Network Backends
+
+**Purpose:** Provide a stable internal boundary for network enforcement strategies. The default backend remains the hosts-file engine, while the firewall/redirect backend is available as a testable non-kernel foundation for future interception work.
+
+**Backend contract:**
+- `activate(domains)` applies protection for a unique ordered domain list
+- `deactivate()` removes rules owned by AI DevSec Gateway
+- `status()` reports whether protection is active and how many managed entries exist
+
+**Implemented backends:**
+- `HostsBackend` — production default used by the GUI and CLI
+- `FirewallRedirectBackend` — non-kernel command-planning backend with injectable command execution for tests and future opt-in workflows
+
+**Future backends:** Linux eBPF and Windows Filtering Platform (WFP) are planned as dedicated backend implementations. They are not part of the current runtime behavior.
+
+### 2. Hosts Engine (DNS Override & Kill Switch)
 
 **Purpose:** Deterministic, OS-level blocking of AI domains by routing them to `127.0.0.1` in the system hosts file.
 
@@ -64,7 +79,7 @@ graph TD
 
 **Security invariant:** The engine only touches lines containing `# AI-Block`. All other hosts file entries are preserved verbatim.
 
-### 2. Local API Gateway (Transparent Proxy)
+### 3. Local API Gateway (Transparent Proxy)
 
 **Purpose:** Intercept HTTP requests from IDEs and transparently proxy them to local LLMs (Ollama, LM Studio) or custom endpoints.
 
@@ -84,12 +99,12 @@ sequenceDiagram
 **Implementation:** Uses Python's `http.server.ThreadingHTTPServer` with a custom `BaseHTTPRequestHandler` to proxy GET, POST, PUT, PATCH, DELETE, and OPTIONS requests.
 
 **Key design decisions:**
-- **No TLS termination** — The gateway operates on plain HTTP at `127.0.0.1` (loopback only). TLS interception is planned for Phase 2.
+- **No TLS termination yet** — The gateway operates on plain HTTP at `127.0.0.1` (loopback only). DPI/TLS interception remains planned work, not completed runtime behavior.
 - **No external dependencies** — Uses `urllib.request` from the stdlib instead of `requests` or `httpx`.
 - **Request body preservation** — Mutating methods preserve request bodies when `Content-Length` is present, including DELETE requests from REST clients.
 - **Streaming support** — Reads and forwards response data in 1KB chunks for SSE compatibility.
 
-### 3. DevSec Auditor (LLM-Powered Security Analysis)
+### 4. DevSec Auditor (LLM-Powered Security Analysis)
 
 **Purpose:** Live analysis of running processes to detect data leak risks, powered by cloud LLM APIs.
 
@@ -98,7 +113,7 @@ sequenceDiagram
 - Keys can be provided via the `OPENAI_API_KEY` environment variable or entered in the UI
 - The `SENSITIVE_CONFIG_KEYS` set ensures keys are stripped before any config save operation
 
-### 4. GUI Layer (Tkinter + Catppuccin Mocha)
+### 5. GUI Layer (Tkinter + Catppuccin Mocha)
 
 **Purpose:** Premium dark-mode desktop interface with tab-based navigation.
 
