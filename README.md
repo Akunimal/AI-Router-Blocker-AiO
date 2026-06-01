@@ -176,6 +176,7 @@ We believe that security tools must be 100% transparent. This project is built u
 - **[Contributing Guide](CONTRIBUTING.md):** Standards and PR templates.
 - **[Code of Conduct](CODE_OF_CONDUCT.md):** We foster a welcoming community.
 - **[Security Policy](SECURITY.md):** Responsible vulnerability disclosure.
+- **[Codex for OSS Summary](CODEX_FOR_OSS.md):** Maintainer-focused project summary, current scope, and planned Codex usage.
 - **[License](LICENSE):** MIT Licensed.
 
 ---
