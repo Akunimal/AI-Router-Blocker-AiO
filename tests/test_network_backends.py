@@ -62,8 +62,7 @@ def test_firewall_redirect_backend_uses_injected_runner():
 
     assert result.success is True
     assert result.count == 1
-    assert len(commands) == 1
-    assert commands[0] == backend.plan_activate(["api.openai.com"])[0]
+    assert commands == backend.plan_activate(["api.openai.com"])
 
 
 def test_firewall_redirect_backend_plans_platform_command():
