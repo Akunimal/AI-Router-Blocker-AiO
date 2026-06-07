@@ -1,6 +1,9 @@
 import os
 import shutil
 import tempfile
+import pytest
+
+pytest.importorskip("cryptography")
 
 from ai_blocker import tls_manager
 
