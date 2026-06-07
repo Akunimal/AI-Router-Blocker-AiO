@@ -32,8 +32,8 @@ from ai_blocker.constants import (
 )
 from ai_blocker.gateway import GatewayHandler
 from ai_blocker.i18n import CATEGORY_TRANSLATIONS, LANG_CODE_MAP, LANG_DISPLAY_MAP, STRINGS, detect_system_language
+from ai_blocker.network_backends import list_network_backends
 from ai_blocker.system_utils import count_total_domains, get_hosts_status, install_root_ca
-from ai_blocker.network_backends import list_network_backends, BACKEND_REGISTRY
 from ai_blocker.tray import WindowsTrayIcon
 
 try:
@@ -195,7 +195,7 @@ class AIBlockerApp:
             font=(UI_FONT, 9)
         )
         self.backend_combo.pack(side=tk.LEFT, padx=(0, 10), pady=(4, 0))
-        
+
         current_backend = self.config.get("network_backend", "hosts")
         self.backend_combo.set(self.backend_mapping.get(current_backend, "HOSTS"))
         self.backend_combo.bind("<<ComboboxSelected>>", self._on_backend_selected)
@@ -554,22 +554,22 @@ class AIBlockerApp:
         tls_frame.pack(fill=tk.X, pady=(0, 16))
 
         tk.Label(tls_frame, text="🔒 TLS & Deep Packet Inspection", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(anchor="w", padx=16, pady=(12, 4))
-        
+
         if HAS_TLS:
             tk.Label(tls_frame, text="Install the Root CA to enable HTTPS inspection and DPI.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT).pack(anchor="w", padx=16)
-            
+
             btn_frame = tk.Frame(tls_frame, bg=COL_SURFACE0)
             btn_frame.pack(fill=tk.X, padx=16, pady=(10, 12))
-            
+
             self.tls_status_lbl = tk.Label(btn_frame, text="Status: Checking...", bg=COL_SURFACE0, fg=COL_TEXT, font=(UI_FONT, 9))
             self.tls_status_lbl.pack(side=tk.LEFT)
-            
+
             self.tls_install_btn = tk.Button(btn_frame, text="Install Root CA", font=(UI_FONT, 9, "bold"), bg=COL_BLUE, fg="#000000", bd=0, command=self._install_tls_ca)
             self.tls_install_btn.pack(side=tk.RIGHT, padx=(4, 0))
-            
+
             self.tls_uninstall_btn = tk.Button(btn_frame, text="Uninstall", font=(UI_FONT, 9), bg=COL_SURFACE1, fg=COL_TEXT, bd=0, command=self._uninstall_tls_ca)
             self.tls_uninstall_btn.pack(side=tk.RIGHT)
-            
+
             self._update_tls_status()
         else:
             tk.Label(tls_frame, text="TLS features disabled. Install 'cryptography' package.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_RED).pack(anchor="w", padx=16, pady=(0, 12))
