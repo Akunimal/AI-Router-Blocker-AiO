@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # ruff: noqa: F401
-__version__ = "1.3.2"
+__version__ = "1.4.0"
 APP_VERSION = __version__
 
 # Expose everything to maintain backwards compatibility and test stability
+from ai_blocker.audit_log import AuditEntry, AuditLog
 from ai_blocker.block_actions import activate_block, deactivate_block, detect_running_ai_editors, force_close_processes
 from ai_blocker.config import (
     SENSITIVE_CONFIG_KEYS,
@@ -33,7 +34,14 @@ from ai_blocker.constants import (
     UI_FONT,
     _get_ui_font,
 )
+from ai_blocker.context_anonymizer import CodeAnonymizer
+from ai_blocker.dlp_engine import DLPEngine, DLPFinding, FindingType
+from ai_blocker.domain_matcher import BLOCKLIST_PATTERNS, is_domain_blocked, matches_any_pattern
+
+# Phase 2+3 modules (always available — pure stdlib)
+from ai_blocker.dpi_rules import DEFAULT_DPI_RULES, DPIAction, DPIRule, DPIRuleEngine
 from ai_blocker.gateway import GatewayHandler
+from ai_blocker.guardrails import GuardrailResult, PromptGuardrail, ThreatCategory
 from ai_blocker.i18n import (
     CATEGORY_TRANSLATIONS,
     LANG_CODE_MAP,
@@ -62,6 +70,22 @@ from ai_blocker.system_utils import (
     is_admin,
     relaunch_as_admin,
 )
+from ai_blocker.token_monitor import TokenMonitor
+
+# tls_manager requires the `cryptography` package (optional dependency)
+try:
+    from ai_blocker.tls_manager import (
+        clear_leaf_cache,
+        generate_leaf_cert,
+        generate_root_ca,
+        get_or_create_root_ca,
+        get_or_generate_leaf_cert,
+        is_root_ca_installed,
+        uninstall_root_ca,
+    )
+except ImportError:
+    pass
+
 from ai_blocker.ui import AIBlockerApp
 
 if CURRENT_OS == "Windows":

@@ -39,8 +39,17 @@ def test_gateway_handler_proxy_post_with_body():
     handler.headers = {"Content-Type": "application/json", "Content-Length": "42"}
     handler.server = MagicMock()
     handler.server.target_url = "http://localhost:11434"
+    handler.server.token_monitor = None
+    handler.server.dlp_engine = None
+    handler.server.audit_log = None
+    handler.server.guardrail = None
     handler.rfile = MagicMock()
     handler.rfile.read.return_value = b'{"model": "llama3", "messages": []}'
+    handler.wfile = MagicMock()
+    handler._apply_dlp = MagicMock(side_effect=lambda data, *a: data)
+    handler._get_token_monitor = MagicMock(return_value=None)
+    handler._get_audit_log = MagicMock(return_value=None)
+    handler._log_audit = MagicMock()
 
     with patch("ai_blocker.gateway.urllib.request.urlopen") as mock_urlopen:
         mock_response = MagicMock()
@@ -79,8 +88,17 @@ def test_gateway_handler_proxy_delete_with_body():
     handler.headers = {"Content-Type": "application/json", "Content-Length": "15"}
     handler.server = MagicMock()
     handler.server.target_url = "http://localhost:11434"
+    handler.server.token_monitor = None
+    handler.server.dlp_engine = None
+    handler.server.audit_log = None
+    handler.server.guardrail = None
     handler.rfile = MagicMock()
     handler.rfile.read.return_value = b'{"force": true}'
+    handler.wfile = MagicMock()
+    handler._apply_dlp = MagicMock(side_effect=lambda data, *a: data)
+    handler._get_token_monitor = MagicMock(return_value=None)
+    handler._get_audit_log = MagicMock(return_value=None)
+    handler._log_audit = MagicMock()
 
     with patch("ai_blocker.gateway.urllib.request.urlopen") as mock_urlopen:
         mock_response = MagicMock()

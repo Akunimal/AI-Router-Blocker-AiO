@@ -18,6 +18,18 @@ The project is relevant to the software ecosystem because AI-assisted developmen
 - Package metadata and distribution paths for PyPI, Homebrew, Scoop, and portable binaries.
 - Roadmap separates implemented behavior from future TLS/DPI, eBPF, and WFP work.
 
+## What public discussion suggests
+
+Public forum discussion around Codex for OSS does not reveal a reliable shortcut. The useful pattern is straightforward: selected or hopeful maintainers point back to public project activity, clear maintainer responsibility, and a specific plan for using Codex on review, triage, release, automation, and security work. Smaller projects should explain ecosystem importance and maintenance burden instead of relying only on stars.
+
+Before applying, gather:
+
+- GitHub stars, forks, releases, watchers, and recent commit cadence.
+- PyPI downloads or package-manager install signals, if available.
+- Links to CI, coverage, CodeQL, Dependabot, issue templates, PR template, and security policy.
+- Examples of recent maintenance work: triage, release notes, security fixes, cross-platform work.
+- A concise explanation of why local AI traffic control matters for the developer ecosystem.
+
 ## How Codex would be used
 
 Codex credits would be used for maintenance work that benefits users and contributors:
@@ -28,7 +40,23 @@ Codex credits would be used for maintenance work that benefits users and contrib
 - Harden documentation so implemented capabilities, experimental features, and roadmap items remain clearly separated.
 - Assist release preparation by checking changelogs, packaging metadata, workflows, and smoke-test commands.
 
-## Suggested application answer
+## Form-ready application answers
+
+The Codex for OSS form uses short fields. These answers are intentionally under 500 characters.
+
+### Why does this repository qualify?
+
+AI DevSec Gateway protects developers adopting AI coding assistants by providing local controls to block known AI endpoints, audit active AI editor processes, and route compatible API clients to local/private LLMs. It is MIT licensed, actively maintained, security-focused, multi-OS tested, and relevant to teams reducing accidental source, secret, and metadata exposure.
+
+### How will you use API credits for your project?
+
+Use Codex/API credits for OSS maintenance: PR security review, issue triage with repro steps, regression tests for privileged hosts/firewall/gateway behavior, cross-platform release smoke checks, packaging metadata review, and docs updates that keep implemented features separate from experimental roadmap items.
+
+### Anything else we should know?
+
+The project is deliberately local-first and dependency-light because it runs with elevated network permissions. Support would go directly into hardening safe defaults, improving coverage around OS-specific behavior, and reducing maintainer load for security-sensitive review and release work.
+
+## Longer application narrative
 
 AI DevSec Gateway is an open-source privacy/security tool for developers adopting AI coding assistants. It gives teams local controls to block known AI endpoints, audit active AI editor processes, and route compatible API clients to local/private LLM infrastructure. The project is actively maintained with multi-OS CI, tests, linting, type checks, CodeQL, packaging metadata, a security policy, and a roadmap toward safer AI development workflows.
 

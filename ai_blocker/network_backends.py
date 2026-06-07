@@ -220,6 +220,22 @@ BACKEND_REGISTRY: dict[str, BackendInfo] = {
         supports_status=False,
         experimental=True,
     ),
+    "wfp": BackendInfo(
+        name="wfp",
+        description="Windows Filtering Platform backend (experimental stub, Windows only).",
+        requires_admin=True,
+        supports_apply=True,
+        supports_status=True,
+        experimental=True,
+    ),
+    "ebpf": BackendInfo(
+        name="ebpf",
+        description="eBPF socket filter backend (experimental stub, Linux only).",
+        requires_admin=True,
+        supports_apply=False,
+        supports_status=False,
+        experimental=True,
+    ),
 }
 
 
@@ -254,4 +270,10 @@ def get_network_backend(name: str = "hosts") -> NetworkBackend:
         return HostsBackend()
     if name == FirewallRedirectBackend.name:
         return FirewallRedirectBackend()
+    if name == "wfp":
+        from ai_blocker.kernel_backends import WFPBackend
+        return WFPBackend()
+    if name == "ebpf":
+        from ai_blocker.kernel_backends import EBPFBackend
+        return EBPFBackend()
     raise ValueError(f"Unknown network backend: {name}")

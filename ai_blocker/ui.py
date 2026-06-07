@@ -32,8 +32,15 @@ from ai_blocker.constants import (
 )
 from ai_blocker.gateway import GatewayHandler
 from ai_blocker.i18n import CATEGORY_TRANSLATIONS, LANG_CODE_MAP, LANG_DISPLAY_MAP, STRINGS, detect_system_language
-from ai_blocker.system_utils import count_total_domains, get_hosts_status
+from ai_blocker.system_utils import count_total_domains, get_hosts_status, install_root_ca
+from ai_blocker.network_backends import list_network_backends, BACKEND_REGISTRY
 from ai_blocker.tray import WindowsTrayIcon
+
+try:
+    from ai_blocker.tls_manager import get_or_create_root_ca, is_root_ca_installed, uninstall_root_ca
+    HAS_TLS = True
+except ImportError:
+    HAS_TLS = False
 
 
 class AIBlockerApp:
@@ -168,7 +175,7 @@ class AIBlockerApp:
             textvariable=self.lang_var,
             values=list(LANG_DISPLAY_MAP.keys()),
             state="readonly",
-            width=12,
+            width=5,
             font=(UI_FONT, 9)
         )
         self.lang_combo.pack(side=tk.LEFT, padx=(0, 10), pady=(4, 0))
@@ -176,6 +183,22 @@ class AIBlockerApp:
         initial_display = LANG_CODE_MAP.get(self.current_lang, "English")
         self.lang_combo.set(initial_display)
         self.lang_combo.bind("<<ComboboxSelected>>", self._on_language_selected)
+
+        self.backend_var = tk.StringVar()
+        self.backend_mapping = {info.name: info.name.upper() for info in list_network_backends()}
+        self.backend_combo = ttk.Combobox(
+            right_panel,
+            textvariable=self.backend_var,
+            values=list(self.backend_mapping.values()),
+            state="readonly",
+            width=8,
+            font=(UI_FONT, 9)
+        )
+        self.backend_combo.pack(side=tk.LEFT, padx=(0, 10), pady=(4, 0))
+        
+        current_backend = self.config.get("network_backend", "hosts")
+        self.backend_combo.set(self.backend_mapping.get(current_backend, "HOSTS"))
+        self.backend_combo.bind("<<ComboboxSelected>>", self._on_backend_selected)
 
         from ai_blocker import __version__
         self.version_label = tk.Label(
@@ -526,6 +549,31 @@ class AIBlockerApp:
         self.gateway_btn = tk.Button(router_frame, text="▶ Start Gateway", font=(UI_FONT, 10, "bold"), bg=COL_GREEN, fg="#000000", bd=0, command=self._toggle_gateway)
         self.gateway_btn.pack(fill=tk.X, padx=16, pady=12)
 
+        # Section 1.5: TLS & DPI Configuration
+        tls_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        tls_frame.pack(fill=tk.X, pady=(0, 16))
+
+        tk.Label(tls_frame, text="🔒 TLS & Deep Packet Inspection", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(anchor="w", padx=16, pady=(12, 4))
+        
+        if HAS_TLS:
+            tk.Label(tls_frame, text="Install the Root CA to enable HTTPS inspection and DPI.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT).pack(anchor="w", padx=16)
+            
+            btn_frame = tk.Frame(tls_frame, bg=COL_SURFACE0)
+            btn_frame.pack(fill=tk.X, padx=16, pady=(10, 12))
+            
+            self.tls_status_lbl = tk.Label(btn_frame, text="Status: Checking...", bg=COL_SURFACE0, fg=COL_TEXT, font=(UI_FONT, 9))
+            self.tls_status_lbl.pack(side=tk.LEFT)
+            
+            self.tls_install_btn = tk.Button(btn_frame, text="Install Root CA", font=(UI_FONT, 9, "bold"), bg=COL_BLUE, fg="#000000", bd=0, command=self._install_tls_ca)
+            self.tls_install_btn.pack(side=tk.RIGHT, padx=(4, 0))
+            
+            self.tls_uninstall_btn = tk.Button(btn_frame, text="Uninstall", font=(UI_FONT, 9), bg=COL_SURFACE1, fg=COL_TEXT, bd=0, command=self._uninstall_tls_ca)
+            self.tls_uninstall_btn.pack(side=tk.RIGHT)
+            
+            self._update_tls_status()
+        else:
+            tk.Label(tls_frame, text="TLS features disabled. Install 'cryptography' package.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_RED).pack(anchor="w", padx=16, pady=(0, 12))
+
         # Section 2: Auditor
         audit_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
         audit_frame.pack(fill=tk.BOTH, expand=True)
@@ -568,6 +616,44 @@ class AIBlockerApp:
             self.gateway_running = False
             self.gateway_btn.configure(text="▶ Start Gateway", bg=COL_GREEN)
             self.log_action("log_gateway_stopped")
+
+    def _update_tls_status(self):
+        if not HAS_TLS:
+            return
+        installed = is_root_ca_installed()
+        if installed:
+            self.tls_status_lbl.configure(text="Status: Installed ✅", fg=COL_GREEN)
+            self.tls_install_btn.configure(state="disabled")
+            self.tls_uninstall_btn.configure(state="normal")
+        else:
+            self.tls_status_lbl.configure(text="Status: Not Installed ❌", fg=COL_RED)
+            self.tls_install_btn.configure(state="normal")
+            self.tls_uninstall_btn.configure(state="disabled")
+
+    def _install_tls_ca(self):
+        if not HAS_TLS:
+            return
+        try:
+            ca_cert_path, _ = get_or_create_root_ca()
+            if install_root_ca(ca_cert_path):
+                messagebox.showinfo("Success", "Root CA installed successfully.")
+            else:
+                messagebox.showerror("Error", "Failed to install Root CA. You may need to run as administrator.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to generate or install CA: {e}")
+        self._update_tls_status()
+
+    def _uninstall_tls_ca(self):
+        if not HAS_TLS:
+            return
+        try:
+            if uninstall_root_ca():
+                messagebox.showinfo("Success", "Root CA uninstalled successfully.")
+            else:
+                messagebox.showerror("Error", "Failed to uninstall Root CA. You may need to run as administrator.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to uninstall CA: {e}")
+        self._update_tls_status()
 
     def _run_audit(self):
         api_key = self.openai_key_var.get().strip()
@@ -629,6 +715,16 @@ class AIBlockerApp:
             self.current_lang = selected_code
             self._update_language_ui()
             self._save_current_config()
+
+    def _on_backend_selected(self, event):
+        selected_display = self.backend_combo.get()
+        for backend_id, display_name in self.backend_mapping.items():
+            if display_name == selected_display:
+                self.config["network_backend"] = backend_id
+                self._save_current_config()
+                if self.is_blocked:
+                    self._handle_reapply_block()
+                break
 
     def _update_language_ui(self):
         from ai_blocker import __version__
@@ -748,10 +844,11 @@ class AIBlockerApp:
 
         def task():
             active_cats = self._get_active_categories()
+            backend = self.config.get("network_backend", "hosts")
             if not active_cats:
-                ok, msg = deactivate_block(self.current_lang)
+                ok, msg = deactivate_block(self.current_lang, backend_name=backend)
             else:
-                ok, msg = activate_block(self.current_lang, active_cats)
+                ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend)
 
             if ok:
                 self.is_blocked = bool(active_cats)
@@ -792,8 +889,9 @@ class AIBlockerApp:
         self.toggle_btn.configure(state="disabled", text=s["busy_text"])
 
         def task():
+            backend = self.config.get("network_backend", "hosts")
             if self.is_blocked:
-                ok, msg = deactivate_block(self.current_lang)
+                ok, msg = deactivate_block(self.current_lang, backend_name=backend)
                 if ok:
                     self.is_blocked = False
             else:
@@ -802,7 +900,7 @@ class AIBlockerApp:
                     for cat in self.category_vars:
                         self.category_vars[cat].set(True)
                     active_cats = list(self.category_vars.keys())
-                ok, msg = activate_block(self.current_lang, active_cats)
+                ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend)
                 if ok:
                     self.is_blocked = True
 
