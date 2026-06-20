@@ -16,6 +16,9 @@ def test_gateway_handler_proxy_get():
     handler.headers = {"Content-Type": "application/json"}
     handler.server = MagicMock()
     handler.server.target_url = "http://localhost:11434"
+    handler._get_token_monitor = MagicMock(return_value=None)
+    handler._get_audit_log = MagicMock(return_value=None)
+    handler._log_audit = MagicMock()
 
     with patch("ai_blocker.gateway.urllib.request.urlopen") as mock_urlopen:
         mock_response = MagicMock()

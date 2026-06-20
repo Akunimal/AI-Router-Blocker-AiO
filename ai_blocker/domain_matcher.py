@@ -52,7 +52,7 @@ def resolve_domain(domain: str, timeout: float = 2.0) -> list[str]:
         ips: list[str] = []
         seen: set[str] = set()
         for info in infos:
-            ip = info[4][0]
+            ip = str(info[4][0])
             if ip not in seen:
                 seen.add(ip)
                 ips.append(ip)

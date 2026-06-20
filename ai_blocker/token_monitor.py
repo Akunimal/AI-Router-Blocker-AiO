@@ -71,7 +71,7 @@ class TokenMonitor:
                     return True
         return False
 
-    def get_hourly_summary(self) -> dict[str, int]:
+    def get_hourly_summary(self) -> dict[str, int | float]:
         """Return token and request counts for the current hour window."""
         with self._lock:
             self._prune()

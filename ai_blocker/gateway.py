@@ -100,14 +100,14 @@ class GatewayHandler(BaseHTTPRequestHandler):
                     "rule": rule_name,
                     "path": path,
                 })
+                err_body_bytes = err_body.encode('utf-8')
                 err_response = (
                     "HTTP/1.1 403 Forbidden\r\n"
                     "Content-Type: application/json\r\n"
-                    f"Content-Length: {len(err_body)}\r\n"
+                    f"Content-Length: {len(err_body_bytes)}\r\n"
                     "Connection: close\r\n\r\n"
-                    f"{err_body}"
-                )
-                client_conn.sendall(err_response.encode('utf-8'))
+                ).encode('utf-8') + err_body_bytes
+                client_conn.sendall(err_response)
                 self._log_audit(domain, path, method, "blocked")
                 client_conn.close()
                 return
@@ -180,19 +180,19 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
         # Token monitoring
         tokens_in = 0
-        if data:
-            monitor = self._get_token_monitor()
-            if monitor:
+        monitor = self._get_token_monitor()
+        if monitor:
+            if data:
                 tokens_in = monitor.estimate_tokens(data)
-                if monitor.is_over_limit():
-                    self.send_response(429)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps({
-                        "error": "Token rate limit exceeded (AI DevSec Gateway)",
-                    }).encode())
-                    self._log_audit("", self.path, method, "blocked")
-                    return
+            if monitor.is_over_limit():
+                self.send_response(429)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "error": "Token rate limit exceeded (AI DevSec Gateway)",
+                }).encode())
+                self._log_audit("", self.path, method, "blocked")
+                return
 
         req = urllib.request.Request(target, data=data, headers=headers, method=method)
         try:
@@ -226,7 +226,16 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 if k.lower() not in ['transfer-encoding']:
                     self.send_header(k, v)
             self.end_headers()
-            self.wfile.write(e.read())
+            error_data = e.read()
+            self.wfile.write(error_data)
+
+            # Record token usage for errors too
+            monitor = self._get_token_monitor()
+            if monitor:
+                tokens_out = monitor.estimate_tokens(error_data)
+                monitor.record(tokens_in, tokens_out, domain="", path=self.path)
+
+            self._log_audit("", self.path, method, "allowed")
         except Exception as e:
             self.send_response(502)
             self.end_headers()
@@ -238,7 +247,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
         """Creates a bidirectional tunnel between the client and remote server."""
         sockets = [client, remote]
         while True:
-            r, w, x = select.select(sockets, [], [], 10)
+            r, w, x = select.select(sockets, [], [], 300)
             if not r:
                 break
             for sock in r:
@@ -336,14 +345,14 @@ class GatewayHandler(BaseHTTPRequestHandler):
                     "risk_score": result.risk_score,
                     "explanation": result.explanation,
                 })
+                err_body_bytes = err_body.encode('utf-8')
                 err_response = (
                     "HTTP/1.1 403 Forbidden\r\n"
                     "Content-Type: application/json\r\n"
-                    f"Content-Length: {len(err_body)}\r\n"
+                    f"Content-Length: {len(err_body_bytes)}\r\n"
                     "Connection: close\r\n\r\n"
-                    f"{err_body}"
-                )
-                client_conn.sendall(err_response.encode('utf-8'))
+                ).encode('utf-8') + err_body_bytes
+                client_conn.sendall(err_response)
                 self._log_audit(domain, path, method, "blocked",
                                 metadata={"guardrail": result.category.value})
                 client_conn.close()

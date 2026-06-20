@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.4.2] - 2026-06-20
+### Fixed
+- Fixed rate limiting logic in the Local API Gateway where GET requests completely bypassed token checks.
+- Fixed bidirectional HTTPS proxy tunnel timeout, increasing it from 10 to 300 seconds to prevent premature disconnections during long streaming generations.
+- Fixed missing telemetry and audit logging for failed HTTP API requests (e.g. 400 Bad Request, 500 Internal Server Error).
+- Fixed Content-Length calculation during DPI and guardrail block responses to properly account for UTF-8 byte lengths.
+- Fixed static type checking (mypy) warnings in `domain_matcher.py` and `token_monitor.py`.
+
 ## [v1.3.2] - 2026-05-31
 ### Fixed
 - Replaced remaining in-app legacy product name references with AI DevSec Gateway.
