@@ -30,4 +30,4 @@ Without a system-level override, you have zero visibility into what gets sent to
 *   **CLI Reference:** Read options for headless systems.
 *   **Architecture Guide:** Learn how the hosts engines and proxy servers are structured.
 *   **Threat Model:** Deep audit of security vectors and privilege isolation.
-*   **Codex for OSS Notes:** Maintainer-focused summary of project scope, safety boundaries, and how AI assistance can support OSS maintenance.
+*   **Enterprise Use Cases:** Real-world scenarios and deployment patterns for DevSecOps teams.

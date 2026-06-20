@@ -43,6 +43,18 @@ Creado originalmente como una simple interfaz gráfica para bloquear dominios de
 
 ---
 
+## 🏢 Casos de Uso Empresariales
+
+¿Por qué los equipos DevSecOps despliegan AI DevSec Gateway?
+
+1. **Prevención de Fuga de Datos (PII/Secretos):** Tu equipo usa Cursor o Copilot, pero las normativas (GDPR/HIPAA) prohíben estrictamente que las credenciales o el código propietario salgan a la nube.
+2. **Enrutamiento a LLMs "Air-Gapped":** Quieres forzar de manera transparente que todo el tráfico de Copilot en tu red corporativa se dirija a un servidor interno Llama-3 (Ollama), sin que los desarrolladores tengan que tocar la configuración de su IDE.
+3. **Auditoría de "Shadow AI":** Descubrir pasivamente qué herramientas de IA no aprobadas o agentes autónomos se están ejecutando en las estaciones de trabajo de los desarrolladores.
+
+Lee nuestra guía completa de **[Casos de Uso Empresariales](docs/use_cases.md)** para más patrones de despliegue.
+
+---
+
 ## 🎯 Proveedores Soportados
 
 El motor de intercepción por defecto apunta a **más de 38 dominios** de los principales proveedores:

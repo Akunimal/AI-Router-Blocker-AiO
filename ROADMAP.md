@@ -23,7 +23,7 @@ This roadmap outlines our technical vision, showing our completed work, upcoming
 
 We believe in *dogfooding* and leveraging AI to secure and accelerate our own development. This ongoing track operates parallel to all phases, ensuring the gateway is hardened using the best available AI tools.
 
-- **Codex-Driven Security Reviews:** Automated AI reviews on pull requests focused on detecting security regressions, unsafe subprocess usage, and cross-platform network operation vulnerabilities.
+- **AI-Driven Security Reviews:** Automated AI reviews on pull requests focused on detecting security regressions, unsafe subprocess usage, and cross-platform network operation vulnerabilities.
 - **AI-Generated Regression Fuzzing:** Using AI to generate robust, edge-case regression tests for privileged operations (hosts file manipulation, OS firewall rules, and TLS certificate injection).
 - **Automated Issue Triage & Repro:** Leveraging AI to analyze community bug reports, reproduce platform-specific failures (e.g., Windows WFP vs Linux eBPF nuances), and draft focused fixes.
 - **Secure Dogfooding:** The gateway is built using AI coding assistants, and we actively use our own gateway to audit, sanitize, and protect our development traffic from accidental IP leaks.

@@ -120,6 +120,17 @@ sudo python3 ai_blocker.py
 
 ---
 
+## 🤖 AI-Assisted Development Standard
+
+AI DevSec Gateway is a security tool built *for* the AI era, and we believe in using AI safely to build it. We actively encourage contributors to use AI coding assistants, provided they adhere to our zero-trust principles:
+
+1. **AI-Generated Fuzzing:** We highly encourage using AI (e.g., Claude, ChatGPT, GitHub Copilot) to generate robust edge-case regression tests and fuzzing suites for your PRs, especially when modifying network interception or firewall logic.
+2. **Self-Review:** Use AI to review your own pull requests for unsafe subprocess usage or cross-platform vulnerabilities before submitting.
+3. **No Blind Commits:** AI-generated code must be fully understood by the contributor. You are responsible for the security implications of the code you submit.
+4. **Dogfooding:** If you are running local autonomous agents to help write code for this repository, ensure your traffic is being routed and audited through the Gateway to prevent accidental leaks.
+
+---
+
 ## 📐 Coding Standards
 
 - **Language**: Python 3.10+ compatible

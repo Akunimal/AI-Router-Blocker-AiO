@@ -43,6 +43,18 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 
 ---
 
+## 🏢 Enterprise Use Cases
+
+Why do DevSecOps teams and CISOs deploy AI DevSec Gateway?
+
+1. **Prevent Data Exfiltration (PII/Secrets):** Your team uses Cursor or Copilot, but compliance regulations (GDPR/HIPAA) strictly forbid sensitive environment variables (`.env`) or proprietary algorithms from leaving the local network. 
+2. **Air-Gapped LLM Routing:** You want to transparently force all Copilot traffic within the corporate network to route to an internal, self-hosted Llama-3 (Ollama) server, without requiring developers to change their IDE settings.
+3. **Shadow AI Auditing:** Passively discover which unapproved AI tools or autonomous agents are running in the background on developer workstations.
+
+Read our full **[Enterprise Use Cases](docs/use_cases.md)** guide for deployment patterns.
+
+---
+
 ## 🎯 Supported Providers
 
 The default interception engine targets **38+ domains** across major providers:
@@ -176,7 +188,6 @@ We believe that security tools must be 100% transparent. This project is built u
 - **[Contributing Guide](CONTRIBUTING.md):** Standards and PR templates.
 - **[Code of Conduct](CODE_OF_CONDUCT.md):** We foster a welcoming community.
 - **[Security Policy](SECURITY.md):** Responsible vulnerability disclosure.
-- **[Codex for OSS Summary](CODEX_FOR_OSS.md):** Maintainer-focused project summary, current scope, and planned Codex usage.
 - **[License](LICENSE):** MIT Licensed.
 
 ---

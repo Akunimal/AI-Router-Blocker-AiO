@@ -39,6 +39,14 @@ As a DevSecOps utility that operates with elevated system privileges and manages
 *   **Description:** A user enables an experimental firewall/redirect backend and unintentionally applies broad or platform-specific network rules.
 *   **Mitigation:** The hosts backend remains the default. Experimental backends require explicit CLI selection, expose dry-run command planning, and are documented separately from the stable runtime path. Kernel-level eBPF/WFP interception remains future work, not active behavior.
 
+### Threat 7 — Prompt Injection & Payload Jailbreaks
+*   **Description:** An attacker crafts a malicious codebase or pull request. When a developer uses an AI assistant to review or auto-complete the code, the assistant is subjected to a prompt injection, causing it to exfiltrate data or write malicious logic.
+*   **Mitigation:** The Gateway is evolving to include **On-Device Semantic Guardrails**. By running a lightweight local model (e.g., ONNX Phi-3) to classify prompt intent *before* transmission, the Gateway can detect and drop payloads attempting to jailbreak the upstream AI provider.
+
+### Threat 8 — Data Exfiltration via Agentic Loops
+*   **Description:** Autonomous AI coding agents (e.g., AutoGPT) run with local execution rights. If compromised, they could systematically read configuration files (`.git/config`, `~/.aws/credentials`) and exfiltrate them through legitimate-looking API queries.
+*   **Mitigation:** Upcoming eBPF telemetry integration will monitor file-read syscalls by IDE processes. Combined with **LLM-Powered Anomaly Explanation**, the Gateway will detect when an AI agent accesses sensitive files not related to its immediate coding context and sever its network access.
+
 ---
 
 ## 3. Privilege Isolation Matrix
