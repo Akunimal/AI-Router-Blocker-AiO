@@ -79,7 +79,7 @@ class TestDLPPII:
 
 class TestDLPLicenses:
     def setup_method(self):
-        self.engine = DLPEngine(scan_secrets=False, scan_pii=False)
+        self.engine = DLPEngine(scan_secrets=False, scan_pii=False, scan_licenses=True)
 
     def test_detect_gpl(self):
         text = "# Licensed under the GNU General Public License v3.0"
