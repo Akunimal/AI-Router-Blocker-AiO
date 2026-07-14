@@ -14,7 +14,7 @@ import json
 import os
 import sqlite3
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ai_blocker.config import get_config_path
@@ -91,7 +91,7 @@ class AuditLog:
     def log_entry(self, entry: AuditEntry) -> int:
         """Insert an audit entry and return its row ID."""
         if not entry.timestamp:
-            entry.timestamp = datetime.utcnow().isoformat()
+            entry.timestamp = datetime.now(timezone.utc).isoformat()
 
         with self._connect() as conn:
             cur = conn.execute(
@@ -160,7 +160,7 @@ class AuditLog:
 
     def purge_older_than(self, days: int) -> int:
         """Delete entries older than *days* and return the count removed."""
-        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
         with self._connect() as conn:
             cur = conn.execute(
                 "DELETE FROM audit_entries WHERE timestamp < ?", (cutoff,)
@@ -169,7 +169,7 @@ class AuditLog:
 
     def get_token_summary(self, hours: int = 1) -> dict[str, int]:
         """Aggregate token counts for the last *hours*."""
-        since = (datetime.utcnow() - timedelta(hours=hours)).isoformat()
+        since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
         with self._connect() as conn:
             row = conn.execute(
                 """SELECT COALESCE(SUM(token_count_in), 0),
