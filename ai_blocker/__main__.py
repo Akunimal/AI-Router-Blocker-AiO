@@ -96,21 +96,7 @@ def main():
 
     if not is_admin():
         relaunch_as_admin()
-
-        detected_lang = detect_system_language()
-        s = STRINGS[detected_lang]
-
-        import tkinter as tk
-        from tkinter import messagebox
-
-        root_temp = tk.Tk()
-        root_temp.withdraw()
-        messagebox.showerror(
-            s["admin_required_title"],
-            s["admin_required_msg"]
-        )
-        root_temp.destroy()
-        sys.exit(1)
+        sys.exit(0)
 
     import tkinter as tk
 
