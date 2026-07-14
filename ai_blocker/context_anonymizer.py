@@ -100,12 +100,26 @@ class CodeAnonymizer:
             names_replaced=len(mapping),
         )
 
+    
+    _COMMON_WORDS: frozenset[str] = frozenset({
+        "about", "above", "after", "again", "against", "being", "below",
+        "between", "could", "doing", "during", "either", "every", "first",
+        "given", "going", "having", "hence", "knows", "large", "later",
+        "least", "legal", "local", "might", "never", "night", "often",
+        "order", "other", "place", "point", "power", "quite", "rated",
+        "right", "since", "small", "state", "still", "store", "system",
+        "their", "there", "these", "thing", "think", "third", "those",
+        "three", "under", "until", "using", "value", "where", "which",
+        "while", "whole", "world", "would", "write", "years", "yours",
+    })
+
     def _anonymize_fallback(self, text: str) -> AnonymizationResult:
         """Regex-based fallback for non-Python or unparseable code."""
         # Find camelCase and snake_case identifiers that look like user names
-        pattern = r'\b([a-z][a-zA-Z0-9_]{3,})\b'
+        pattern = r'\b([a-z][a-zA-Z0-9_]{5,})\b'
         found = set(re.findall(pattern, text))
         found -= self._SAFE_NAMES
+        found -= self._COMMON_WORDS
 
         sorted_names = sorted(found)
         mapping = {name: f"{self.prefix}_{i}" for i, name in enumerate(sorted_names)}
@@ -133,3 +147,4 @@ class CodeAnonymizer:
         if language.lower() == "python":
             return self.anonymize_python(text)
         return self._anonymize_fallback(text)
+
