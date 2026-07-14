@@ -100,7 +100,7 @@ class CodeAnonymizer:
             names_replaced=len(mapping),
         )
 
-    
+
     _COMMON_WORDS: frozenset[str] = frozenset({
         "about", "above", "after", "again", "against", "being", "below",
         "between", "could", "doing", "during", "either", "every", "first",

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import threading
 import datetime
 import os
+import threading
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization

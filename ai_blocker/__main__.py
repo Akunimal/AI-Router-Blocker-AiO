@@ -3,7 +3,6 @@ import ctypes
 import sys
 
 from ai_blocker.constants import CURRENT_OS
-from ai_blocker.i18n import STRINGS, detect_system_language
 from ai_blocker.network_backends import list_network_backends
 from ai_blocker.system_utils import get_hosts_status, is_admin, relaunch_as_admin
 
