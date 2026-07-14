@@ -20,13 +20,12 @@ def force_close_processes():
 
     try:
         if CURRENT_OS == "Windows":
-            args = ["taskkill", "/F"]
             for proc in PROCESS_LIST:
-                args.extend(["/IM", proc])
-            result = subprocess.run(args, capture_output=True, text=True, **kwargs)
-            out_lower = result.stdout.lower()
-            for proc in PROCESS_LIST:
-                if f'"{proc.lower()}"' in out_lower or f'{proc.lower()}' in out_lower:
+                result = subprocess.run(
+                    ["taskkill", "/F", "/IM", proc],
+                    capture_output=True, text=True, **kwargs,
+                )
+                if result.returncode == 0:
                     closed.append(proc.replace(".exe", ""))
         else:
             active = detect_running_ai_editors()
@@ -139,3 +138,4 @@ def deactivate_block(lang, backend_name="hosts", dry_run=False):
         return False, s["hosts_write_error_msg"]
     except Exception as e:
         return False, s["unexpected_error_msg"].format(error=str(e))
+
