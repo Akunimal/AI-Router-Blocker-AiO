@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ruff: noqa: F401
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 APP_VERSION = __version__
 
 # Expose everything to maintain backwards compatibility and test stability
