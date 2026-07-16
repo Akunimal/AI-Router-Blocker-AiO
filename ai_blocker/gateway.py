@@ -14,7 +14,7 @@ from http.server import BaseHTTPRequestHandler
 try:
     from ai_blocker.tls_manager import get_or_generate_leaf_cert
 except ImportError:
-    get_or_generate_leaf_cert = None
+    get_or_generate_leaf_cert = None  # type: ignore[assignment]
 
 from ai_blocker.dpi_rules import DPIAction, DPIRuleEngine
 
@@ -48,7 +48,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     def do_CONNECT(self):
         """Intercepts HTTPS CONNECT requests for MITM Deep Packet Inspection."""
-        if not get_or_generate_leaf_cert:
+        if not get_or_generate_leaf_cert:  # type: ignore[truthy-function]
             self.send_error(501, "TLS Decryption (DPI) not supported. Missing cryptography package.")
             return
 
