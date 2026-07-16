@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.5.0] - 2026-07-16
+### Added
+- Exposed /stats HTTP endpoint on the Local API Gateway returning hourly token summary and per-domain breakdown as JSON.
+- Added comprehensive test coverage for /stats endpoint (200 with data, 503 when monitor unavailable, non-interference with normal proxy routes).
+- Added DLP and guardrails toggle flags in gateway configuration with corresponding test coverage.
+- Gateway coverage improved from 76% to 82%.
+
+### Changed
+- Bumped version to 1.5.0.
+
 ## [v1.4.2] - 2026-06-20
 ### Fixed
 - Fixed rate limiting logic in the Local API Gateway where GET requests completely bypassed token checks.
