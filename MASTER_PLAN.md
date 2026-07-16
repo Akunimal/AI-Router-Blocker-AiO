@@ -145,10 +145,10 @@ El plan se ejecuta secuencialmente, wave por wave.
 
 | Wave | Status | Commits | Push |
 |---|---|---|---|
-| Wave 0 | Pendiente | 0/1 | 0/1 |
-| Wave 1 | Pendiente | 0/5 | 0/5 |
-| Wave 2 | Pendiente | 0/8 | 0/8 |
-| Wave 3 | Pendiente | 0/6 | 0/6 |
-| Wave 4 | Pendiente | 0/3 | 0/3 |
-| Wave 5 | Pendiente | 0/4 | 0/4 |
-| Wave 6 | Pendiente | 0/4 | 0/4 |
+| Wave 0 | ✅ Hecho | 1/1 | 1/1 |
+| Wave 1 | ✅ Hecho | 5/5 | 5/5 |
+| Wave 2 | 🔶 En progreso | 4/8 | 3/8 |
+| Wave 3 | ❌ Pendiente | 0/6 | 0/6 |
+| Wave 4 | ❌ Pendiente | 0/3 | 0/3 |
+| Wave 5 | ❌ Pendiente | 0/4 | 0/4 |
+| Wave 6 | ❌ Pendiente | 0/4 | 0/4 |
