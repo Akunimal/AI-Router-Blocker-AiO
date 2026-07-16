@@ -154,12 +154,36 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     # ?=??=? HTTP proxy methods ??????????????????????????????????????????????????????????????????????????????????????????????????
 
-    def do_GET(self): self._proxy_request("GET")
+    def do_GET(self):
+        if self.path == "/stats":
+            self._handle_stats()
+            return
+        self._proxy_request("GET")
     def do_POST(self): self._proxy_request("POST")
     def do_PUT(self): self._proxy_request("PUT")
     def do_PATCH(self): self._proxy_request("PATCH")
     def do_DELETE(self): self._proxy_request("DELETE")
     def do_OPTIONS(self): self._proxy_request("OPTIONS")
+
+    def _handle_stats(self):
+        """Return token monitor stats as JSON."""
+        monitor = self._get_token_monitor()
+        if monitor is None:
+            body = json.dumps({"error": "TokenMonitor not available"}).encode()
+            self.send_response(503)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        stats = monitor.get_hourly_summary()
+        breakdown = monitor.get_per_domain_breakdown()
+        body = json.dumps({"summary": stats, "domains": breakdown}).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def _proxy_request(self, method):
         target = getattr(self.server, 'target_url', "http://localhost")

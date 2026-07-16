@@ -272,6 +272,55 @@ class TestProxyRequest:
             for k in req.headers:
                 assert k.lower() != "accept-encoding"
 
+    # ?? /stats endpoint ??????????????????????????????????????????????
+
+    def test_stats_endpoint_returns_200_with_data(self):
+        """GET /stats returns 200 JSON with summary + domains when monitor is available."""
+        h = _handler()
+        h.path = "/stats"
+        h.command = "GET"
+        monitor = MagicMock(spec=TokenMonitor)
+        monitor.get_hourly_summary.return_value = {
+            "tokens_in": 100,
+            "tokens_out": 200,
+            "requests": 5,
+        }
+        monitor.get_per_domain_breakdown.return_value = {
+            "api.openai.com": {"tokens_in": 80, "tokens_out": 150, "requests": 3},
+        }
+        h.server.token_monitor = monitor
+
+        h.do_GET()
+
+        written = b"".join(c[0][0] for c in h.wfile.write.call_args_list if c[0][0] is not None)
+        assert b"summary" in written, f"Expected 'summary' in response, got: {written}"
+        assert b"domains" in written
+        assert b"tokens_in" in written
+
+    def test_stats_endpoint_returns_503_when_no_monitor(self):
+        """GET /stats returns 503 when token_monitor is not configured."""
+        h = _handler()
+        h.path = "/stats"
+        h.command = "GET"
+        h.server.token_monitor = None
+
+        h.do_GET()
+
+        written = b"".join(c[0][0] for c in h.wfile.write.call_args_list if c[0][0] is not None)
+        assert b"TokenMonitor not available" in written, (
+            f"Expected error message, got: {written}"
+        )
+
+    def test_stats_does_not_interfere_with_normal_routes(self):
+        """GET /api/other still proxies; /stats does not consume normal routes."""
+        h = _handler()
+        h.command = "GET"
+        h.path = "/api/other"
+        resp = _http_mock(200, {"Content-Type": "text/plain"}, b"normal")
+        with patch("urllib.request.urlopen", return_value=resp) as m:
+            h.do_GET()
+            assert m.called, "normal route should have been proxied"
+
 
 # ---------------------------------------------------------------------------
 # Helper / static methods
