@@ -1,51 +1,105 @@
+"""Tests for config module."""
 import json
-import os
-import sys
-from unittest.mock import mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
+import pytest
+from ai_blocker.config import (
+    get_config_path, load_config, save_config,
+    set_windows_autostart, get_windows_autostart,
+)
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import ai_blocker
+class TestGetConfigPath:
+    def test_windows(self):
+        with patch("ai_blocker.config.CURRENT_OS", "Windows"):
+            with patch.dict("os.environ", {"APPDATA": "C:\\Users\\test\\AppData\\Roaming"}):
+                path = get_config_path()
+                assert "AppData" in path
+                assert "config.json" in path
+
+    def test_non_windows(self):
+        with patch("ai_blocker.config.CURRENT_OS", "Linux"):
+            with patch("os.path.expanduser", return_value="/home/test"):
+                path = get_config_path()
+                assert "config.json" in path
+                assert "config.json" in path
+
+    def test_creates_dir(self):
+        with patch("ai_blocker.config.CURRENT_OS", "Linux"):
+            with patch("ai_blocker.config.os.makedirs") as md:
+                get_config_path()
+                md.assert_called_once()
+
+    def test_creates_dir_error_ignored(self):
+        with patch("ai_blocker.config.CURRENT_OS", "Linux"):
+            with patch("ai_blocker.config.os.makedirs", side_effect=PermissionError):
+                path = get_config_path()
+                assert path
 
 
-def test_sensitive_keys_filtering():
-    """Verify that sensitive config keys (like API keys) are not persisted to config file."""
-    config_data = {
-        "language": "es",
-        "openai_key": "sk-1234567890abcdef",  # Should be removed
-        "last_toggle_time": 1700000000
-    }
+class TestLoadConfig:
+    def test_returns_empty_when_missing(self):
+        with patch("ai_blocker.config.os.path.exists", return_value=False):
+            assert load_config() == {}
 
-    m_open = mock_open()
-    with patch("builtins.open", m_open):
-        with patch("ai_blocker.config.get_config_path", return_value="/mock/config.json"):
-            ai_blocker.save_config(config_data)
+    def test_returns_empty_on_corrupt_json(self):
+        with patch("ai_blocker.config.os.path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data="not json")):
+                assert load_config() == {}
 
-            # Verify open was called
-            m_open.assert_called_once_with("/mock/config.json", "w", encoding="utf-8")
+    def test_filters_sensitive_keys(self):
+        with patch("ai_blocker.config.os.path.exists", return_value=True):
+            data = json.dumps({"lang": "es", "openai_key": "sk-secret"})
+            with patch("builtins.open", mock_open(read_data=data)):
+                cfg = load_config()
+                assert cfg["lang"] == "es"
+                assert "openai_key" not in cfg
 
-            # Capture what was written
-            handle = m_open()
-            write_calls = handle.write.call_args_list
-            written_str = "".join(call[0][0] for call in write_calls)
-            written_json = json.loads(written_str)
 
-            # Verify sensitive key was removed
-            assert "language" in written_json
-            assert "last_toggle_time" in written_json
-            assert "openai_key" not in written_json
+class TestSaveConfig:
+    def test_removes_sensitive_keys(self):
+        m = mock_open()
+        with patch("builtins.open", m):
+            with patch("ai_blocker.config.get_config_path", return_value="/c.json"):
+                save_config({"lang": "en", "openai_key": "sk-bad"})
+        written = "".join(c[0][0] for c in m().write.call_args_list)
+        data = json.loads(written)
+        assert data["lang"] == "en"
+        assert "openai_key" not in data
 
-@patch("os.path.exists")
-def test_load_config_filters_sensitive_keys(mock_exists):
-    """Verify loading config does not return sensitive keys even if they somehow got in."""
-    mock_exists.return_value = True
-    raw_config = {
-        "language": "pt",
-        "openai_key": "dangerous_persisted_key"
-    }
+    def test_exception_ignored(self):
+        with patch("ai_blocker.config.get_config_path", return_value="/c.json"):
+            with patch("builtins.open", side_effect=PermissionError):
+                save_config({"lang": "en"})
 
-    with patch("builtins.open", mock_open(read_data=json.dumps(raw_config))):
-        with patch("ai_blocker.config.get_config_path", return_value="/mock/config.json"):
-            config = ai_blocker.load_config()
-            assert config["language"] == "pt"
-            assert "openai_key" not in config
+
+class TestWindowsAutostart:
+    def test_set_non_windows(self):
+        with patch('ai_blocker.config.CURRENT_OS', 'Linux'):
+            assert set_windows_autostart(True) is False
+
+    def test_set_windows_enable(self):
+        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
+            with patch('winreg.OpenKey'), patch('winreg.SetValueEx'), patch('winreg.CloseKey'):
+                assert set_windows_autostart(True) is True
+
+    def test_set_windows_disable(self):
+        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
+            with patch('winreg.OpenKey'), patch('winreg.DeleteValue'), patch('winreg.CloseKey'):
+                assert set_windows_autostart(False) is True
+
+    def test_get_non_windows(self):
+        with patch('ai_blocker.config.CURRENT_OS', 'Linux'):
+            assert get_windows_autostart() is False
+
+    def test_get_windows_found(self):
+        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
+            with patch('winreg.OpenKey') as m:
+                with patch('winreg.CloseKey'):
+                    with patch('winreg.QueryValueEx', return_value=('cmd', 0)):
+                        assert get_windows_autostart() is True
+
+    def test_get_windows_not_found(self):
+        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
+            with patch('winreg.OpenKey', side_effect=FileNotFoundError):
+                assert get_windows_autostart() is False
+
