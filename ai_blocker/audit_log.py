@@ -18,6 +18,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ai_blocker.config import get_config_path
+from contextlib import contextmanager
+
 
 _DB_NAME = "audit.db"
 
@@ -78,8 +80,18 @@ class AuditLog:
         with self._connect() as conn:
             conn.executescript(_SCHEMA)
 
-    def _connect(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path)
+    @contextmanager
+    def _connect(self):
+        conn = sqlite3.connect(self.db_path)
+        try:
+            yield conn
+        except Exception:
+            conn.rollback()
+            raise
+        else:
+            conn.commit()
+        finally:
+            conn.close()
 
     @staticmethod
     def compute_hash(body: str | bytes) -> str:
