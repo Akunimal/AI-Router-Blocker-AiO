@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 """Tests for the gateway HTTP proxy handler."""
-import json
-import socket
 import ssl
 import urllib.error
 import urllib.request
 from io import BytesIO
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
-
-from ai_blocker.gateway import GatewayHandler
-from ai_blocker.audit_log import AuditEntry, AuditLog
-from ai_blocker.token_monitor import TokenMonitor
+from ai_blocker.audit_log import AuditLog
 from ai_blocker.dpi_rules import DPIAction, DPIRule, DPIRuleEngine
-from ai_blocker.guardrails import PromptGuardrail, ThreatCategory, GuardrailResult
+from ai_blocker.gateway import GatewayHandler
+from ai_blocker.guardrails import GuardrailResult, PromptGuardrail, ThreatCategory
+from ai_blocker.token_monitor import TokenMonitor
 
 
 def _handler():

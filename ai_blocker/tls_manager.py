@@ -120,7 +120,7 @@ def generate_leaf_cert(domain: str):
         critical=False,
     )
 
-    leaf_cert = builder.sign(ca_private_key, hashes.SHA256())
+    leaf_cert = builder.sign(ca_private_key, hashes.SHA256())  # type: ignore[arg-type]
 
     # Save to a domain-specific file
     cert_dir = get_cert_dir()

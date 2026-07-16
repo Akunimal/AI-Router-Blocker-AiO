@@ -1,9 +1,13 @@
 """Tests for block actions."""
 from unittest.mock import MagicMock, patch
-import pytest
+
 from ai_blocker.block_actions import (
-    activate_block, deactivate_block, force_close_processes,
-    detect_running_ai_editors, _domains_for_categories, _get_backend,
+    _domains_for_categories,
+    _get_backend,
+    activate_block,
+    deactivate_block,
+    detect_running_ai_editors,
+    force_close_processes,
 )
 from ai_blocker.network_backends import HostsBackend
 
@@ -37,7 +41,7 @@ class TestForceCloseProcesses:
     def test_non_windows(self):
         with patch("ai_blocker.block_actions.CURRENT_OS", "Linux"):
             with patch("ai_blocker.block_actions.detect_running_ai_editors", return_value=["code"]):
-                with patch("ai_blocker.block_actions.subprocess.run") as m:
+                with patch("ai_blocker.block_actions.subprocess.run"):
                     closed = force_close_processes()
                     assert len(closed) > 0
 

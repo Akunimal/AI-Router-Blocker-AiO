@@ -13,13 +13,12 @@ import hashlib
 import json
 import os
 import sqlite3
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ai_blocker.config import get_config_path
-from contextlib import contextmanager
-
 
 _DB_NAME = "audit.db"
 

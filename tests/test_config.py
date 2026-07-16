@@ -1,10 +1,13 @@
 """Tests for config module."""
 import json
-from unittest.mock import MagicMock, mock_open, patch
-import pytest
+from unittest.mock import mock_open, patch
+
 from ai_blocker.config import (
-    get_config_path, load_config, save_config,
-    set_windows_autostart, get_windows_autostart,
+    get_config_path,
+    get_windows_autostart,
+    load_config,
+    save_config,
+    set_windows_autostart,
 )
 
 
@@ -93,7 +96,7 @@ class TestWindowsAutostart:
 
     def test_get_windows_found(self):
         with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
-            with patch('winreg.OpenKey') as m:
+            with patch('winreg.OpenKey'):
                 with patch('winreg.CloseKey'):
                     with patch('winreg.QueryValueEx', return_value=('cmd', 0)):
                         assert get_windows_autostart() is True

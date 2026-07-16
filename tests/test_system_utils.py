@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 """Tests for system utilities."""
 from unittest.mock import MagicMock, patch
+
 from ai_blocker.system_utils import (
-    _get_subprocess_kwargs, count_total_domains, flush_dns,
-    get_hosts_status, install_root_ca, is_admin, relaunch_as_admin,
+    _get_subprocess_kwargs,
+    count_total_domains,
+    flush_dns,
+    get_hosts_status,
+    install_root_ca,
+    is_admin,
+    relaunch_as_admin,
 )
 
 
@@ -104,7 +110,8 @@ class TestCountTotalDomains:
 
 class TestGetHostsStatus:
     def test_ok(self):
-        mb = MagicMock(); mb.status.return_value = (True, 42)
+        mb = MagicMock()
+        mb.status.return_value = (True, 42)
         with patch("ai_blocker.network_backends.HostsBackend", return_value=mb):
             assert get_hosts_status() == (True, 42)
 

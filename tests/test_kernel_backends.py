@@ -1,8 +1,9 @@
 """Tests for kernel backend stubs (WFP, eBPF)."""
 from unittest.mock import MagicMock, patch
+
 import pytest
-from ai_blocker.kernel_backends import WFPBackend, EBPFBackend
-from ai_blocker.network_backends import BackendResult
+
+from ai_blocker.kernel_backends import EBPFBackend, WFPBackend
 
 
 class TestWFPBackend:
