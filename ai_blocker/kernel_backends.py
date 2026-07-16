@@ -42,8 +42,7 @@ class WFPBackend:
         self.runner = runner or self._default_runner
 
     def activate(self, domains: Iterable[str]) -> BackendResult:
-        if CURRENT_OS != "Windows":
-            return BackendResult(False, 0, error="WFP backend is only available on Windows.")
+        raise NotImplementedError("WFPBackend is an experimental stub. Use hosts or firewall-redirect for production.")
 
         domains_list = unique_domains(domains)
         commands = self.plan_activate(domains_list)
@@ -59,8 +58,7 @@ class WFPBackend:
         return BackendResult(True, len(domains_list))
 
     def deactivate(self) -> BackendResult:
-        if CURRENT_OS != "Windows":
-            return BackendResult(False, 0, error="WFP backend is only available on Windows.")
+        raise NotImplementedError("WFPBackend is an experimental stub. Use hosts or firewall-redirect for production.")
 
         commands = self.plan_deactivate()
         for cmd in commands:
@@ -142,20 +140,10 @@ class EBPFBackend:
     _map_name = "ai_devsec_blocked_ips"
 
     def activate(self, domains: Iterable[str]) -> BackendResult:
-        if CURRENT_OS != "Linux":
-            return BackendResult(False, 0, error="eBPF backend is only available on Linux.")
-        return BackendResult(
-            False, 0,
-            error="eBPF backend is a stub. Real implementation requires compiled BPF programs.",
-        )
+        raise NotImplementedError("EBPFBackend is an experimental stub. Use hosts or firewall-redirect for production.")
 
     def deactivate(self) -> BackendResult:
-        if CURRENT_OS != "Linux":
-            return BackendResult(False, 0, error="eBPF backend is only available on Linux.")
-        return BackendResult(
-            False, 0,
-            error="eBPF backend is a stub. Real implementation requires compiled BPF programs.",
-        )
+        raise NotImplementedError("EBPFBackend is an experimental stub. Use hosts or firewall-redirect for production.")
 
     def status(self) -> tuple[bool, int]:
         return False, 0
