@@ -32,6 +32,10 @@ def main():
     parser.add_argument("--list-backends", action="store_true", help="List available network backends")
     parser.add_argument("--backend", choices=["hosts", "firewall-redirect"], default="hosts", help="Select network backend")
     parser.add_argument("--dry-run", action="store_true", help="Show planned actions without applying changes")
+    parser.add_argument("--dlp", action="store_true", default=True, help="Enable DLP content inspection (default: enabled)")
+    parser.add_argument("--guardrails", action="store_true", default=True, help="Enable prompt guardrails (default: enabled)")
+    parser.add_argument("--no-dlp", action="store_true", help="Disable DLP content inspection")
+    parser.add_argument("--no-guardrails", action="store_true", help="Disable prompt guardrails")
 
     args, unknown = parser.parse_known_args()
 

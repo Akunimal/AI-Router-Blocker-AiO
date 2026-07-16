@@ -314,6 +314,8 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     def _apply_dlp(self, data: bytes, domain: str, path: str, method: str) -> bytes:
         """Apply DLP sanitization to request body data."""
+        if not getattr(self.server, 'dlp_enabled', True):
+            return data
         dlp = self._get_dlp_engine()
         if dlp is None:
             return data
@@ -333,6 +335,8 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     def _check_guardrails(self, body: bytes, client_conn, domain: str, path: str, method: str) -> bool:
         """Check prompt guardrails. Returns False if the request was blocked."""
+        if not getattr(self.server, 'guardrails_enabled', True):
+            return True
         guardrail = self._get_guardrail()
         if guardrail is None:
             return True
@@ -391,4 +395,10 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     def _get_guardrail(self):
         return getattr(self.server, 'guardrail', None)
+
+    def _get_dlp_enabled(self):
+        return getattr(self.server, 'dlp_enabled', True)
+
+    def _get_guardrails_enabled(self):
+        return getattr(self.server, 'guardrails_enabled', True)
 

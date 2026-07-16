@@ -33,6 +33,8 @@ def _handler():
     h.server.audit_log = None
     h.server.dlp_engine = None
     h.server.guardrail = None
+    h.server.dlp_enabled = True
+    h.server.guardrails_enabled = True
     h.server.target_url = "http://localhost:8080"
     return h
 
@@ -182,6 +184,22 @@ class TestProxyRequest:
 
         dlp.scan.assert_called_once()
         dlp.redact.assert_called_once()
+
+    def test_dlp_disabled_on_proxy_request(self):
+        h = _handler()
+        h.command = "POST"
+        h.headers["Content-Length"] = "14"
+        h.rfile.read.return_value = b"sensitive data"
+        h.server.dlp_enabled = False
+        dlp = MagicMock()
+        dlp.scan.return_value = [MagicMock()]
+        h.server.dlp_engine = dlp
+        resp = _http_mock(200, {}, b"ok")
+
+        with patch("urllib.request.urlopen", return_value=resp):
+            h.do_POST()
+
+        dlp.scan.assert_not_called()
 
     def test_audit_log_created_on_success(self):
         h = _handler()
@@ -370,9 +388,27 @@ class TestHelpers:
         assert h._get_audit_log() is None
         assert h._get_token_monitor() is None
         assert h._get_guardrail() is None
+        assert h._get_dlp_enabled() is True
+        assert h._get_guardrails_enabled() is True
         dlp = MagicMock()
         h.server.dlp_engine = dlp
         assert h._get_dlp_engine() is dlp
+
+    def test_dlp_disabled_by_flag(self):
+        h = _handler()
+        h.server.dlp_enabled = False
+        h.server.dlp_engine = MagicMock()
+        r = h._apply_dlp(b"data", "ex.com", "/", "POST")
+        assert r == b"data"
+        h.server.dlp_engine.scan.assert_not_called()
+
+    def test_guardrails_disabled_by_flag(self):
+        h = _handler()
+        h.server.guardrails_enabled = False
+        g = MagicMock(spec=PromptGuardrail)
+        h.server.guardrail = g
+        assert h._check_guardrails(b"bad", MagicMock(), "ex.com", "/", "POST") is True
+        g.evaluate.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
