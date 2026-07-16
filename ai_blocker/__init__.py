@@ -2,6 +2,7 @@
 # ruff: noqa: F401
 __version__ = "1.4.2"
 APP_VERSION = __version__
+import logging
 
 # Expose everything to maintain backwards compatibility and test stability
 from ai_blocker.audit_log import AuditEntry, AuditLog
@@ -84,7 +85,7 @@ try:
         uninstall_root_ca,
     )
 except ImportError:
-    pass
+    logging.warning('tls_manager not available: install cryptography for TLS/DPI support')
 
 from ai_blocker.ui import AIBlockerApp
 
