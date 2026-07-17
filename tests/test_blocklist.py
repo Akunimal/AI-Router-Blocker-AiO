@@ -1,5 +1,8 @@
 """Tests for block actions."""
+import sys
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from ai_blocker.block_actions import (
     _domains_for_categories,
@@ -59,10 +62,11 @@ class TestDetectRunning:
                 running = detect_running_ai_editors()
                 assert len(running) > 0
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="tests non-Windows path")
     def test_non_windows(self):
         with patch("ai_blocker.block_actions.CURRENT_OS", "Linux"):
             with patch("ai_blocker.block_actions.subprocess.run") as m:
-                m.return_value.stdout = "code.exe\ncursor.exe\n"
+                m.return_value.stdout = "code\ncursor\n"
                 running = detect_running_ai_editors()
                 assert len(running) > 0
 

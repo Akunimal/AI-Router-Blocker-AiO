@@ -1,6 +1,9 @@
 """Tests for config module."""
 import json
+import sys
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from ai_blocker.config import (
     get_config_path,
@@ -75,6 +78,7 @@ class TestSaveConfig:
                 save_config({"lang": "en"})
 
 
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestWindowsAutostart:
     def test_set_non_windows(self):
         with patch('ai_blocker.config.CURRENT_OS', 'Linux'):

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tests for system utilities."""
+import sys
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from ai_blocker.system_utils import (
     _get_subprocess_kwargs,
@@ -13,6 +16,7 @@ from ai_blocker.system_utils import (
 )
 
 
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestIsAdmin:
     def test_windows_admin(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
@@ -40,6 +44,7 @@ class TestIsAdmin:
                 assert is_admin() is False
 
 
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestRelaunchAsAdmin:
     def test_non_windows_does_nothing(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Linux"):
@@ -55,6 +60,7 @@ class TestRelaunchAsAdmin:
 
 
 class TestGetSubprocessKwargs:
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             assert "startupinfo" in _get_subprocess_kwargs()
@@ -64,6 +70,7 @@ class TestGetSubprocessKwargs:
             assert _get_subprocess_kwargs() == {}
 
 
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestFlushDNS:
     def test_windows(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
@@ -120,6 +127,7 @@ class TestGetHostsStatus:
             assert get_hosts_status() == (False, 0)
 
 
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestInstallRootCA:
     def test_windows(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
