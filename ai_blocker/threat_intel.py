@@ -61,7 +61,7 @@ class RequestAnalyzer:
             mean_rate, std_rate = self._baselines.get(d, (rate, rate * 0.5))
             rate_z = (rate - mean_rate) / (std_rate or 0.001)
             token_z = 0.0
-            
+
             is_anom = abs(rate_z) > self.zscore_threshold or abs(token_z) > self.zscore_threshold
             reasons = []
             if abs(rate_z) > self.zscore_threshold:

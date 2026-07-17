@@ -55,10 +55,6 @@ class TestGuardrailFallbackChain(unittest.TestCase):
             if "bad" in text.lower():
                 return GuardrailResult(allowed=False, category="unsafe", confidence=0.9, fallback=True)
             return None
-        def heuristic(text):
-            if "bad" in text.lower():
-                return GuardrailResult(allowed=False, category="unsafe", confidence=0.9, fallback=True)
-            return None
         result = chain.classify("this is bad", heuristic_fn=heuristic)
         self.assertFalse(result.allowed)
         self.assertEqual(result.category, "unsafe")
