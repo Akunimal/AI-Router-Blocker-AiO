@@ -124,6 +124,7 @@ class AIBlockerApp:
 
         self._update_language_ui()
         self._schedule_connectivity_check()
+        self._schedule_stats_refresh()
 
     def _setup_ttk_styles(self):
         self.style = ttk.Style()
@@ -574,6 +575,47 @@ class AIBlockerApp:
         else:
             tk.Label(tls_frame, text="TLS features disabled. Install 'cryptography' package.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_RED).pack(anchor="w", padx=16, pady=(0, 12))
 
+        # Section 1.75: Token Usage Dashboard
+        stats_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        stats_frame.pack(fill=tk.X, pady=(0, 16))
+
+        header_frame = tk.Frame(stats_frame, bg=COL_SURFACE0)
+        header_frame.pack(fill=tk.X, padx=16, pady=(12, 0))
+
+        tk.Label(
+            header_frame, text="📊 Token Usage",
+            font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT,
+        ).pack(side=tk.LEFT)
+
+        self.stats_refresh_btn = tk.Button(
+            header_frame, text="⟳ Refresh", font=(UI_FONT, 8),
+            bg=COL_SURFACE1, fg=COL_TEXT, command=self._fetch_stats,
+        )
+        self.stats_refresh_btn.pack(side=tk.RIGHT)
+
+        # Summary row
+        summary_frame = tk.Frame(stats_frame, bg=COL_SURFACE0)
+        summary_frame.pack(fill=tk.X, padx=16, pady=(8, 0))
+
+        self.stats_in_lbl = tk.Label(
+            summary_frame, text="In: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+        )
+        self.stats_in_lbl.pack(side=tk.LEFT, padx=(0, 12))
+        self.stats_out_lbl = tk.Label(
+            summary_frame, text="Out: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+        )
+        self.stats_out_lbl.pack(side=tk.LEFT, padx=(0, 12))
+        self.stats_req_lbl = tk.Label(
+            summary_frame, text="Requests: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+        )
+        self.stats_req_lbl.pack(side=tk.LEFT, padx=(0, 12))
+
+        self.stats_status_lbl = tk.Label(
+            stats_frame, text="Gateway not running. Start the router above to see stats.",
+            bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 8),
+        )
+        self.stats_status_lbl.pack(padx=16, pady=(4, 12))
+
         # Section 2: Auditor
         audit_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
         audit_frame.pack(fill=tk.BOTH, expand=True)
@@ -595,6 +637,44 @@ class AIBlockerApp:
         self.audit_result.insert(tk.END, "Awaiting audit...")
         self.audit_result.configure(state="disabled")
 
+    # ── Token stats dashboard ──────────────────────────────────
+
+    def _fetch_stats(self):
+        """Fetch token stats from /stats endpoint on local gateway."""
+        def fetch():
+            try:
+                req = urllib.request.Request("http://127.0.0.1:8080/stats")
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    data = json.loads(resp.read().decode())
+                self.root.after(0, self._update_stats_display, data)
+            except Exception:
+                self.root.after(0, self._update_stats_display, None)
+        threading.Thread(target=fetch, daemon=True).start()
+
+    def _update_stats_display(self, data):
+        """Update stats labels with fetched data."""
+        if data is None or "error" in data:
+            self.stats_in_lbl.configure(text="In: --")
+            self.stats_out_lbl.configure(text="Out: --")
+            self.stats_req_lbl.configure(text="Requests: --")
+            self.stats_status_lbl.configure(text="Could not reach gateway. Is it running?")
+            return
+        summary = data.get("summary", {})
+        tokens_in = summary.get("tokens_in", 0)
+        tokens_out = summary.get("tokens_out", 0)
+        requests = summary.get("requests", 0)
+        self.stats_in_lbl.configure(text=f"In: {tokens_in}")
+        self.stats_out_lbl.configure(text=f"Out: {tokens_out}")
+        self.stats_req_lbl.configure(text=f"Requests: {requests}")
+        now = datetime.datetime.now().strftime("%H:%M:%S")
+        self.stats_status_lbl.configure(text=f"Updated: {now}")
+
+    def _schedule_stats_refresh(self):
+        """Periodically refresh stats while gateway is running (every 5s)."""
+        if self.gateway_running:
+            self._fetch_stats()
+        self._stats_refresh_id = self.root.after(5000, self._schedule_stats_refresh)
+
     def _toggle_gateway(self):
         if not self.gateway_running:
             target = self.target_url_var.get().strip()
@@ -607,6 +687,7 @@ class AIBlockerApp:
                 self.gateway_running = True
                 self.gateway_btn.configure(text="■ Stop Gateway", bg=COL_RED)
                 self.log_action("log_gateway_started", url=target)
+                self._fetch_stats()
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to start gateway: {e}")
         else:
@@ -614,6 +695,8 @@ class AIBlockerApp:
                 self.gateway_server.shutdown()
                 self.gateway_server.server_close()
             self.gateway_running = False
+            if hasattr(self, '_stats_refresh_id'):
+                self.root.after_cancel(self._stats_refresh_id)
             self.gateway_btn.configure(text="▶ Start Gateway", bg=COL_GREEN)
             self.log_action("log_gateway_stopped")
 
