@@ -121,10 +121,12 @@ class AIBlockerApp:
         self._build_footer()
 
         self._build_gateway_tab()
+        self._build_threats_tab()
 
         self._update_language_ui()
         self._schedule_connectivity_check()
         self._schedule_stats_refresh()
+        self._schedule_threats_refresh()
 
     def _setup_ttk_styles(self):
         self.style = ttk.Style()
@@ -792,6 +794,100 @@ class AIBlockerApp:
 
         threading.Thread(target=test, daemon=True).start()
 
+    def _build_threats_tab(self):
+        """Build the Threat Intelligence dashboard tab."""
+        container = tk.Frame(self.tab_threats, bg=COL_BASE)
+        container.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
+
+        # --- Status Summary ---
+        summary_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        summary_frame.pack(fill=tk.X, pady=(0, 16))
+
+        sum_header = tk.Frame(summary_frame, bg=COL_SURFACE0)
+        sum_header.pack(fill=tk.X, padx=16, pady=(12, 0))
+        tk.Label(sum_header, text="\u2620 Threat Intelligence", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(side=tk.LEFT)
+
+        status_row = tk.Frame(summary_frame, bg=COL_SURFACE0)
+        status_row.pack(fill=tk.X, padx=16, pady=(10, 12))
+
+        self.threat_analyzer_status = tk.Label(status_row, text="\u25cf Analyzer: Standby", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT)
+        self.threat_analyzer_status.pack(side=tk.LEFT, padx=(0, 16))
+
+        self.threat_alert_count = tk.Label(status_row, text="Alerts: 0", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_TEXT)
+        self.threat_alert_count.pack(side=tk.LEFT, padx=(0, 16))
+
+        self.threat_loop_count = tk.Label(status_row, text="Loops: 0", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_TEXT)
+        self.threat_loop_count.pack(side=tk.LEFT)
+
+        # Control button
+        self.threat_refresh_btn = tk.Button(summary_frame, text="Refresh", font=(UI_FONT, 8, "bold"), bg=COL_BLUE, fg="#000000", bd=0, command=self._refresh_threats)
+        self.threat_refresh_btn.pack(anchor="e", padx=16, pady=(0, 12))
+
+        # --- Alert Log ---
+        log_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        log_frame.pack(fill=tk.BOTH, expand=True)
+
+        log_header = tk.Frame(log_frame, bg=COL_SURFACE0)
+        log_header.pack(fill=tk.X, padx=16, pady=(12, 0))
+        tk.Label(log_header, text="Recent Alerts", font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT).pack(side=tk.LEFT)
+
+        # Listbox for alerts
+        list_frame = tk.Frame(log_frame, bg=COL_SURFACE0)
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=(8, 12))
+
+        scrollbar = tk.Scrollbar(list_frame, bg=COL_SURFACE1, troughcolor=COL_BASE)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.threat_listbox = tk.Listbox(
+            list_frame, bg=COL_BASE, fg=COL_TEXT, font=(UI_FONT, 9),
+            selectbackground=COL_BLUE, selectforeground="#000000",
+            relief="flat", highlightthickness=0, height=12,
+            yscrollcommand=scrollbar.set,
+        )
+        self.threat_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=self.threat_listbox.yview)
+
+        # Initial message
+        self.threat_listbox.insert(tk.END, " No threat data yet. Start the DevSec Gateway to begin monitoring.")
+        self.threat_listbox.itemconfig(0, fg=COL_SUBTEXT)
+
+    def _refresh_threats(self):
+        """Refresh threat dashboard data."""
+        try:
+            from ai_blocker.threat_intel import RequestAnalyzer, AlertSystem
+            if hasattr(self, '_threat_alerts') and self._threat_alerts:
+                recent = self._threat_alerts.recent(20)
+                self.threat_alert_count.config(text=f"Alerts: {self._threat_alerts.total}")
+                self.threat_listbox.delete(0, tk.END)
+                if not recent:
+                    self.threat_listbox.insert(tk.END, " No alerts.")
+                    self.threat_listbox.itemconfig(0, fg=COL_SUBTEXT)
+                else:
+                    for a in reversed(recent):
+                        sev_colors = {"high": COL_RED, "medium": COL_YELLOW, "low": COL_GREEN}
+                        prefix = {"high": "\u26a0", "medium": "\u26a0", "low": "\u2139"}
+                        sev = a.severity if hasattr(a, 'severity') else 'low'
+                        color = sev_colors.get(sev, COL_SUBTEXT)
+                        p = prefix.get(sev, "\u2139")
+                        ts = a.timestamp if hasattr(a, 'timestamp') else 0
+                        from datetime import datetime
+                        tstr = datetime.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "--:--"
+                        line = f" {p} [{tstr}] [{a.severity.upper()}] {a.domain}: {a.detail}"[:120]
+                        idx = self.threat_listbox.insert(tk.END, line)
+                        self.threat_listbox.itemconfig(idx, fg=color)
+                self.threat_analyzer_status.config(text="\u25cf Analyzer: Active", fg=COL_GREEN)
+            else:
+                self.threat_listbox.delete(0, tk.END)
+                self.threat_listbox.insert(tk.END, " No alert system initialized. Start the Gateway first.")
+                self.threat_listbox.itemconfig(0, fg=COL_SUBTEXT)
+        except Exception as e:
+            self.threat_listbox.delete(0, tk.END)
+            self.threat_listbox.insert(tk.END, f" Error: {e}"[:80])
+            self.threat_listbox.itemconfig(0, fg=COL_RED)
+
+    def _update_threats(self):
+        """Periodic update hook for threat dashboard."""
+        self._refresh_threats()
     def _update_tls_status(self):
         if not HAS_TLS:
             return
