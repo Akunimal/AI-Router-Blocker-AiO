@@ -194,7 +194,7 @@ class TestSemanticDLPCache(unittest.TestCase):
         import time as _time_module
         cache = SemanticDLPCache(maxsize=10, ttl_seconds=0)  # 0 = immediate expiry
         cache.put("hello", self.result)
-        _time_module.sleep(0.01)
+        _time_module.sleep(0.05)
         self.assertIsNone(cache.get("hello"))
 
     def test_ttl_property(self):

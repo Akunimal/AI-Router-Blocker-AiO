@@ -575,6 +575,59 @@ class AIBlockerApp:
         else:
             tk.Label(tls_frame, text="TLS features disabled. Install 'cryptography' package.", font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_RED).pack(anchor="w", padx=16, pady=(0, 12))
 
+        # Section 1.7: Cloud DLP Configuration
+        cloud_dlp_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        cloud_dlp_frame.pack(fill=tk.X, pady=(0, 16))
+
+        dlp_header = tk.Frame(cloud_dlp_frame, bg=COL_SURFACE0)
+        dlp_header.pack(fill=tk.X, padx=16, pady=(12, 0))
+
+        tk.Label(
+            dlp_header, text="☁️ Cloud DLP",
+            font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT,
+        ).pack(side=tk.LEFT)
+
+        self.cloud_dlp_status_lbl = tk.Label(
+            dlp_header, text="◉ Off", font=(UI_FONT, 9),
+            bg=COL_SURFACE0, fg=COL_RED,
+        )
+        self.cloud_dlp_status_lbl.pack(side=tk.RIGHT)
+
+        tk.Label(
+            cloud_dlp_frame,
+            text="Optional cloud-assisted semantic analysis for low-confidence regex findings.",
+            font=(UI_FONT, 9), bg=COL_SURFACE0, fg=COL_SUBTEXT,
+        ).pack(anchor="w", padx=16)
+
+        cloud_row = tk.Frame(cloud_dlp_frame, bg=COL_SURFACE0)
+        cloud_row.pack(fill=tk.X, padx=16, pady=(10, 12))
+
+        self.cloud_dlp_var = tk.BooleanVar(value=False)
+        self.cloud_dlp_chk = tk.Checkbutton(
+            cloud_row, text="Enable Cloud DLP", variable=self.cloud_dlp_var,
+            bg=COL_SURFACE0, fg=COL_TEXT, selectcolor=COL_SURFACE0,
+            activebackground=COL_SURFACE0, activeforeground=COL_TEXT,
+            font=(UI_FONT, 9),
+            command=self._on_cloud_dlp_toggle,
+        )
+        self.cloud_dlp_chk.pack(side=tk.LEFT)
+
+        tk.Label(cloud_row, text="API Key:", bg=COL_SURFACE0, fg=COL_TEXT, font=(UI_FONT, 9)).pack(side=tk.LEFT, padx=(16, 4))
+        self.cloud_dlp_key_var = tk.StringVar(value=os.environ.get("OPENAI_API_KEY", ""))
+        self.cloud_dlp_key_entry = tk.Entry(
+            cloud_row, textvariable=self.cloud_dlp_key_var, show="*",
+            bg=COL_BASE, fg=COL_TEXT, insertbackground=COL_TEXT, relief="flat",
+            font=(UI_FONT, 9),
+        )
+        self.cloud_dlp_key_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        self.cloud_dlp_test_btn = tk.Button(
+            cloud_row, text="Test", font=(UI_FONT, 8, "bold"),
+            bg=COL_BLUE, fg="#000000", bd=0,
+            command=self._test_cloud_dlp,
+        )
+        self.cloud_dlp_test_btn.pack(side=tk.RIGHT, padx=(4, 0))
+
         # Section 1.75: Token Usage Dashboard
         stats_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
         stats_frame.pack(fill=tk.X, pady=(0, 16))
@@ -699,6 +752,45 @@ class AIBlockerApp:
                 self.root.after_cancel(self._stats_refresh_id)
             self.gateway_btn.configure(text="▶ Start Gateway", bg=COL_GREEN)
             self.log_action("log_gateway_stopped")
+
+
+    def _on_cloud_dlp_toggle(self):
+        """Handle Cloud DLP toggle changes."""
+        enabled = self.cloud_dlp_var.get()
+        key = self.cloud_dlp_key_var.get().strip()
+        if enabled and not key:
+            self.cloud_dlp_var.set(False)
+            messagebox.showerror("Error", "Enter an OpenAI API Key before enabling Cloud DLP.")
+            return
+        if enabled:
+            self.cloud_dlp_status_lbl.configure(text="◉ On", fg=COL_GREEN)
+            os.environ["OPENAI_API_KEY"] = key
+            self.log_action("log_gateway_started", detail="Cloud DLP enabled")
+        else:
+            self.cloud_dlp_status_lbl.configure(text="◉ Off", fg=COL_RED)
+
+    def _test_cloud_dlp(self):
+        """Test the Cloud DLP connection with a simple API call."""
+        key = self.cloud_dlp_key_var.get().strip()
+        if not key:
+            messagebox.showerror("Error", "Enter an OpenAI API Key first.")
+            return
+
+        def test():
+            try:
+                from ai_blocker.semantic_dlp import SemanticDLPClient
+                client = SemanticDLPClient(api_key=key, timeout=10)
+                result = client.classify("Hello, this is a test message.")
+                self.root.after(0, lambda: messagebox.showinfo(
+                    "Cloud DLP Test",
+                    f"Connection OK!\\nCategory: {result.category}\\nRisk: {result.risk_score}"
+                ))
+            except Exception as e:
+                self.root.after(0, lambda e=e: messagebox.showerror(
+                    "Cloud DLP Test Failed", str(e)
+                ))
+
+        threading.Thread(target=test, daemon=True).start()
 
     def _update_tls_status(self):
         if not HAS_TLS:
