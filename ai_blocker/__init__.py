@@ -65,7 +65,7 @@ from ai_blocker.network_backends import (
 )
 
 # tls_manager requires the `cryptography` package (optional dependency)
-from ai_blocker.semantic_dlp import SemanticDLPClient, SemanticResult
+from ai_blocker.semantic_dlp import SemanticDLPCache, SemanticDLPClient, SemanticResult
 from ai_blocker.system_utils import (
     _get_subprocess_kwargs,
     count_total_domains,

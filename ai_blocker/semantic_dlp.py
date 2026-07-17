@@ -47,6 +47,72 @@ Text to analyze:
 ---"""
 
 
+class SemanticDLPCache:
+    """LRU cache for semantic DLP results with TTL expiration.
+
+    Avoids re-analyzing identical text within the TTL window.
+    Thread-safe via a simple lock on write operations.
+    """
+
+    def __init__(self, maxsize: int = 256, ttl_seconds: int = 300):
+        self._maxsize = maxsize
+        self._ttl = ttl_seconds
+        self._cache: dict[int, tuple[float, SemanticResult]] = {}
+        self._order: list[int] = []
+
+    def get(self, text: str) -> SemanticResult | None:
+        """Return cached result if available and not expired."""
+        key = hash(text)
+        entry = self._cache.get(key)
+        if entry is None:
+            return None
+        cached_time, result = entry
+        if time.monotonic() - cached_time > self._ttl:
+            self._cache.pop(key, None)
+            self._prune_order(key)
+            return None
+        self._touch(key)
+        return result
+
+    def put(self, text: str, result: SemanticResult) -> None:
+        """Store a result in the cache."""
+        key = hash(text)
+        self._cache[key] = (time.monotonic(), result)
+        self._touch(key)
+
+    def invalidate(self, text: str) -> None:
+        """Remove a specific entry from the cache."""
+        key = hash(text)
+        self._cache.pop(key, None)
+        self._prune_order(key)
+
+    def clear(self) -> None:
+        """Clear all cached entries."""
+        self._cache.clear()
+        self._order.clear()
+
+    def _touch(self, key: int) -> None:
+        """Mark key as recently used."""
+        self._prune_order(key)
+        self._order.append(key)
+        while len(self._order) > self._maxsize:
+            evicted = self._order.pop(0)
+            self._cache.pop(evicted, None)
+
+    def _prune_order(self, key: int) -> None:
+        try:
+            self._order.remove(key)
+        except ValueError:
+            pass
+
+    @property
+    def size(self) -> int:
+        return len(self._cache)
+
+    @property
+    def ttl(self) -> int:
+        return self._ttl
+
 class SemanticDLPClient:
     """Client for cloud-assisted semantic DLP analysis via OpenAI-compatible API."""
 

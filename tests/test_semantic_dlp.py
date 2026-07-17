@@ -7,7 +7,7 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ai_blocker.semantic_dlp import SemanticDLPClient, SemanticResult
+from ai_blocker.semantic_dlp import SemanticDLPCache, SemanticDLPClient, SemanticResult
 
 
 class TestSemanticResult(unittest.TestCase):
@@ -140,6 +140,65 @@ class TestSemanticDLPClient(unittest.TestCase):
         self.assertEqual(c.timeout, 15)
         self.assertEqual(c.max_retries, 2)
 
+
+
+
+class TestSemanticDLPCache(unittest.TestCase):
+    """SemanticDLPCache tests."""
+
+    def setUp(self):
+        self.cache = SemanticDLPCache(maxsize=3, ttl_seconds=60)
+        self.result = SemanticResult(category="safe", risk_score=0.0, explanation="ok")
+
+    def test_get_miss(self):
+        self.assertIsNone(self.cache.get("unknown"))
+
+    def test_put_and_get(self):
+        self.cache.put("hello", self.result)
+        cached = self.cache.get("hello")
+        self.assertIsNotNone(cached)
+        self.assertEqual(cached.category, "safe")
+
+    def test_invalidate(self):
+        self.cache.put("hello", self.result)
+        self.cache.invalidate("hello")
+        self.assertIsNone(self.cache.get("hello"))
+
+    def test_clear(self):
+        self.cache.put("a", self.result)
+        self.cache.put("b", self.result)
+        self.cache.clear()
+        self.assertEqual(self.cache.size, 0)
+
+    def test_lru_eviction(self):
+        for i in range(5):
+            self.cache.put(f"key-{i}", self.result)
+        # Cache maxsize is 3, so only the last 3 should remain
+        self.assertEqual(self.cache.size, 3)
+        self.assertIsNone(self.cache.get("key-0"))
+        self.assertIsNone(self.cache.get("key-1"))
+        self.assertIsNotNone(self.cache.get("key-2"))
+        self.assertIsNotNone(self.cache.get("key-3"))
+
+    def test_lru_touch_recently_used(self):
+        # Fill cache, then access key-0 to make it recently used
+        for i in range(3):
+            self.cache.put(f"key-{i}", self.result)
+        self.cache.get("key-0")  # touch
+        self.cache.put("key-3", self.result)  # should evict key-1 (oldest untouched)
+        self.assertIsNotNone(self.cache.get("key-0"))
+        self.assertIsNone(self.cache.get("key-1"))
+        self.assertIsNotNone(self.cache.get("key-2"))
+
+    def test_ttl_expiry(self):
+        import time as _time_module
+        cache = SemanticDLPCache(maxsize=10, ttl_seconds=0)  # 0 = immediate expiry
+        cache.put("hello", self.result)
+        _time_module.sleep(0.01)
+        self.assertIsNone(cache.get("hello"))
+
+    def test_ttl_property(self):
+        self.assertEqual(self.cache.ttl, 60)
 
 if __name__ == "__main__":
     unittest.main()
