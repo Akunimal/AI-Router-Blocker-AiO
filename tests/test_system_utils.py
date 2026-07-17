@@ -16,18 +16,20 @@ from ai_blocker.system_utils import (
 )
 
 
-@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestIsAdmin:
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_admin(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.ctypes.windll.shell32.IsUserAnAdmin", return_value=True):
                 assert is_admin() is True
 
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_not_admin(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.ctypes.windll.shell32.IsUserAnAdmin", return_value=False):
                 assert is_admin() is False
 
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_exception(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.ctypes.windll.shell32.IsUserAnAdmin", side_effect=Exception("denied")):
@@ -44,12 +46,12 @@ class TestIsAdmin:
                 assert is_admin() is False
 
 
-@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestRelaunchAsAdmin:
     def test_non_windows_does_nothing(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Linux"):
             relaunch_as_admin()
 
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_calls_shell_execute(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.sys.exit") as me:
@@ -70,8 +72,8 @@ class TestGetSubprocessKwargs:
             assert _get_subprocess_kwargs() == {}
 
 
-@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestFlushDNS:
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.subprocess.run") as m:
@@ -99,6 +101,7 @@ class TestFlushDNS:
                 flush_dns()
                 assert m.call_count == 2
 
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_exception(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.subprocess.run", side_effect=Exception("boom")):
@@ -127,8 +130,8 @@ class TestGetHostsStatus:
             assert get_hosts_status() == (False, 0)
 
 
-@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestInstallRootCA:
+    @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.subprocess.run") as m:
