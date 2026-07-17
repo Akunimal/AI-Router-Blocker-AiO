@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.6.1] - 2026-07-17
+### Added
+- DLP audit logging enhanced with per-finding metadata (finding type, confidence, position), scan duration, and request body hash.
+- DLP performance metrics and circuit breaker: tracks total scans, findings by type, redacted/blocked/passed counts; auto-opens after 3 slow scans (>500ms), retries after 60s.
+- DLPMetrics dataclass with to_dict() serialization exposed via /stats endpoint.
+
+### Changed
+- DLP findings now include full detail in audit log entries instead of just count.
+- _log_audit accepts dlp_findings list and body for request hash computation.
+- Bumped version to 1.6.1.
+
+## [v1.6.0] - 2026-07-17
+### Added
+- Real-time DLP engine with regex patterns for API keys, cloud credentials, PII, private keys, JWT, credit cards, and more.
+- Configurable DLP policies with per-domain/route overrides (REDACT, BLOCK, LOG_ONLY, PASS_THROUGH).
+- Structured JSON redaction preserving payload structure.
+- DLPPolicy and DLPPolicyManager for persistent YAML-based policy configuration.
+- Circuit breaker pattern for DLP metrics (tracking).
+- Initial DLP engine tests covering scan, redact, redact_structured.
+
+### Changed
+- Gateway integrates DLP pipeline: _apply_dlp with policy resolution, circuit breaker checks, and audit logging.
+- Bumped version to 1.6.0.
+
 ## [v1.5.0] - 2026-07-16
 ### Added
 - Exposed /stats HTTP endpoint on the Local API Gateway returning hourly token summary and per-domain breakdown as JSON.

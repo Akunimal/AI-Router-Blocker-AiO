@@ -247,7 +247,7 @@ elease: bump version to 1.7.0 and update CHANGELOG
 | Wave | Commits | Versión |
 |---|---|---|
 | Wave 0 | 1 | v1.6 base |
-| Wave 1 | 4 | v1.6 |
+| Wave 1 | 4/4 | v1.6 ✅ |
 | Wave 2 | 4 | v1.6 |
 | Wave 3 | 4 | v1.7 |
 | Wave 4 | 4 | v1.7 |
