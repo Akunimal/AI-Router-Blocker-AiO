@@ -119,6 +119,8 @@ This project is intentionally explicit about what is implemented today and what 
 | TLS/DPI interception | Implemented. On-the-fly Root CA generator with OS trust store integration for surgical HTTPS inspection. |
 | Token usage monitoring | Implemented. Live `/stats` endpoint + UI dashboard with auto-refresh. |
 | DLP & guardrails toggle | Implemented. Per-session enable/disable flags for DPI and semantic guardrails. |
+| Expanded DLP patterns | Implemented. Detection of internal IPs (RFC 1918), cloud tokens (GCP, HF, Azure, npm, Slack), database connection strings, and environment variable references. |
+| Enhanced guardrails | Implemented. Leetspeak obfuscation detection and data exfiltration URL patterns (pastebin, gist, webhook). |
 | eBPF/WFP kernel interception | Planned future backend work, not active runtime behavior. |
 
 The roadmap is ambitious, but releases should be evaluated by the implemented capabilities above.

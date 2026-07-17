@@ -53,7 +53,7 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 - [x] **Dynamic Regular Expression Domain Matching:** Real-time wildcard resolution for dynamic content delivery networks (CDNs).
 
 ## 📊 Phase 3: DLP Sanitization, Hybrid Guardrails & Threat Intel (v1.6 - v1.7)
-- [ ] **Real-Time DLP Sanitization Pipeline:** Regex and heuristic parsing of prompt request bodies to redact secrets, keys, PII, and proprietary source code before forwarding.
+- [x] **Real-Time DLP Sanitization Pipeline:** Regex and heuristic parsing of prompt request bodies to redact secrets, keys, PII, and proprietary source code before forwarding.
 - [x] **DLP & Guardrails Toggle Flags:** Per-session enable/disable of DPI scanning and semantic guardrails. *(Implemented in v1.5.0)*
 - [ ] **Cloud-Assisted Semantic DLP (Hybrid Mode):** Optional integration with OpenAI API for deep semantic analysis of prompts when local heuristics require escalation to detect complex IP leaks.
 - [ ] **AI-Powered Threat Intelligence:** Analyze recursive loop patterns and network anomalies from autonomous AI agents (e.g., Devin, AutoGPT) using LLMs to distinguish between legitimate logic and jailbreak attempts.
@@ -74,12 +74,12 @@ Prep antes de tocar código.
 
 | # | Tarea | Artefacto |
 |---|---|---|
-| 0.1 | Auditar DLPEngine actual: qué findings categories cubre, qué falta (IPs internas, tokens específicos de proveedores cloud, vars de entorno) | dlp_engine.py review |
-| 0.2 | Auditar PromptGuardrail: qué patrones de inyección cubre, falsos positivos conocidos | guardrails.py review |
-| 0.3 | Documentar la arquitectura DLP → Guardrail → DPI pipeline en docs/architecture.md | docs/architecture.md |
-| 0.4 | Agregar tests faltantes para edge cases del pipeline actual | 	ests/test_dlp_engine.py, 	ests/test_guardrails.py |
+| 0.1 | [OK] Auditar DLPEngine actual: qué findings categories cubre, qué falta (IPs internas, tokens específicos de proveedores cloud, vars de entorno) | dlp_engine.py review |
+| 0.2 | [OK] Auditar PromptGuardrail: qué patrones de inyección cubre, falsos positivos conocidos | guardrails.py review |
+| 0.3 | [OK] Documentar la arquitectura DLP → Guardrail → DPI pipeline en docs/architecture.md | docs/architecture.md |
+| 0.4 | [OK] Agregar tests faltantes para edge cases del pipeline actual | 	ests/test_dlp_engine.py, 	ests/test_guardrails.py |
 
-**Commit:** chore: audit DLP/guardrails pipeline, add missing edge-case tests
+**Commit:** [OK] 91c1e6b feat: expand DLP engine with cloud/IP/DB/ENV patterns
 
 ---
 
