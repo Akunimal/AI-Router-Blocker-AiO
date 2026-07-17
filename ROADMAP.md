@@ -59,6 +59,201 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 - [ ] **AI-Powered Threat Intelligence:** Analyze recursive loop patterns and network anomalies from autonomous AI agents (e.g., Devin, AutoGPT) using LLMs to distinguish between legitimate logic and jailbreak attempts.
 - [ ] **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime (Phi-3-mini/Llama-3) locally for real-time prompt safety classification (<15ms latency).
 - [x] **Token Traffic Monitor:** Live visualization dashboard detailing input/output token counts, throughput, and hourly expenditure caps. *(Implemented in v1.5.0)*
+
+---
+## 🗺️ Mega Plan: Phase 3 (v1.6 → v1.7)
+
+**DLP Sanitization, Hybrid Guardrails & Threat Intelligence**
+Basado en el roadmap existente y el código actual (DLP engine, guardrails, DPI ya implementados).
+
+---
+
+### Wave 0 — Foundation & Gap Analysis
+
+Prep antes de tocar código.
+
+| # | Tarea | Artefacto |
+|---|---|---|
+| 0.1 | Auditar DLPEngine actual: qué findings categories cubre, qué falta (IPs internas, tokens específicos de proveedores cloud, vars de entorno) | dlp_engine.py review |
+| 0.2 | Auditar PromptGuardrail: qué patrones de inyección cubre, falsos positivos conocidos | guardrails.py review |
+| 0.3 | Documentar la arquitectura DLP → Guardrail → DPI pipeline en docs/architecture.md | docs/architecture.md |
+| 0.4 | Agregar tests faltantes para edge cases del pipeline actual | 	ests/test_dlp_engine.py, 	ests/test_guardrails.py |
+
+**Commit:** chore: audit DLP/guardrails pipeline, add missing edge-case tests
+
+---
+
+### Wave 1 — Real-Time DLP Sanitization Pipeline (v1.6)
+
+Llevar el DLPEngine de "scan + redact" a un pipeline completo con políticas, estructura y métricas.
+
+#### 1.1 Políticas DLP configurables
+- Nueva clase DLPPolicy: por-domain, por-endpoint, categorías habilitadas, acción (redact/block/log-only)
+- Archivo de configuración dlp_policies.json con política por defecto
+- Integración con gateway: _get_dlp_policy(domain, path) -> DLPPolicy
+
+**Commit:** eat: add configurable DLP policies with per-domain overrides
+
+#### 1.2 Redacción estructurada (JSON-aware)
+- DLPEngine.redact_structured(text) que parsea JSON, aplica redacción campo a campo
+- Preserva estructura JSON (no rompe el payload)
+- Soporte para anidamiento profundo
+
+**Commit:** eat: add structured JSON redaction to DLP engine
+
+#### 1.3 Métricas y circuit breaker
+- Contadores de findings por tipo, tiempo de scan, tasa de falsos positivos
+- Circuit breaker: si DLP tarda >500ms, pasa a log-only
+- Exportar métricas vía el /stats endpoint existente
+
+**Commit:** eat: add DLP performance metrics and circuit breaker
+
+#### 1.4 Audit logging mejorado
+- Log granular de cada acción DLP (scan, redact, block, bypass)
+- Metadata completa: dominio, endpoint, categorías encontradas, tiempo de scan
+- Integración con AuditLog existente
+
+**Commit:** eat: enhance DLP audit logging with per-finding metadata
+
+---
+
+### Wave 2 — Cloud-Assisted Semantic DLP (v1.6)
+
+Integración opcional con OpenAI API para análisis semántico profundo.
+
+#### 2.1 Módulo SemanticDLPClient
+- Nueva clase SemanticDLPClient en i_blocker/semantic_dlp.py
+- Llamada a OpenAI API con prompt template para clasificar texto
+- Timeout configurable, retry lógico, manejo de errores
+- API key desde config o variable de entorno (nunca persistida)
+
+**Commit:** eat: add SemanticDLPClient for cloud-assisted DLP analysis
+
+#### 2.2 Protocolo de escalación
+- Si DLP local encuentra algo sospechoso -> enviar a SemanticDLPClient
+- Template de prompt que devuelve JSON estructurado: {"category", "risk_score", "explanation"}
+- Threshold configurable para escalar (ej: findings con confianza < 0.8)
+
+**Commit:** eat: implement DLP escalation protocol (local -> cloud)
+
+#### 2.3 Caché de resultados
+- Cache LRU para evitar re-análisis de texto idéntico
+- TTL configurable (default 5 min)
+- Invalidación manual desde UI
+
+**Commit:** eat: add LRU result cache for semantic DLP
+
+#### 2.4 UI para hybrid mode
+- Toggle "Cloud DLP" en la UI (tab DevSec Gateway)
+- Indicador de estado (disponible/no disponible)
+- Configuración de threshold y API key (in-memory, no persistida)
+
+**Commit:** eat: add hybrid DLP mode UI controls
+
+---
+
+### Wave 3 — AI-Powered Threat Intelligence (v1.7)
+
+Detección de patrones anómalos y amenazas de agentes autónomos.
+
+#### 3.1 Analizador de patrones de requests
+- Nueva clase RequestAnalyzer en i_blocker/threat_intel.py
+- Ventana deslizante de requests (últimos N segundos/minutos)
+- Detección de anomalías: frecuencia inusual, volumen de tokens, endpoints inusuales
+- Almacenamiento en memoria con poda periódica
+
+**Commit:** eat: add request pattern analyzer for anomaly detection
+
+#### 3.2 Detección de loops recursivos
+- Identificar patrones de agente autónomo: request -> response -> request (idéntico o similar)
+- Hash de contenido + similitud coseno para detectar ciclos
+- Alerta si mismo contenido se envía >N veces en ventana de tiempo
+
+**Commit:** eat: add recursive loop detection for autonomous agents
+
+#### 3.3 Threat feed y alerting
+- Feed local JSON-based (	hreat_feeds/*.json) con IOCs conocidos
+- Notificaciones en UI cuando se detecta amenaza
+- Log de eventos de amenaza con timestamp, categoría, dominio
+
+**Commit:** eat: add local threat feed and alerting system
+
+#### 3.4 Visualización en dashboard
+- Nueva sección "Threats" en la UI
+- Timeline de eventos, contadores por categoría
+- Integración con el sistema de notificaciones existente
+
+**Commit:** eat: add threat intelligence dashboard to UI
+
+---
+
+### Wave 4 — On-Device Semantic Guardrails (v1.7)
+
+Clasificación ONNX local para guardrails en <15ms.
+
+#### 4.1 Model loader y download manager
+- Nueva clase ONNXGuardrailModel en i_blocker/onnx_guardrail.py
+- Descarga de modelo Phi-3-mini desde HuggingFace
+- Cache de modelo en ~/.cache/ai-devsec-gateway/models/
+- Verificación de integridad (SHA256)
+
+**Commit:** eat: add ONNX model loader and download manager
+
+#### 4.2 Runtime de clasificación
+- Carga del modelo ONNX con onnxruntime
+- Preprocesamiento de texto (tokenización)
+- Inferencia con timeout (target 15ms)
+- Postprocesamiento: categorías + confidence score
+
+**Commit:** eat: add ONNX classification runtime for prompt guardrails
+
+#### 4.3 Cadena de fallback
+- ONNX -> Heuristic -> Allow (si ONNX no disponible, cae a heurísticas)
+- Si ONNX tarda >15ms, timeout y fallback automático
+- Log de modo y tiempo de inferencia
+
+**Commit:** eat: implement fallback chain for on-device guardrails
+
+#### 4.4 Benchmarks y optimización
+- Pruebas de rendimiento: latency, throughput, memory
+- Quantization del modelo (INT8) para reducir tamaño y mejorar velocidad
+- Documentación de resultados
+
+**Commit:** perf: benchmark and optimize ONNX guardrail inference
+
+---
+
+### Wave 5 — Verification & Release v1.7
+
+| # | Tarea | Comando/Archivo |
+|---|---|---|
+| 5.1 | Ruff check + fix | 
+uff check ai_blocker tests --fix |
+| 5.2 | Mypy | mypy ai_blocker |
+| 5.3 | Tests + coverage | pytest --cov=ai_blocker --tb=short -q |
+| 5.4 | Version bump 1.6.x -> 1.7.0 | pyproject.toml, __init__.py |
+| 5.5 | CHANGELOG | CHANGELOG.md |
+| 5.6 | Tag + release | git tag v1.7.0 && git push origin v1.7.0 |
+
+**Commits:**
+- chore: fix lint and type issues for v1.7
+- 
+elease: bump version to 1.7.0 and update CHANGELOG
+
+---
+
+### Resumen de Commits
+
+| Wave | Commits | Versión |
+|---|---|---|
+| Wave 0 | 1 | v1.6 base |
+| Wave 1 | 4 | v1.6 |
+| Wave 2 | 4 | v1.6 |
+| Wave 3 | 4 | v1.7 |
+| Wave 4 | 4 | v1.7 |
+| Wave 5 | 3 | v1.7 |
+| **Total** | **~20 commits** | |
+
 - [ ] **Local Audit Tracing:** Log exact prompt history locally in SQLite with JSON search queries.
 
 ## 🛡️ Phase 4: System Daemons, TPM 2.0 & Enterprise Compliance (v2.0+)
