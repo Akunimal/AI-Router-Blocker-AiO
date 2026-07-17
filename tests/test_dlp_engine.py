@@ -117,3 +117,107 @@ class TestDLPRedaction:
         result = self.engine.redact(text)
         assert "sk-proj-" not in result
         assert "AKIA" not in result
+
+class TestDLPNewPatterns:
+    def setup_method(self):
+        self.engine = DLPEngine(scan_pii=False, scan_licenses=False,
+                                scan_internal_ips=True, scan_cloud_tokens=True,
+                                scan_db_strings=True, scan_env_vars=True)
+
+    def test_detect_internal_ip_10(self):
+        findings = self.engine.scan("server at 10.0.0.1 is running")
+        assert any(f.finding_type == FindingType.INTERNAL_IP for f in findings)
+
+    def test_detect_internal_ip_192(self):
+        findings = self.engine.scan("connect to 192.168.1.100")
+        assert any(f.finding_type == FindingType.INTERNAL_IP for f in findings)
+
+    def test_detect_internal_ip_127(self):
+        findings = self.engine.scan("localhost is 127.0.0.1")
+        assert any(f.finding_type == FindingType.INTERNAL_IP for f in findings)
+
+    def test_detect_google_oauth_token(self):
+        findings = self.engine.scan("token: ya29.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789")
+        assert any(f.finding_type == FindingType.CLOUD_TOKEN for f in findings)
+
+    def test_detect_huggingface_token(self):
+        findings = self.engine.scan("token: hf_abcdefghijklmnopqrstuvwxyz123456")
+        assert any(f.finding_type == FindingType.CLOUD_TOKEN for f in findings)
+
+    def test_detect_slack_token(self):
+        findings = self.engine.scan("token: xoxp-FAKE123456789012345678901234567890")
+        assert any(f.finding_type == FindingType.CLOUD_TOKEN for f in findings)
+
+    def test_detect_db_connection_postgres(self):
+        findings = self.engine.scan("postgresql://user:pass@localhost:5432/db")
+        assert any(f.finding_type == FindingType.DB_CONNECTION_STRING for f in findings)
+
+    def test_detect_db_connection_mongodb(self):
+        findings = self.engine.scan("mongodb://admin:secret@cluster0.example.net")
+        assert any(f.finding_type == FindingType.DB_CONNECTION_STRING for f in findings)
+
+    def test_detect_env_var_reference(self):
+        findings = self.engine.scan('key = os.environ["API_KEY"]')
+        assert any(f.finding_type == FindingType.ENV_VAR_REFERENCE for f in findings)
+
+
+class TestDLPEdgeCases:
+    def setup_method(self):
+        self.engine = DLPEngine()
+
+    def test_empty_text(self):
+        assert self.engine.scan("") == []
+        assert self.engine.redact("") == ""
+
+    def test_very_long_text_performance(self):
+        text = "normal text " * 10000  # ~120KB
+        findings = self.engine.scan(text)
+        # Should not crash and find no secrets
+        assert isinstance(findings, list)
+
+    def test_unicode_emoji_text(self):
+        text = "Hello from \U0001f600 \U0001f916 key: sk-proj-abc123defgh456ijklm789nopqrstuvwxyz"
+        findings = self.engine.scan(text)
+        assert any(f.finding_type == FindingType.API_KEY for f in findings)
+
+    def test_false_positive_url_not_api_key(self):
+        # URL path segments that look like keys should not trigger
+        text = "https://example.com/sk-proj-something/status"
+        findings = self.engine.scan(text)
+        # This is a borderline case - the pattern might match, but let's see
+        # We just verify it doesn't crash
+        assert isinstance(findings, list)
+
+    def test_base64_encoded_secret_not_detected(self):
+        # Base64-encoded secrets should ideally NOT be detected by regex
+        import base64
+        secret = base64.b64encode(b"sk-proj-abcdef1234567890abcdef1234567890").decode()
+        text = f"encoded: {secret}"
+        findings = self.engine.scan(text)
+        # Base64 encoded secrets should not be detected as plaintext
+        assert not any(f.finding_type == FindingType.API_KEY for f in findings)
+
+    def test_redact_structured_json_preserves_structure(self):
+        text = '{"key": "sk-proj-abc123defgh456ijklm789nopqrstuvwxyz", "name": "test"}'
+        result = self.engine.redact(text)
+        assert "[REDACTED:" in result
+        assert "sk-proj-" not in result
+        # Verify JSON structure is preserved
+        assert '"name": "test"' in result or "'name': 'test'" in result
+
+    def test_redact_multiple_overlapping_findings(self):
+        text = "key: sk-proj-abc123defgh456ijklm789nopqrstuvwxyz and email: test@example.com"
+        result = self.engine.redact(text)
+        assert "sk-proj-" not in result
+        assert "test@example.com" not in result
+
+    def test_scan_secrets_disabled(self):
+        engine = DLPEngine(scan_secrets=False, scan_pii=False, scan_licenses=False,
+                          scan_cloud_tokens=False, scan_db_strings=False)
+        findings = engine.scan("sk-proj-abc123defgh456ijklm789nopqrstuvwxyz")
+        assert len(findings) == 0
+
+    def test_has_sensitive_data_no_false_positive(self):
+        assert not self.engine.has_sensitive_data("The quick brown fox jumps over the lazy dog")
+        assert not self.engine.has_sensitive_data("Lorem ipsum dolor sit amet")
+

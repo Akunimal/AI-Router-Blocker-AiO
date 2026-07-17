@@ -66,6 +66,26 @@ _JAILBREAK_PATTERNS: list[tuple[str, float]] = [
     (r"<\|(?:im_start|system|endoftext)\|>", 0.85),
 ]
 
+_LEETSPEAK_PATTERNS: list[tuple[str, float]] = [
+    # Leetspeak variants of "ignore"
+    (r"[1!]gn[0o]r[3e]\s+(?:previous|prior|all|above)", 0.85),
+    (r"1gn0r3\s+", 0.85),
+    # Leetspeak "DAN"
+    (r"d[4a][n4]\s+m[0o][d4][3e3]", 0.85),
+    # Obfuscated "system prompt"
+    (r"s[y]?st[3e]m\s*_?pr[0o]mpt", 0.80),
+    # Split words with special chars
+    (r"d[^a-zA-Z]*o[^a-zA-Z]*\s*n[^a-zA-Z]*o[^a-zA-Z]*w[^a-zA-Z]*n[^a-zA-Z]*", 0.70),
+]
+
+_DATA_EXFIL_PATTERNS: list[tuple[str, float]] = [
+    # Data exfiltration URLs
+    (r"(?:pastebin|rentry|rentry\.co|gist\.github)\.com", 0.50),
+    (r"(?:webhook\.site|hookbin|requestbin)\.com", 0.70),
+    # Suspicious inline data URLs
+    (r"data:application/x-www-form-urlencoded;base64,[a-zA-Z0-9+/=]{50,}", 0.75),
+]
+
 _IP_LEAK_PATTERNS: list[tuple[str, float]] = [
     # Requests to dump internal data
     (r"(?:show|print|list|dump|display)\s+(?:all\s+)?(?:your\s+)?(?:training\s+data|internal|source\s+code)", 0.70),
@@ -100,12 +120,18 @@ class PromptGuardrail:
         ip_score, ip_matches = self._scan_patterns(
             prompt_lower, _IP_LEAK_PATTERNS
         )
+        leetspeak_score, leetspeak_matches = self._scan_patterns(
+            prompt_lower, _LEETSPEAK_PATTERNS
+        )
+        exfil_score, exfil_matches = self._scan_patterns(
+            prompt_lower, _DATA_EXFIL_PATTERNS
+        )
 
         # Pick highest-risk category
         scores = [
             (ThreatCategory.PROMPT_INJECTION, injection_score, injection_matches),
-            (ThreatCategory.JAILBREAK, jailbreak_score, jailbreak_matches),
-            (ThreatCategory.IP_LEAK, ip_score, ip_matches),
+            (ThreatCategory.JAILBREAK, jailbreak_score + leetspeak_score, jailbreak_matches + leetspeak_matches),
+            (ThreatCategory.IP_LEAK, ip_score + exfil_score, ip_matches + exfil_matches),
         ]
         scores.sort(key=lambda x: x[1], reverse=True)
         top_category, top_score, top_matches = scores[0]

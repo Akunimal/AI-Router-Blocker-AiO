@@ -29,6 +29,10 @@ class FindingType(Enum):
     CREDIT_CARD = "credit_card"
     PHONE = "phone"
     LICENSE_CONFLICT = "license_conflict"
+    INTERNAL_IP = "internal_ip"
+    CLOUD_TOKEN = "cloud_token"
+    DB_CONNECTION_STRING = "db_connection_string"
+    ENV_VAR_REFERENCE = "env_var_reference"
 
 
 @dataclass(frozen=True)
@@ -80,6 +84,32 @@ _LICENSE_PATTERNS: list[tuple[FindingType, str, float]] = [
     (FindingType.LICENSE_CONFLICT, r'(?:GNU Lesser General Public License|LGPL-[23]\.0)', 0.85),
 ]
 
+_CLOUD_TOKEN_PATTERNS: list[tuple[FindingType, str, float]] = [
+    (FindingType.CLOUD_TOKEN, r"ya29\.[a-zA-Z0-9_-]{50,}", 0.95),
+    (FindingType.CLOUD_TOKEN, r"hf_[a-zA-Z0-9_-]{20,}", 0.95),
+    (FindingType.CLOUD_TOKEN, r"AccountKey=[a-zA-Z0-9+/=]{40,}", 0.90),
+    (FindingType.CLOUD_TOKEN, r"npm_[a-zA-Z0-9_-]{30,}", 0.90),
+    (FindingType.CLOUD_TOKEN, r"xox[baprs]-[a-zA-Z0-9_-]{20,}", 0.90),
+]
+
+_INTERNAL_IP_PATTERNS: list[tuple[FindingType, str, float]] = [
+    (FindingType.INTERNAL_IP, r'\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', 0.70),
+    (FindingType.INTERNAL_IP, r'\b(?:172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b', 0.70),
+    (FindingType.INTERNAL_IP, r'\b(?:192\.168\.\d{1,3}\.\d{1,3})\b', 0.70),
+    (FindingType.INTERNAL_IP, r'\b(?:127\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', 0.60),
+]
+
+_DB_STRING_PATTERNS: list[tuple[FindingType, str, float]] = [
+    (FindingType.DB_CONNECTION_STRING, '(?:postgresql|mysql|mongodb|redis|rediss)://[^\\s\x22\x27]+', 0.85),
+    (FindingType.DB_CONNECTION_STRING, '(?:jdbc:[a-z]+://[^\\s\x22\x27]+)', 0.80),
+]
+
+_ENV_VAR_PATTERNS: list[tuple[FindingType, str, float]] = [
+    (FindingType.ENV_VAR_REFERENCE, '(?:os\\.environ|os\\.getenv)(?:\\(|\\[)[\x22\x27][A-Z_]{3,}[\x22\x27](?:\\)|\\])', 0.50),
+    (FindingType.ENV_VAR_REFERENCE, r'(?:process\.env\.)[A-Z_]{3,}', 0.50),
+    (FindingType.ENV_VAR_REFERENCE, r'(?:export|set)\s+[A-Z_]{3,}\s*=', 0.40),
+]
+
 
 # ?=??=? Scanning engine ??????????????????????????????????????????????????????????????????????????????????????????????????????????????
 
@@ -95,6 +125,10 @@ class DLPEngine:
     scan_secrets: bool = True
     scan_pii: bool = True
     scan_licenses: bool = False
+    scan_internal_ips: bool = False
+    scan_cloud_tokens: bool = True
+    scan_db_strings: bool = True
+    scan_env_vars: bool = False
 
     def scan(self, text: str) -> list[DLPFinding]:
         """Return all findings in *text*."""
@@ -107,6 +141,14 @@ class DLPEngine:
             patterns.extend(_PII_PATTERNS)
         if self.scan_licenses:
             patterns.extend(_LICENSE_PATTERNS)
+        if self.scan_internal_ips:
+            patterns.extend(_INTERNAL_IP_PATTERNS)
+        if self.scan_cloud_tokens:
+            patterns.extend(_CLOUD_TOKEN_PATTERNS)
+        if self.scan_db_strings:
+            patterns.extend(_DB_STRING_PATTERNS)
+        if self.scan_env_vars:
+            patterns.extend(_ENV_VAR_PATTERNS)
 
         for finding_type, pattern, confidence in patterns:
             try:
