@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+import ai_blocker.system_utils
 from ai_blocker.system_utils import (
     _get_subprocess_kwargs,
     count_total_domains,
@@ -20,19 +21,22 @@ class TestIsAdmin:
     @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_admin(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
-            with patch("ai_blocker.system_utils.ctypes.windll.shell32.IsUserAnAdmin", return_value=True):
+            with patch.object(ai_blocker.system_utils, "ctypes", create=True) as _mc:
+                _mc.windll.shell32.IsUserAnAdmin.return_value = True
                 assert is_admin() is True
 
     @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_not_admin(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
-            with patch("ai_blocker.system_utils.ctypes.windll.shell32.IsUserAnAdmin", return_value=False):
+            with patch.object(ai_blocker.system_utils, "ctypes", create=True) as _mc:
+                _mc.windll.shell32.IsUserAnAdmin.return_value = False
                 assert is_admin() is False
 
     @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
     def test_windows_exception(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
-            with patch("ai_blocker.system_utils.ctypes.windll.shell32.IsUserAnAdmin", side_effect=Exception("denied")):
+            with patch.object(ai_blocker.system_utils, "ctypes", create=True) as _mc:
+                _mc.windll.shell32.IsUserAnAdmin.side_effect = Exception("denied")
                 assert is_admin() is False
 
     def test_non_windows_root(self):
@@ -55,7 +59,9 @@ class TestRelaunchAsAdmin:
     def test_windows_calls_shell_execute(self):
         with patch("ai_blocker.system_utils.CURRENT_OS", "Windows"):
             with patch("ai_blocker.system_utils.sys.exit") as me:
-                with patch("ai_blocker.system_utils.ctypes.windll.shell32.ShellExecuteW") as ms:
+                with patch.object(ai_blocker.system_utils, "ctypes", create=True) as _mc2:
+                    _mc2.windll.shell32.ShellExecuteW = MagicMock()
+                    ms = _mc2.windll.shell32.ShellExecuteW
                     relaunch_as_admin()
                     ms.assert_called_once()
                     me.assert_called_once_with(0)

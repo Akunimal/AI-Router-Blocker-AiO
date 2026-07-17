@@ -1,7 +1,6 @@
 """Tests for config module."""
 import json
-import sys
-from unittest.mock import mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
@@ -78,35 +77,42 @@ class TestSaveConfig:
                 save_config({"lang": "en"})
 
 
-@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows-only test")
 class TestWindowsAutostart:
+    """Windows autostart registry tests using mock winreg module."""
+
+    @pytest.fixture(autouse=True)
+    def _setup_winreg(self):
+        """Inject a mock winreg into sys.modules to avoid ModuleNotFoundError on non-Windows."""
+        self._mock_winreg = MagicMock()
+        self._mock_winreg.HKEY_CURRENT_USER = MagicMock()
+        self._mock_winreg.KEY_SET_VALUE = MagicMock()
+        self._mock_winreg.KEY_READ = MagicMock()
+        self._mock_winreg.REG_SZ = MagicMock()
+        self._mock_winreg.QueryValueEx.return_value = ("cmd", 0)
+        with patch.dict("sys.modules", {"winreg": self._mock_winreg}):
+            yield
+
     def test_set_non_windows(self):
-        with patch('ai_blocker.config.CURRENT_OS', 'Linux'):
+        with patch("ai_blocker.config.CURRENT_OS", "Linux"):
             assert set_windows_autostart(True) is False
 
     def test_set_windows_enable(self):
-        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
-            with patch('winreg.OpenKey'), patch('winreg.SetValueEx'), patch('winreg.CloseKey'):
-                assert set_windows_autostart(True) is True
+        with patch("ai_blocker.config.CURRENT_OS", "Windows"):
+            assert set_windows_autostart(True) is True
 
     def test_set_windows_disable(self):
-        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
-            with patch('winreg.OpenKey'), patch('winreg.DeleteValue'), patch('winreg.CloseKey'):
-                assert set_windows_autostart(False) is True
+        with patch("ai_blocker.config.CURRENT_OS", "Windows"):
+            assert set_windows_autostart(False) is True
 
     def test_get_non_windows(self):
-        with patch('ai_blocker.config.CURRENT_OS', 'Linux'):
+        with patch("ai_blocker.config.CURRENT_OS", "Linux"):
             assert get_windows_autostart() is False
 
     def test_get_windows_found(self):
-        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
-            with patch('winreg.OpenKey'):
-                with patch('winreg.CloseKey'):
-                    with patch('winreg.QueryValueEx', return_value=('cmd', 0)):
-                        assert get_windows_autostart() is True
+        with patch("ai_blocker.config.CURRENT_OS", "Windows"):
+            assert get_windows_autostart() is True
 
     def test_get_windows_not_found(self):
-        with patch('ai_blocker.config.CURRENT_OS', 'Windows'):
-            with patch('winreg.OpenKey', side_effect=FileNotFoundError):
+        with patch("ai_blocker.config.CURRENT_OS", "Windows"):
+            with patch("winreg.OpenKey", side_effect=FileNotFoundError):
                 assert get_windows_autostart() is False
-

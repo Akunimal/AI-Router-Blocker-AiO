@@ -56,7 +56,8 @@ def detect_running_ai_editors():
                 active.add(os.path.basename(line.strip()).lower())
 
             for proc in PROCESS_LIST:
-                if proc.lower() in active:
+                # Strip .exe for cross-platform matching (ps output has no extension)
+                if proc.lower().replace('.exe', '') in active:
                     running.append(proc)
     except Exception:
         pass
