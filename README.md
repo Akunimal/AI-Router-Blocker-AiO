@@ -45,6 +45,35 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 
 ---
 
+## 🛡️ Data Loss Prevention (DLP)
+
+AI DevSec Gateway includes a built-in DLP engine that inspects all outbound API traffic for sensitive data before it leaves your network.
+
+### Detection Categories
+
+| Category | Examples | Default Action |
+|---|---|---|
+| 🔑 **API Keys & Tokens** | OpenAI sk-*, Anthropic sk-ant-*, GitHub ghp_*, xoxb-* | REDACT |
+| ☁️ **Cloud Credentials** | AWS keys, GCP tokens, Azure secrets, DigitalOcean, Heroku | REDACT |
+| 👤 **PII** | Emails, US SSN, credit cards, phone numbers | REDACT |
+| 🔐 **Private Keys** | RSA/EC/DSA/OpenSSH private keys | BLOCK |
+| 🪪 **JWT Tokens** | JSON Web Tokens (eyJ...) | REDACT |
+| 🌐 **Internal IPs** | RFC 1918 addresses (10.x, 172.16-31.x, 192.168.x) | LOG_ONLY |
+| 📄 **License Conflicts** | AGPL-3.0, GPL-3.0 copyleft license headers | LOG_ONLY |
+| 🗄️ **DB Connection Strings** | PostgreSQL, MySQL, MongoDB, Redis URIs | REDACT |
+| 🔧 **Environment Variables** | AWS_SECRET_ACCESS_KEY, DB_PASSWORD, API_KEY references | LOG_ONLY |
+
+### DLP Policies
+
+Policies are configurable per-domain and per-route:
+
+- **REDACT** (default): Replace sensitive content with [REDACTED] while preserving structure
+- **BLOCK**: Return 403 and prevent the request from being sent
+- **LOG_ONLY**: Log findings without modifying the request
+- **PASS_THROUGH**: Skip DLP entirely for trusted domains
+
+Configure policies via YAML file or the /dlp/policy API endpoint.
+
 ## 🏢 Enterprise Use Cases
 
 Why do DevSecOps teams and CISOs deploy AI DevSec Gateway?
