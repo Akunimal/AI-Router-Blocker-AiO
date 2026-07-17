@@ -55,7 +55,11 @@ class TestGuardrailFallbackChain(unittest.TestCase):
             if "bad" in text.lower():
                 return GuardrailResult(allowed=False, category="unsafe", confidence=0.9, fallback=True)
             return None
-        result = chain.classify("this is bad")
+        def heuristic(text):
+            if "bad" in text.lower():
+                return GuardrailResult(allowed=False, category="unsafe", confidence=0.9, fallback=True)
+            return None
+        result = chain.classify("this is bad", heuristic_fn=heuristic)
         self.assertFalse(result.allowed)
         self.assertEqual(result.category, "unsafe")
 
@@ -63,27 +67,33 @@ class TestGuardrailFallbackChain(unittest.TestCase):
         chain = GuardrailFallbackChain()
         def heuristic(text):
             return None
-        result = chain.classify("safe text")
+        result = chain.classify("safe text", heuristic_fn=heuristic)
         self.assertTrue(result.allowed)
         self.assertTrue(result.fallback)
 
     def test_stats_tracking(self):
         chain = GuardrailFallbackChain()
-        chain.classify("test")
+        def allow_none(text):
+            return None
+        chain.classify("test", heuristic_fn=allow_none)
         self.assertEqual(chain.stats["total"], 1)
         self.assertGreaterEqual(chain.stats["bypass"], 1)
 
     def test_reset_stats(self):
         chain = GuardrailFallbackChain()
-        chain.classify("test")
+        def allow_none(text):
+            return None
+        chain.classify("test", heuristic_fn=allow_none)
         chain.reset_stats()
         self.assertEqual(chain.stats["total"], 0)
 
     def test_multiple_classifications(self):
         chain = GuardrailFallbackChain()
-        chain.classify("a")
-        chain.classify("b")
-        chain.classify("c")
+        def allow_none(text):
+            return None
+        chain.classify("a", heuristic_fn=allow_none)
+        chain.classify("b", heuristic_fn=allow_none)
+        chain.classify("c", heuristic_fn=allow_none)
         self.assertEqual(chain.stats["total"], 3)
 
 

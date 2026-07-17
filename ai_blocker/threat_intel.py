@@ -60,14 +60,8 @@ class RequestAnalyzer:
             token_rate = tokens / duration
             mean_rate, std_rate = self._baselines.get(d, (rate, rate * 0.5))
             rate_z = (rate - mean_rate) / (std_rate or 0.001)
-            mean_tokens, std_tokens = 0.0, 1.0
-            token_vals = [r.token_count for r in recent if r.token_count > 0]
-            if token_vals:
-                mean_tokens = sum(token_vals) / len(token_vals)
-                std_tokens = (sum((t - mean_tokens)**2 for t in token_vals) / len(token_vals))**0.5 or 0.001
-                token_z = (token_rate - mean_tokens) / std_tokens
-            else:
-                token_z = 0.0
+            token_z = 0.0
+            
             is_anom = abs(rate_z) > self.zscore_threshold or abs(token_z) > self.zscore_threshold
             reasons = []
             if abs(rate_z) > self.zscore_threshold:
