@@ -74,6 +74,7 @@ from ai_blocker.system_utils import (
 from ai_blocker.token_monitor import TokenMonitor
 
 # tls_manager requires the `cryptography` package (optional dependency)
+from ai_blocker.semantic_dlp import SemanticDLPClient, SemanticResult
 try:
     from ai_blocker.tls_manager import (
         clear_leaf_cache,
