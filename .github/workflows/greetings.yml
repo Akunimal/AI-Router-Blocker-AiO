@@ -1,27 +1,27 @@
-name: Greetings
-
-on:
-  issues:
-    types: [opened]
-  pull_request_target:
-    types: [opened]
-
-jobs:
-  greeting:
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-
-    steps:
-    - uses: actions/first-interaction@v3
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_message: |
-          Hello! Thank you for opening your first issue in this repository. Ш=Юбю
-          
-          A maintainer will review this issue shortly. In the meantime, please verify that you have provided all requested information in our Bug Report or Feature Request template.
-        pr_message: |
-          Hello! Thank you for submitting your first Pull Request to CodeGate. Ш=ЮЂ
-          
-          We appreciate your contribution! A maintainer will review your code changes shortly. Please ensure your PR follows our contributing guidelines and has passed all local tests.
+name: Greetings
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/first-interaction@v3
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_message: |
+          Hello! Thank you for opening your first issue in this repository. 
+          
+          A maintainer will review this issue shortly. In the meantime, please verify that you have provided all requested information in our Bug Report or Feature Request template.
+        pr_message: |
+          Hello! Thank you for submitting your first Pull Request to CodeGate. ВЂ
+          
+          We appreciate your contribution! A maintainer will review your code changes shortly. Please ensure your PR follows our contributing guidelines and has passed all local tests.
