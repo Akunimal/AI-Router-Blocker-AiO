@@ -94,7 +94,7 @@ def _default_policy_path() -> str:
         from ai_blocker.config import get_config_path
         base = os.path.dirname(get_config_path())
     except Exception:
-        base = os.path.expanduser("~/.config/ai-devsec-gateway")
+        base = os.path.expanduser("~/.config/devgate")
     return os.path.join(base, "dlp_policies.json")
 
 

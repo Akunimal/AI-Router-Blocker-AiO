@@ -135,7 +135,7 @@ class EBPFBackend:
     name = "ebpf"
 
     # Reference BPF program path (would be compiled at install time)
-    _bpf_prog_path = "/opt/ai-devsec-gateway/redirect_ai.bpf.o"
+    _bpf_prog_path = "/opt/devgate/redirect_ai.bpf.o"
     _cgroup_path = "/sys/fs/cgroup"
     _map_name = "ai_devsec_blocked_ips"
 

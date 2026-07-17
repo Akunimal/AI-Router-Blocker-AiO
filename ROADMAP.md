@@ -13,7 +13,7 @@ This roadmap outlines our technical vision, showing our completed work, upcoming
 | **Phase 0** | Core Desktop Blocker & i18n | Q1 2026 | `██████████` 100% |
 | **Phase 1** | Modularization, CLI & Multi-Provider | Q2 2026 (Current) | `██████████` 100% |
 | **Phase 2** | Network Backend Abstraction, Firewall Redirects & TLS Decryption | Q3 2026 | `██████████` 100% |
-| **Phase 3** | DLP Sanitization, Hybrid Guardrails & Threat Intel | Q4 2026 | `███░░░░░░░` 30% |
+| **Phase 3** | DLP Sanitization, Hybrid Guardrails & Threat Intel | Q4 2026 | `██████████` 100% |
 | **Phase 4** | System Daemons, TPM 2.0 & Enterprise Compliance | Q1 2027 | `░░░░░░░░░░` 0% |
 | **Phase 5** | Confidential Computing & eBPF Telemetry Analysis | Q2 2027 | `░░░░░░░░░░` 0% |
 
@@ -55,9 +55,9 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 ## 📊 Phase 3: DLP Sanitization, Hybrid Guardrails & Threat Intel (v1.6 - v1.7)
 - [x] **Real-Time DLP Sanitization Pipeline:** Regex and heuristic parsing of prompt request bodies to redact secrets, keys, PII, and proprietary source code before forwarding.
 - [x] **DLP & Guardrails Toggle Flags:** Per-session enable/disable of DPI scanning and semantic guardrails. *(Implemented in v1.5.0)*
-- [ ] **Cloud-Assisted Semantic DLP (Hybrid Mode):** Optional integration with OpenAI API for deep semantic analysis of prompts when local heuristics require escalation to detect complex IP leaks.
-- [ ] **AI-Powered Threat Intelligence:** Analyze recursive loop patterns and network anomalies from autonomous AI agents (e.g., Devin, AutoGPT) using LLMs to distinguish between legitimate logic and jailbreak attempts.
-- [ ] **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime (Phi-3-mini/Llama-3) locally for real-time prompt safety classification (<15ms latency).
+- [x] **Cloud-Assisted Semantic DLP (Hybrid Mode):** Optional integration with OpenAI API for deep semantic analysis of prompts when local heuristics require escalation to detect complex IP leaks.
+- [x] **AI-Powered Threat Intelligence:** Analyze recursive loop patterns and network anomalies from autonomous AI agents (e.g., Devin, AutoGPT) using LLMs to distinguish between legitimate logic and jailbreak attempts.
+- [x] **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime (Phi-3-mini/Llama-3) locally for real-time prompt safety classification (<15ms latency).
 - [x] **Token Traffic Monitor:** Live visualization dashboard detailing input/output token counts, throughput, and hourly expenditure caps. *(Implemented in v1.5.0)*
 
 ---

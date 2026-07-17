@@ -25,7 +25,7 @@ try:
 except ImportError:
     HAS_ONNX = False
 
-MODELS_DIR = os.path.expanduser(os.path.join("~", ".cache", "ai-devsec-gateway", "models"))
+MODELS_DIR = os.path.expanduser(os.path.join("~", ".cache", "devgate", "models"))
 
 
 @dataclass
