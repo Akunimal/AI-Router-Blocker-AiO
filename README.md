@@ -42,6 +42,11 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 | 🔒 **Deterministic Kill Switch** | Hard OS-level blocking through managed `hosts` entries. No reliance on remote DNS filtering servers. |
 | 📦 **Universal Distribution** | Install via `pip`, `brew`, `scoop`, or as a portable single-file binary for Windows/Linux/macOS. |
 | 🌍 **Multilingual GUI** | A premium Catppuccin Mocha interface with 10 supported languages and smart OS elevation (UAC/sudo). |
+| 🧠 **Cloud-Assisted Semantic DLP** | Optional OpenAI integration for deep semantic analysis of low-confidence DLP findings with LRU cache and escalation protocol. |
+| 🔍 **AI-Powered Threat Intelligence** | Request pattern analysis, recursive loop detection, and real-time alerting for autonomous AI agent anomalies. |
+| 🛡️ **On-Device ONNX Guardrails** | Embed a lightweight ONNX runtime (Phi-3-mini) for real-time prompt safety classification with automatic fallback chain. |
+| 📋 **Configurable DLP Policies** | Per-domain and per-route policies with REDACT, BLOCK, LOG_ONLY, and PASS_THROUGH actions. |
+| 📝 **Enhanced Audit Logging** | Granular per-finding audit trail with metadata (domain, endpoint, categories, scan time). |
 
 ---
 
@@ -153,6 +158,11 @@ This project is intentionally explicit about what is implemented today and what 
 | DLP & guardrails toggle | Implemented. Per-session enable/disable flags for DPI and semantic guardrails. |
 | Expanded DLP patterns | Implemented. Detection of internal IPs (RFC 1918), cloud tokens (GCP, HF, Azure, npm, Slack), database connection strings, and environment variable references. |
 | Enhanced guardrails | Implemented. Leetspeak obfuscation detection and data exfiltration URL patterns (pastebin, gist, webhook). |
+| DLP Policies | Implemented. Per-domain and per-route policies with REDACT/BLOCK/LOG_ONLY/PASS_THROUGH. |
+| DLP Audit Logging | Implemented. Granular per-finding audit trail with metadata. |
+| Cloud-Assisted Semantic DLP | Implemented. Optional OpenAI integration with LRU cache and escalation protocol. |
+| AI-Powered Threat Intelligence | Implemented. Request analysis, loop detection, alerting, and dashboard. |
+| On-Device ONNX Guardrails | Implemented. Local Phi-3-mini classification with automatic fallback chain. |
 | eBPF/WFP kernel interception | Planned future backend work, not active runtime behavior. |
 
 The roadmap is ambitious, but releases should be evaluated by the implemented capabilities above.
@@ -233,8 +243,9 @@ We believe that security tools must be 100% transparent. This project is built u
 ## 🗺️ Roadmap & Future Vision
 
 We are actively evolving towards an enterprise **Zero-Trust DLP Engine**. Upcoming milestones include:
-- **Cloud-Assisted Semantic DLP:** Optional integration with OpenAI API for deep semantic analysis of prompts.
-- **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime for real-time prompt safety classification.
+- ✅ **Cloud-Assisted Semantic DLP:** Optional integration with OpenAI API for deep semantic analysis of prompts. *(Implemented in v1.6.0)*
+- ✅ **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime (Phi-3-mini) for real-time prompt safety classification with automatic fallback. *(Implemented in v1.7.0)*
+- ✅ **AI-Powered Threat Intelligence:** Analyze recursive loop patterns and network anomalies from autonomous AI agents (Devin, AutoGPT). *(Implemented in v1.7.0)*
 - **eBPF Kernel Telemetry:** Detecting `.git/config` exfiltration directly at the Linux kernel level.
 - **Confidential Computing:** Running the Gateway within Trusted Execution Environments (TEEs) like Intel SGX.
 
