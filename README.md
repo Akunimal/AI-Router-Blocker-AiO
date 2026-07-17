@@ -37,7 +37,7 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 | 📊 **Live Token Dashboard** | Real-time token in/out and request counts with auto-refresh every 5s while the gateway runs. Fetch stats via `/stats` HTTP endpoint. |
 | 🔀 **Transparent API Router** | Seamlessly reroute Copilot/Cursor HTTP traffic to your own Local LLM inference servers. |
 | 🛡️ **AI DevSec Auditor** | Live process analysis with on-demand OpenAI recommendations. API keys are memory-only and never persisted. |
-| 🔄 **DLP & Guardrails Toggle** | Enable or disable Deep Packet Inspection and semantic guardrails per-session via gateway config flags. |
+| 🔄 **DLP & Guardrails Toggle** | Enable or disable Deep Packet Inspection, semantic guardrails, and Cloud DLP per-session via gateway config flags. |
 | 💻 **Native CLI Interface** | Full headless control for CI/CD environments. Use `ai-blocker --status` or `ai-devsec-gateway --block`. |
 | 🔒 **Deterministic Kill Switch** | Hard OS-level blocking through managed `hosts` entries. No reliance on remote DNS filtering servers. |
 | 📦 **Universal Distribution** | Install via `pip`, `brew`, `scoop`, or as a portable single-file binary for Windows/Linux/macOS. |
@@ -48,6 +48,8 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 ## 🛡️ Data Loss Prevention (DLP)
 
 AI DevSec Gateway includes a built-in DLP engine that inspects all outbound API traffic for sensitive data before it leaves your network.
+The DLP engine supports **optional Cloud-Assisted Semantic Analysis** via OpenAI API for deep semantic inspection of low-confidence regex findings,
+with an LRU result cache to avoid redundant analysis and a configurable escalation protocol for hybrid local+cloud detection.
 
 ### Detection Categories
 
@@ -57,6 +59,7 @@ AI DevSec Gateway includes a built-in DLP engine that inspects all outbound API 
 | ☁️ **Cloud Credentials** | AWS keys, GCP tokens, Azure secrets, DigitalOcean, Heroku | REDACT |
 | 👤 **PII** | Emails, US SSN, credit cards, phone numbers | REDACT |
 | 🔐 **Private Keys** | RSA/EC/DSA/OpenSSH private keys | BLOCK |
+| ☁️ **Cloud DLP** | Optional OpenAI integration for deep semantic analysis of low-confidence findings | ESCALATE |
 | 🪪 **JWT Tokens** | JSON Web Tokens (eyJ...) | REDACT |
 | 🌐 **Internal IPs** | RFC 1918 addresses (10.x, 172.16-31.x, 192.168.x) | LOG_ONLY |
 | 📄 **License Conflicts** | AGPL-3.0, GPL-3.0 copyleft license headers | LOG_ONLY |

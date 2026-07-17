@@ -13,7 +13,7 @@ This roadmap outlines our technical vision, showing our completed work, upcoming
 | **Phase 0** | Core Desktop Blocker & i18n | Q1 2026 | `██████████` 100% |
 | **Phase 1** | Modularization, CLI & Multi-Provider | Q2 2026 (Current) | `██████████` 100% |
 | **Phase 2** | Network Backend Abstraction, Firewall Redirects & TLS Decryption | Q3 2026 | `██████████` 100% |
-| **Phase 3** | DLP Sanitization, Hybrid Guardrails & Threat Intel | Q4 2026 | `██░░░░░░░░` 20% |
+| **Phase 3** | DLP Sanitization, Hybrid Guardrails & Threat Intel | Q4 2026 | `███░░░░░░░` 30% |
 | **Phase 4** | System Daemons, TPM 2.0 & Enterprise Compliance | Q1 2027 | `░░░░░░░░░░` 0% |
 | **Phase 5** | Confidential Computing & eBPF Telemetry Analysis | Q2 2027 | `░░░░░░░░░░` 0% |
 
@@ -248,7 +248,7 @@ elease: bump version to 1.7.0 and update CHANGELOG
 |---|---|---|
 | Wave 0 | 1 | v1.6 base |
 | Wave 1 | 4/4 | v1.6 ✅ |
-| Wave 2 | 4 | v1.6 |
+| Wave 2 | 4/4 | v1.6 ✅ |
 | Wave 3 | 4 | v1.7 |
 | Wave 4 | 4 | v1.7 |
 | Wave 5 | 3 | v1.7 |
