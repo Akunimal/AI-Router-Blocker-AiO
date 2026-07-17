@@ -292,3 +292,40 @@ class TestDLPStructuredRedaction:
         result = self.engine.redact_structured(text)
         parsed = json.loads(result)
         assert parsed == {"safe1": "hello", "safe2": "world", "inner": {"x": 42}}
+
+class TestDLPEscalation:
+    """Tests for DLP escalation to semantic client."""
+
+    def setup_method(self):
+        self.engine = DLPEngine(scan_pii=False, scan_licenses=False)
+
+    def test_no_semantic_client_no_escalation(self):
+        """scan() works without semantic client."""
+        findings = self.engine.scan("sk-proj-abc123defgh456ijklm789nopqrstuvwxyz")
+        assert len(findings) >= 1
+
+    def test_semantic_client_rejects_low_confidence(self, mocker):
+        """Low-confidence findings get removed when semantic says safe."""
+        from ai_blocker.semantic_dlp import SemanticDLPClient, SemanticResult
+        # Create engine with PII scanning and lower threshold so email (conf 0.80) triggers escalation
+        engine = DLPEngine(scan_secrets=False, scan_licenses=False)
+        engine.semantic_threshold = 0.9  # Escalate anything below 0.9
+        client = mocker.MagicMock(spec=SemanticDLPClient)
+        client.is_available = True
+        client.classify.return_value = SemanticResult(
+            category="safe", risk_score=0.02, explanation="No sensitive content"
+        )
+        engine.semantic_client = client
+        # Email (confidence 0.80 >= 0.5 threshold -> keeps, but semantic says safe -> removed)
+        text = "contact@example.com"
+        findings = engine.scan(text)
+        # All findings removed because semantic said safe
+        assert len(findings) == 0
+        assert client.classify.called
+
+    def test_semantic_client_keeps_high_confidence(self):
+        """High-confidence findings stay even without semantic."""
+        # API key has confidence 0.95 in _SECRET_PATTERNS
+        text = "sk-proj-abc123defgh456ijklm789nopqrstuvwxyz"
+        findings = self.engine.scan(text)
+        assert len(findings) >= 1

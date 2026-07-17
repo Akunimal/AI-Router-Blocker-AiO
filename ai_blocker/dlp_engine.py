@@ -17,7 +17,10 @@ import re
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
+
+if TYPE_CHECKING:
+    from ai_blocker.semantic_dlp import SemanticDLPClient
 
 
 class FindingType(Enum):
@@ -351,6 +354,8 @@ class DLPEngine:
     scan_db_strings: bool = True
     scan_env_vars: bool = False
     metrics: DLPMetrics = field(default_factory=DLPMetrics)
+    semantic_client: "SemanticDLPClient" | None = None
+    semantic_threshold: float = 0.8
 
     def scan(self, text: str, policy: DLPPolicy | None = None) -> list[DLPFinding]:
         """Return all findings in *text*.
@@ -399,6 +404,18 @@ class DLPEngine:
                 deduplicated.append(f)
                 last_end = f.end
 
+        # Escalation: if semantic client available and any finding has low confidence,
+        # ask the cloud classifier to confirm or dismiss
+        if self.semantic_client is not None and deduplicated:
+            _has_low_confidence = any(f.confidence < self.semantic_threshold for f in deduplicated)
+            if _has_low_confidence and self.semantic_client.is_available:
+                try:
+                    _semantic_result = self.semantic_client.classify(text)
+                    if _semantic_result.category == "safe" or _semantic_result.risk_score < 0.3:
+                        # Semantic says safe: remove low-confidence findings (potential false positives)
+                        deduplicated = [f for f in deduplicated if f.confidence >= self.semantic_threshold]
+                except Exception:
+                    pass  # If cloud is unavailable, stick with local findings
         _duration = (time.time() - _start) * 1000
         self.metrics.record_scan(_duration, len(deduplicated),
                                  [f.finding_type for f in deduplicated])
