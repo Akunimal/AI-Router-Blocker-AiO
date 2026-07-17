@@ -14,7 +14,8 @@ import fnmatch
 import json
 import os
 import re
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Sequence
 
@@ -255,6 +256,76 @@ _ENV_VAR_PATTERNS: list[tuple[FindingType, str, float]] = [
 # ?=??=? Scanning engine ??????????????????????????????????????????????????????????????????????????????????????????????????????????????
 
 @dataclass
+class DLPMetrics:
+    """Performance metrics and circuit-breaker state for a DLPEngine."""
+    total_scans: int = 0
+    total_findings: int = 0
+    total_scan_time_ms: float = 0.0
+    findings_by_type: dict = field(default_factory=dict)
+    redacted_count: int = 0
+    blocked_count: int = 0
+    passed_through_count: int = 0
+    circuit_open: bool = False
+    circuit_open_time: float = 0.0
+    last_scan_time_ms: float = 0.0
+    slow_scan_count: int = 0
+
+    CIRCUIT_BREAKER_THRESHOLD_MS: float = 500.0
+    CIRCUIT_BREAKER_RETRY_AFTER_S: float = 60.0
+
+    def record_scan(self, duration_ms: float, finding_count: int,
+                    finding_types: list) -> None:
+        self.total_scans += 1
+        self.total_findings += finding_count
+        self.total_scan_time_ms += duration_ms
+        self.last_scan_time_ms = duration_ms
+        ft_key = ",".join(sorted(set(f.value for f in finding_types)))
+        self.findings_by_type[ft_key] = self.findings_by_type.get(ft_key, 0) + 1
+        if duration_ms > self.CIRCUIT_BREAKER_THRESHOLD_MS:
+            self.slow_scan_count += 1
+            if self.slow_scan_count >= 3 and not self.circuit_open:
+                self.circuit_open = True
+                self.circuit_open_time = time.time()
+
+    def should_skip(self) -> bool:
+        if not self.circuit_open:
+            return False
+        if time.time() - self.circuit_open_time > self.CIRCUIT_BREAKER_RETRY_AFTER_S:
+            self.circuit_open = False
+            self.slow_scan_count = 0
+            return False
+        return True
+
+    def reset(self) -> None:
+        self.total_scans = 0
+        self.total_findings = 0
+        self.total_scan_time_ms = 0.0
+        self.findings_by_type.clear()
+        self.redacted_count = 0
+        self.blocked_count = 0
+        self.passed_through_count = 0
+        self.circuit_open = False
+        self.circuit_open_time = 0.0
+        self.last_scan_time_ms = 0.0
+        self.slow_scan_count = 0
+
+    def to_dict(self) -> dict:
+        return {
+            "total_scans": self.total_scans,
+            "total_findings": self.total_findings,
+            "total_scan_time_ms": round(self.total_scan_time_ms, 2),
+            "avg_scan_time_ms": round(self.total_scan_time_ms / max(self.total_scans, 1), 2),
+            "findings_by_type": dict(self.findings_by_type),
+            "redacted_count": self.redacted_count,
+            "blocked_count": self.blocked_count,
+            "passed_through_count": self.passed_through_count,
+            "circuit_open": self.circuit_open,
+            "last_scan_time_ms": round(self.last_scan_time_ms, 2),
+            "slow_scan_count": self.slow_scan_count,
+        }
+
+
+@dataclass
 class DLPEngine:
     """Scans text for sensitive data and optionally redacts it.
 
@@ -270,6 +341,7 @@ class DLPEngine:
     scan_cloud_tokens: bool = True
     scan_db_strings: bool = True
     scan_env_vars: bool = False
+    metrics: DLPMetrics = field(default_factory=DLPMetrics)
 
     def scan(self, text: str, policy: DLPPolicy | None = None) -> list[DLPFinding]:
         """Return all findings in *text*.
@@ -277,6 +349,7 @@ class DLPEngine:
         If *policy* is provided, its per-category overrides are applied
         on top of the engine's default flags.
         """
+        _start = time.time()
         findings: list[DLPFinding] = []
 
         patterns: list[tuple[FindingType, str, float]] = []
@@ -317,6 +390,9 @@ class DLPEngine:
                 deduplicated.append(f)
                 last_end = f.end
 
+        _duration = (time.time() - _start) * 1000
+        self.metrics.record_scan(_duration, len(deduplicated),
+                                 [f.finding_type for f in deduplicated])
         return deduplicated
 
     def scan_for_secrets(self, text: str) -> list[DLPFinding]:

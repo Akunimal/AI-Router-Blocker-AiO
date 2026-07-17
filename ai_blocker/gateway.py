@@ -180,7 +180,15 @@ class GatewayHandler(BaseHTTPRequestHandler):
             return
         stats = monitor.get_hourly_summary()
         breakdown = monitor.get_per_domain_breakdown()
-        body = json.dumps({"summary": stats, "domains": breakdown}).encode()
+        dlp_metrics = {}
+        dlp = self._get_dlp_engine()
+        if dlp is not None and hasattr(dlp, 'metrics'):
+            dlp_metrics = dlp.metrics.to_dict()
+        body = json.dumps({
+            "summary": stats,
+            "domains": breakdown,
+            "dlp_metrics": dlp_metrics,
+        }).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
@@ -348,11 +356,18 @@ class GatewayHandler(BaseHTTPRequestHandler):
         try:
             policy = self._get_dlp_policy(domain, path)
             if policy.action == DLPAction.PASS_THROUGH:
+                if isinstance(dlp, DLPEngine):
+                    dlp.metrics.passed_through_count += 1
+                return data
+            # Circuit breaker: skip scan if circuit is open
+            if isinstance(dlp, DLPEngine) and dlp.metrics.should_skip():
                 return data
             text = data.decode("utf-8", errors="ignore")
             findings = dlp.scan(text, policy=policy)
             if findings:
                 if policy.action == DLPAction.BLOCK:
+                    if isinstance(dlp, DLPEngine):
+                        dlp.metrics.blocked_count += 1
                     self._log_audit(
                         domain, path, method, "blocked",
                         metadata={"dlp_findings": len(findings), "policy": "block"},
@@ -366,6 +381,8 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 )
                 if policy.action == DLPAction.LOG_ONLY:
                     return data
+                if isinstance(dlp, DLPEngine):
+                    dlp.metrics.redacted_count += 1
                 return redacted.encode("utf-8")
         except Exception:
             pass
