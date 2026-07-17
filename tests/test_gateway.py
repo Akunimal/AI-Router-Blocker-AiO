@@ -29,6 +29,7 @@ def _handler():
     h.server.audit_log = None
     h.server.dlp_engine = None
     h.server.guardrail = None
+    h.server.dlp_policy_manager = None
     h.server.dlp_enabled = True
     h.server.guardrails_enabled = True
     h.server.target_url = "http://localhost:8080"

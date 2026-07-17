@@ -47,6 +47,15 @@ class DLPFinding:
     start: int
     end: int
     confidence: float = 1.0  # 0.0?1.0
+    def to_dict(self) -> dict:
+        """Serialize finding to a dict for audit logging."""
+        return {
+            "finding_type": self.finding_type.value,
+            "confidence": self.confidence,
+            "start": self.start,
+            "end": self.end,
+        }
+
 
 class DLPAction(Enum):
     """Action to take when DLP findings match."""

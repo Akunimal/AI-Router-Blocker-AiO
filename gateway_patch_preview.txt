@@ -7,7 +7,6 @@ import json
 import select
 import socket
 import ssl
-import time
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler
@@ -364,28 +363,21 @@ class GatewayHandler(BaseHTTPRequestHandler):
             if isinstance(dlp, DLPEngine) and dlp.metrics.should_skip():
                 return data
             text = data.decode("utf-8", errors="ignore")
-            _scan_start = time.monotonic()
             findings = dlp.scan(text, policy=policy)
-            _scan_duration_ms = int((time.monotonic() - _scan_start) * 1000)
             if findings:
-                _finding_dicts = [f.to_dict() for f in findings]
                 if policy.action == DLPAction.BLOCK:
                     if isinstance(dlp, DLPEngine):
                         dlp.metrics.blocked_count += 1
                     self._log_audit(
                         domain, path, method, "blocked",
-                        metadata={"dlp_findings": len(findings), "policy": "block", "scan_duration_ms": _scan_duration_ms},
-                        dlp_findings=_finding_dicts,
-                        body=text,
+                        metadata={"dlp_findings": len(findings), "policy": "block"},
                     )
                     return b""
                 redacted = dlp.redact(text, findings)
                 self._log_audit(
                     domain, path, method,
                     "log_only" if policy.action == DLPAction.LOG_ONLY else "redacted",
-                    metadata={"dlp_findings": len(findings), "scan_duration_ms": _scan_duration_ms},
-                    dlp_findings=_finding_dicts,
-                    body=text,
+                    metadata={"dlp_findings": len(findings)},
                 )
                 if policy.action == DLPAction.LOG_ONLY:
                     return data
@@ -450,6 +442,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
             audit.log_entry(entry)
         except Exception:
             pass
+
     def _get_dlp_engine(self):
         return getattr(self.server, 'dlp_engine', None)
 
