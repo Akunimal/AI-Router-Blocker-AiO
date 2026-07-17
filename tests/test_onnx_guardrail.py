@@ -5,15 +5,11 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
 
 from ai_blocker.onnx_guardrail import (
-    ONNXGuardrailModel,
-    ONNXGuardrailRuntime,
     GuardrailFallbackChain,
     GuardrailResult,
-    HAS_ONNX,
-    HAS_NUMPY,
+    ONNXGuardrailModel,
 )
 
 

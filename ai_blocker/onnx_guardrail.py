@@ -9,17 +9,15 @@ unavailable or exceeds latency budget.
 from __future__ import annotations
 
 import hashlib
-import json
+import importlib.util
 import os
 import time
 from dataclasses import dataclass
 from typing import Any
 
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
+HAS_NUMPY = importlib.util.find_spec("numpy") is not None
+if HAS_NUMPY:
+    pass
 
 try:
     import onnxruntime as ort

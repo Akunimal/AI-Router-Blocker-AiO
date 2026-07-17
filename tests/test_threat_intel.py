@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """Tests for threat intelligence components."""
 from __future__ import annotations
+
 import time
 import unittest
-from ai_blocker.threat_intel import RequestAnalyzer, RecursiveLoopDetector, ThreatFeed, AlertSystem, AnomalyScore
+
+from ai_blocker.threat_intel import AlertSystem, RecursiveLoopDetector, RequestAnalyzer, ThreatFeed
+
 
 class TestRequestAnalyzer(unittest.TestCase):
     def setUp(self):

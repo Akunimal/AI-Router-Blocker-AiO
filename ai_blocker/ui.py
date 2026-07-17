@@ -854,7 +854,6 @@ class AIBlockerApp:
     def _refresh_threats(self):
         """Refresh threat dashboard data."""
         try:
-            from ai_blocker.threat_intel import RequestAnalyzer, AlertSystem
             if hasattr(self, '_threat_alerts') and self._threat_alerts:
                 recent = self._threat_alerts.recent(20)
                 self.threat_alert_count.config(text=f"Alerts: {self._threat_alerts.total}")

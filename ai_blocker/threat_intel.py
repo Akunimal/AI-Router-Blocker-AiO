@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 """AI-Powered Threat Intelligence: request pattern analysis and anomaly detection."""
 from __future__ import annotations
+
+import json
+import os
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
+
 
 @dataclass
 class RequestRecord:
