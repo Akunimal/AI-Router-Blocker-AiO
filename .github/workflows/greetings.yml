@@ -22,6 +22,6 @@ jobs:
           
           A maintainer will review this issue shortly. In the meantime, please verify that you have provided all requested information in our Bug Report or Feature Request template.
         pr_message: |
-          Hello! Thank you for submitting your first Pull Request to AI DevSec Gateway. 🚀
+          Hello! Thank you for submitting your first Pull Request to DevGate. 🚀
           
           We appreciate your contribution! A maintainer will review your code changes shortly. Please ensure your PR follows our contributing guidelines and has passed all local tests.

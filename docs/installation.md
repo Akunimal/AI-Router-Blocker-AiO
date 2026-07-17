@@ -1,6 +1,6 @@
 # Installation & Quickstart
 
-There are three ways to get started with AI DevSec Gateway, depending on whether you want a zero-dependency binary, a python script, or an installable library.
+There are three ways to get started with DevGate, depending on whether you want a zero-dependency binary, a python script, or an installable library.
 
 ---
 
@@ -48,14 +48,14 @@ sudo python3 ai_blocker.py
 
 ## Option C — Install via PyPI (pip)
 
-AI DevSec Gateway is published as a Python package. You can install it globally or in any environment.
+DevGate is published as a Python package. You can install it globally or in any environment.
 
 ```bash
 # Install the package
-pip install ai-devsec-gateway
+pip install devgate
 
 # Run the app
-ai-devsec-gateway
+devgate
 ```
 
 ---

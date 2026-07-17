@@ -1,4 +1,4 @@
-# Master Plan ? AI DevSec Gateway v1.5 ? v2.0
+# Master Plan ? DevGate v1.5 ? v2.0
 
 > Plan integral de mejoras, organizado en oleadas (waves) con commits at?micos y pushes individuales.
 > Cada wave termina con `git commit` + `git push` contra `main`.

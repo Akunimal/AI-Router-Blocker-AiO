@@ -1,9 +1,9 @@
-# 🛡️ AI DevSec Gateway (formerly AI Network Blocker)
+# 🛡️ DevGate 
 
 > **Local controls for blocking, auditing, and routing AI developer traffic.**
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="AI DevSec Gateway Interface" width="600">
+ <img src="assets/screenshot.png" alt="DevGate Interface" width="600">
 </p>
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
@@ -11,7 +11,7 @@
 [![Test Suite Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml)
 [![Security Scan Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO/graph/badge.svg)](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO)
-[![PyPI version](https://img.shields.io/pypi/v/ai-devsec-gateway?color=blue&label=PyPI)](https://pypi.org/project/ai-devsec-gateway/)
+[![PyPI version](https://img.shields.io/pypi/v/devgate?color=blue&label=PyPI)](https://pypi.org/project/devgate/)
 [![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 
 [English](README.md) | [Español](README.es.md)
@@ -20,7 +20,7 @@
 
 ## 📖 What is this?
 
-**AI DevSec Gateway** is an open-source privacy and DevSecOps tool for developers adopting AI coding assistants. It provides local controls to block known AI endpoints, route API traffic to local inference servers, and audit active AI editor processes.
+**DevGate** is an open-source privacy and DevSecOps tool for developers adopting AI coding assistants. It provides local controls to block known AI endpoints, route API traffic to local inference servers, and audit active AI editor processes.
 
 Originally created as a simple GUI to block AI endpoints, it is evolving into a **Zero-Trust Gateway** for safer AI-assisted development. The current release focuses on deterministic hosts-file blocking, a local HTTP router, safe-by-default CLI controls, and a security auditor that keeps API keys in memory only.
 
@@ -38,7 +38,7 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 | 🔀 **Transparent API Router** | Seamlessly reroute Copilot/Cursor HTTP traffic to your own Local LLM inference servers. |
 | 🛡️ **AI DevSec Auditor** | Live process analysis with on-demand OpenAI recommendations. API keys are memory-only and never persisted. |
 | 🔄 **DLP & Guardrails Toggle** | Enable or disable Deep Packet Inspection, semantic guardrails, and Cloud DLP per-session via gateway config flags. |
-| 💻 **Native CLI Interface** | Full headless control for CI/CD environments. Use `ai-blocker --status` or `ai-devsec-gateway --block`. |
+| 💻 **Native CLI Interface** | Full headless control for CI/CD environments. Use `ai-blocker --status` or `devgate --block`. |
 | 🔒 **Deterministic Kill Switch** | Hard OS-level blocking through managed `hosts` entries. No reliance on remote DNS filtering servers. |
 | 📦 **Universal Distribution** | Install via `pip`, `brew`, `scoop`, or as a portable single-file binary for Windows/Linux/macOS. |
 | 🌍 **Multilingual GUI** | A premium Catppuccin Mocha interface with 10 supported languages and smart OS elevation (UAC/sudo). |
@@ -47,7 +47,7 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 
 ## 🛡️ Data Loss Prevention (DLP)
 
-AI DevSec Gateway includes a built-in DLP engine that inspects all outbound API traffic for sensitive data before it leaves your network.
+DevGate includes a built-in DLP engine that inspects all outbound API traffic for sensitive data before it leaves your network.
 The DLP engine supports **optional Cloud-Assisted Semantic Analysis** via OpenAI API for deep semantic inspection of low-confidence regex findings,
 with an LRU result cache to avoid redundant analysis and a configurable escalation protocol for hybrid local+cloud detection.
 
@@ -79,7 +79,7 @@ Configure policies via YAML file or the /dlp/policy API endpoint.
 
 ## 🏢 Enterprise Use Cases
 
-Why do DevSecOps teams and CISOs deploy AI DevSec Gateway?
+Why do DevSecOps teams and CISOs deploy DevGate?
 
 1. **Prevent Data Exfiltration (PII/Secrets):** Your team uses Cursor or Copilot, but compliance regulations (GDPR/HIPAA) strictly forbid sensitive environment variables (`.env`) or proprietary algorithms from leaving the local network. 
 2. **Air-Gapped LLM Routing:** You want to transparently force all Copilot traffic within the corporate network to route to an internal, self-hosted Llama-3 (Ollama) server, without requiring developers to change their IDE settings.
@@ -109,30 +109,30 @@ The default interception engine targets **38+ domains** across major providers:
 
 ## 🏗️ Architecture
 
-AI DevSec Gateway operates at the boundary between your local development environment and the cloud.
+DevGate operates at the boundary between your local development environment and the cloud.
 
 ```mermaid
 graph TD
-    subgraph Local Environment ["Local Development Network"]
-        IDE[VS Code / Cursor / IDE]
-        CLI[ai-blocker CLI]
-        GUI[DevSec Gateway GUI]
-        
-        Gateway((Local API Gateway <br> 127.0.0.1))
-        OS_Hosts[(OS Hosts File)]
-    end
-
-    subgraph External ["Target Inference"]
-        LocalLLM[Private Local LLM <br> Ollama / vLLM]
-        PublicCloud[Public Cloud <br> OpenAI / Anthropic]
-    end
-
-    IDE -->|1. Outbound API Request| OS_Hosts
-    OS_Hosts -->|2. Intercepted| Gateway
+  subgraph Local Environment ["Local Development Network"]
+    IDE[VS Code / Cursor / IDE]
+    CLI[ai-blocker CLI]
+    GUI[DevSec Gateway GUI]
     
-    Gateway -->|3a. Route active| LocalLLM
-    Gateway -.->|3b. Audited pass-through| PublicCloud
-    Gateway -->|3c. Block active| Drop[Connection Refused]
+    Gateway((Local API Gateway <br> 127.0.0.1))
+    OS_Hosts[(OS Hosts File)]
+  end
+
+  subgraph External ["Target Inference"]
+    LocalLLM[Private Local LLM <br> Ollama / vLLM]
+    PublicCloud[Public Cloud <br> OpenAI / Anthropic]
+  end
+
+  IDE -->|1. Outbound API Request| OS_Hosts
+  OS_Hosts -->|2. Intercepted| Gateway
+  
+  Gateway -->|3a. Route active| LocalLLM
+  Gateway -.->|3b. Audited pass-through| PublicCloud
+  Gateway -->|3c. Block active| Drop[Connection Refused]
 ```
 
 For an in-depth dive into our modular structure, Deep Packet Inspection (DPI) plans, and Threat Models, read our **[Architecture Documentation](docs/architecture.md)**.
@@ -165,12 +165,12 @@ The roadmap is ambitious, but releases should be evaluated by the implemented ca
 The fastest way to get started with the headless CLI.
 
 ```bash
-pip install ai-devsec-gateway
+pip install devgate
 
 # Native CLI commands are now available globally:
 ai-blocker --status
-ai-devsec-gateway --block
-ai-devsec-gateway --unblock
+devgate --block
+devgate --unblock
 ```
 
 ### 1.1 Backend Selection & Dry-Run
@@ -191,15 +191,15 @@ ai-blocker --backend firewall-redirect --block work --dry-run
 
 **macOS (Homebrew):**
 ```bash
-brew tap Akunimal/ai-devsec-gateway https://github.com/Akunimal/AI-Router-Blocker-AiO
-brew install ai-devsec-gateway
+brew tap Akunimal/devgate https://github.com/Akunimal/AI-Router-Blocker-AiO
+brew install devgate
 sudo ai-blocker --status
 ```
 
 **Windows (Scoop):**
 ```powershell
-scoop bucket add ai-devsec-gateway https://github.com/Akunimal/AI-Router-Blocker-AiO.git
-scoop install ai-devsec-gateway
+scoop bucket add devgate https://github.com/Akunimal/AI-Router-Blocker-AiO.git
+scoop install devgate
 ai-blocker --status
 ```
 
@@ -243,6 +243,6 @@ Explore our [**ROADMAP.md**](ROADMAP.md) to see the full vision.
 ---
 
 <p align="center">
-  <strong>Audit the unseen. Route the restricted. Trust no packets.</strong><br>
-  <em>The DevSecOps Gateway for the AI era.</em>
+ <strong>Audit the unseen. Route the restricted. Trust no packets.</strong><br>
+ <em>The DevSecOps Gateway for the AI era.</em>
 </p>

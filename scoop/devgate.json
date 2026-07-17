@@ -9,7 +9,7 @@
     "shortcuts": [
         [
             "ai_blocker.py",
-            "AI DevSec Gateway"
+            "DevGate"
         ]
     ],
     "suggest": {

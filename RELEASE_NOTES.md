@@ -1,6 +1,6 @@
-# AI DevSec Gateway v1.3.2
+# DevGate v1.3.2
 
-Version 1.3.2 is a product naming cleanup release. It replaces remaining in-app legacy product name references with AI DevSec Gateway so the desktop UI, tray, CLI, auditor prompt, and build scripts present a consistent product name.
+Version 1.3.2 is a product naming cleanup release. It replaces remaining in-app legacy product name references with DevGate so the desktop UI, tray, CLI, auditor prompt, and build scripts present a consistent product name.
 
 ## Downloads
 
@@ -14,11 +14,11 @@ Version 1.3.2 is a product naming cleanup release. It replaces remaining in-app 
 
 ### Product naming
 
-- Main window title and header now use AI DevSec Gateway.
-- Windows tray tooltip and hidden tray window name now use AI DevSec Gateway.
-- CLI description and single-instance message now use AI DevSec Gateway.
-- DevSec Auditor prompt now refers to AI DevSec Gateway.
-- Build script banners now use AI DevSec Gateway.
+- Main window title and header now use DevGate.
+- Windows tray tooltip and hidden tray window name now use DevGate.
+- CLI description and single-instance message now use DevGate.
+- DevSec Auditor prompt now refers to DevGate.
+- Build script banners now use DevGate.
 - The first app tab is labeled `Blocker` instead of the legacy product name.
 
 ## Verification

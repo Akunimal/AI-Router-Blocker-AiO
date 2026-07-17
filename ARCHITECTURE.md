@@ -1,16 +1,16 @@
-# 🏗️ Architecture — AI DevSec Gateway
+# 🏗️ Architecture — DevGate
 
-This document describes the high-level architecture, key design decisions, and internal data flow of AI DevSec Gateway. It is intended for contributors, security auditors, and anyone evaluating the project for use in their environment.
+This document describes the high-level architecture, key design decisions, and internal data flow of DevGate. It is intended for contributors, security auditors, and anyone evaluating the project for use in their environment.
 
 ---
 
 ## Overview
 
-AI DevSec Gateway is a **single-binary, zero-dependency desktop application** that operates at the OS level to intercept, audit, and route AI-related network traffic. It combines three core engines into one unified GUI:
+DevGate is a **single-binary, zero-dependency desktop application** that operates at the OS level to intercept, audit, and route AI-related network traffic. It combines three core engines into one unified GUI:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  AI DevSec Gateway                  │
+│                  DevGate                  │
 │                                                     │
 │  ┌──────────────┐  ┌──────────┐  ┌──────────────┐  │
 │  │ Network      │  │ API      │  │ DevSec       │  │
@@ -31,7 +31,7 @@ AI DevSec Gateway is a **single-binary, zero-dependency desktop application** th
 
 ```mermaid
 graph TD
-    Dev["Developer"] --> App["AI DevSec Gateway"]
+    Dev["Developer"] --> App["DevGate"]
     IDE["IDE / AI Editor<br>(Cursor, VS Code, etc.)"] --> Hosts["OS Hosts File"]
     Hosts --> Loopback["127.0.0.1<br>Connection Refused"]
     IDE --> Gateway["Local API Gateway<br>127.0.0.1:PORT"]
@@ -52,7 +52,7 @@ graph TD
 
 **Backend contract:**
 - `activate(domains)` applies protection for a unique ordered domain list
-- `deactivate()` removes rules owned by AI DevSec Gateway
+- `deactivate()` removes rules owned by DevGate
 - `status()` reports whether protection is active and how many managed entries exist
 
 **Implemented backends:**

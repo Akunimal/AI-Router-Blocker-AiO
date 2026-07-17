@@ -1,13 +1,13 @@
 # Command Line Interface (CLI) Reference
 
-Starting in v1.2.1, AI DevSec Gateway supports a fully headless CLI mode. This allows you to manage blocks, check status, and script routing configurations without launching the Tkinter graphical interface.
+Starting in v1.2.1, DevGate supports a fully headless CLI mode. This allows you to manage blocks, check status, and script routing configurations without launching the Tkinter graphical interface.
 
 ---
 
 ## Command Syntax
 
 ```bash
-ai-devsec-gateway [options]
+devgate [options]
 # Or from source:
 python ai_blocker.py [options]
 ```

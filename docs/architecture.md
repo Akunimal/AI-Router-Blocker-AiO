@@ -1,16 +1,16 @@
 # Architecture & Internal Flow
 
-This document details the high-level architecture, design decisions, and internals of AI DevSec Gateway.
+This document details the high-level architecture, design decisions, and internals of DevGate.
 
 ---
 
 ## System Overview
 
-AI DevSec Gateway integrates three distinct engines under a unified user interface:
+DevGate integrates three distinct engines under a unified user interface:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  AI DevSec Gateway                  │
+│                  DevGate                  │
 │                                                     │
 │  ┌──────────────┐  ┌──────────┐  ┌──────────────┐  │
 │  │ Hosts Engine │  │ API      │  │ DevSec       │  │
@@ -31,7 +31,7 @@ AI DevSec Gateway integrates three distinct engines under a unified user interfa
 
 ```mermaid
 graph TD
-    Dev["Developer"] --> App["AI DevSec Gateway"]
+    Dev["Developer"] --> App["DevGate"]
     IDE["IDE / AI Editor<br>(Cursor, VS Code, etc.)"] --> Hosts["OS Hosts File"]
     Hosts --> Loopback["127.0.0.1<br>Connection Refused"]
     IDE --> Gateway["Local API Gateway<br>127.0.0.1:PORT"]

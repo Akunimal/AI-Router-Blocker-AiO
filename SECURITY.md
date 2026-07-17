@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We actively support and patch the latest version of AI DevSec Gateway. If you are running an older version, please upgrade to the latest release before reporting a vulnerability.
+We actively support and patch the latest version of DevGate. If you are running an older version, please upgrade to the latest release before reporting a vulnerability.
 
 | Version | Supported |
 | ------- | --------- |
@@ -25,7 +25,7 @@ We will acknowledge receipt of your report within 48 hours and work with you to 
 
 ## Our Security Commitment
 
-AI DevSec Gateway operates with elevated privileges (Administrator on Windows, root on Linux/macOS) in order to modify the system `hosts` file. Because of these privileges, we take security extremely seriously:
+DevGate operates with elevated privileges (Administrator on Windows, root on Linux/macOS) in order to modify the system `hosts` file. Because of these privileges, we take security extremely seriously:
 
 - **No Persistence of Keys:** API keys (such as OpenAI keys used by the DevSec Auditor) are loaded at runtime from environment variables or entered in memory, and are never saved to disk in `config.json`.
 - **Minimal Privilege Modification:** We only modify lines in the `hosts` file that contain the `# AI-Block` tag. We never read or modify other lines.

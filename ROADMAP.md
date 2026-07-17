@@ -1,6 +1,6 @@
-# 🗺️ AI DevSec Gateway - Roadmap
+# 🗺️ DevGate - Roadmap
 
-Welcome to the future of **AI DevSec Gateway** (formerly AI Network Blocker). Our goal is to create the ultimate open-source, privacy-first DevSecOps Gateway for developers navigating the AI era.
+Welcome to the future of **DevGate**. Our goal is to create the ultimate open-source, privacy-first DevSecOps Gateway for developers navigating the AI era.
 
 This roadmap outlines our technical vision, showing our completed work, upcoming milestones, and our commitment to using AI to secure and maintain the project itself.
 
@@ -194,7 +194,7 @@ Clasificación ONNX local para guardrails en <15ms.
 #### 4.1 Model loader y download manager
 - Nueva clase ONNXGuardrailModel en i_blocker/onnx_guardrail.py
 - Descarga de modelo Phi-3-mini desde HuggingFace
-- Cache de modelo en ~/.cache/ai-devsec-gateway/models/
+- Cache de modelo en ~/.cache/devgate/models/
 - Verificación de integridad (SHA256)
 
 **Commit:** eat: add ONNX model loader and download manager

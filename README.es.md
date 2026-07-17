@@ -1,9 +1,9 @@
-# 🛡️ AI DevSec Gateway (antes AI Network Blocker)
+# 🛡️ DevGate
 
 > **Controles locales para bloquear, auditar y enrutar tráfico de IA en entornos de desarrollo.**
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Interfaz de AI DevSec Gateway" width="600">
+  <img src="assets/screenshot.png" alt="Interfaz de DevGate" width="600">
 </p>
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
@@ -11,7 +11,7 @@
 [![Test Suite Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml)
 [![Security Scan Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO/graph/badge.svg)](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO)
-[![PyPI version](https://img.shields.io/pypi/v/ai-devsec-gateway?color=blue&label=PyPI)](https://pypi.org/project/ai-devsec-gateway/)
+[![PyPI version](https://img.shields.io/pypi/v/devgate?color=blue&label=PyPI)](https://pypi.org/project/devgate/)
 [![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 
 [English](README.md) | [Español](README.es.md)
@@ -20,7 +20,7 @@
 
 ## 📖 ¿Qué es esto?
 
-**AI DevSec Gateway** es una herramienta open-source de privacidad y DevSecOps para desarrolladores que adoptan asistentes de código con IA. Ofrece controles locales para bloquear endpoints conocidos de IA, enrutar tráfico API hacia servidores de inferencia locales y auditar procesos activos de editores con IA.
+**DevGate** es una herramienta open-source de privacidad y DevSecOps para desarrolladores que adoptan asistentes de código con IA. Ofrece controles locales para bloquear endpoints conocidos de IA, enrutar tráfico API hacia servidores de inferencia locales y auditar procesos activos de editores con IA.
 
 Creado originalmente como una simple interfaz gráfica para bloquear dominios de IA, está evolucionando hacia un **Gateway Zero-Trust** para desarrollo asistido por IA más seguro. La versión actual se centra en bloqueo determinista por archivo `hosts`, router HTTP local, controles CLI seguros por defecto y un auditor de seguridad que mantiene las claves API solo en memoria.
 
@@ -36,7 +36,7 @@ Creado originalmente como una simple interfaz gráfica para bloquear dominios de
 |---|---|
 | 🔀 **Enrutador API Transparente** | Redirige sin problemas el tráfico HTTP de Copilot/Cursor a tus propios servidores locales de inferencia LLM. |
 | 🛡️ **Auditor AI DevSec** | Análisis en vivo de procesos con recomendaciones de OpenAI bajo demanda. Las claves API se mantienen solo en memoria. |
-| 💻 **Interfaz CLI Nativa** | Control completo desde la terminal para entornos CI/CD. Usa `ai-blocker --status` o `ai-devsec-gateway --block`. |
+| 💻 **Interfaz CLI Nativa** | Control completo desde la terminal para entornos CI/CD. Usa `ai-blocker --status` o `devgate --block`. |
 | 🔒 **Interruptor de Apagado Determinista** | Bloqueo a nivel de sistema operativo mediante entradas administradas en `hosts`. Sin dependencia de servidores remotos de filtrado DNS. |
 | 📦 **Distribución Universal** | Instalable vía `pip`, `brew`, `scoop`, o como un único binario ejecutable portable para Windows/Linux/macOS. |
 | 🌍 **Interfaz Multilingüe** | Una interfaz gráfica premium (Catppuccin Mocha) con 10 idiomas soportados y elevación inteligente de privilegios del SO (UAC/sudo). |
@@ -45,7 +45,7 @@ Creado originalmente como una simple interfaz gráfica para bloquear dominios de
 
 ## 🏢 Casos de Uso Empresariales
 
-¿Por qué los equipos DevSecOps despliegan AI DevSec Gateway?
+¿Por qué los equipos DevSecOps despliegan DevGate?
 
 1. **Prevención de Fuga de Datos (PII/Secretos):** Tu equipo usa Cursor o Copilot, pero las normativas (GDPR/HIPAA) prohíben estrictamente que las credenciales o el código propietario salgan a la nube.
 2. **Enrutamiento a LLMs "Air-Gapped":** Quieres forzar de manera transparente que todo el tráfico de Copilot en tu red corporativa se dirija a un servidor interno Llama-3 (Ollama), sin que los desarrolladores tengan que tocar la configuración de su IDE.
@@ -75,7 +75,7 @@ El motor de intercepción por defecto apunta a **más de 38 dominios** de los pr
 
 ## 🏗️ Arquitectura
 
-AI DevSec Gateway opera en la frontera entre tu entorno de desarrollo local y la nube.
+DevGate opera en la frontera entre tu entorno de desarrollo local y la nube.
 
 ```mermaid
 graph TD
@@ -127,12 +127,12 @@ El roadmap es ambicioso, pero cada release debe evaluarse por las capacidades im
 La forma más rápida de empezar a usar la interfaz CLI (terminal).
 
 ```bash
-pip install ai-devsec-gateway
+pip install devgate
 
 # Los comandos CLI nativos estarán disponibles globalmente:
 ai-blocker --status
-ai-devsec-gateway --block
-ai-devsec-gateway --unblock
+devgate --block
+devgate --unblock
 ```
 
 ### 1.1 Selección de Backend y Dry-Run
@@ -153,15 +153,15 @@ ai-blocker --backend firewall-redirect --block work --dry-run
 
 **macOS (Homebrew):**
 ```bash
-brew tap Akunimal/ai-devsec-gateway https://github.com/Akunimal/AI-Router-Blocker-AiO
-brew install ai-devsec-gateway
+brew tap Akunimal/devgate https://github.com/Akunimal/AI-Router-Blocker-AiO
+brew install devgate
 sudo ai-blocker --status
 ```
 
 **Windows (Scoop):**
 ```powershell
-scoop bucket add ai-devsec-gateway https://github.com/Akunimal/AI-Router-Blocker-AiO.git
-scoop install ai-devsec-gateway
+scoop bucket add devgate https://github.com/Akunimal/AI-Router-Blocker-AiO.git
+scoop install devgate
 ai-blocker --status
 ```
 

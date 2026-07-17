@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [v1.7.0] - 2026-07-17
+### Added
+- Cloud-Assisted Semantic DLP with LRU result cache and escalation protocol.
+- Hybrid DLP mode UI controls (toggle, API key entry, test button).
+- AI-Powered Threat Intelligence: request pattern analyzer, recursive loop detection, alerting system.
+- Threat intelligence dashboard UI with status indicators and auto-refresh.
+- On-Device ONNX Guardrail pipeline with fallback chain (ONNX -> Heuristic -> Allow).
+- Renamed project from AI DevSec Gateway to DevGate for cleaner branding.
+
+### Changed
+- DLP engine now supports optional escalation to cloud semantic analysis.
+- Gateway configuration includes Cloud DLP enable/disable flag.
+- All documentation, package metadata, and CLI commands updated to DevGate branding.
+- ROADMAP updated: Phase 3 progress at 30%, all Wave 2 items complete.
+
+### Fixed
+- Fixed NameError in Cloud DLP test button (undefined exception variable).
+- Fixed flaky test_ttl_expiry on Windows CI (timer resolution).
+- Fixed token_z computation in RequestAnalyzer (unit mismatch).
+
 ## [v1.6.1] - 2026-07-17
 ### Added
 - DLP audit logging enhanced with per-finding metadata (finding type, confidence, position), scan duration, and request body hash.
@@ -46,7 +67,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v1.3.2] - 2026-05-31
 ### Fixed
-- Replaced remaining in-app legacy product name references with AI DevSec Gateway.
+- Replaced remaining in-app legacy product name references with DevGate.
 
 ## [v1.3.1] - 2026-05-31
 ### Changed

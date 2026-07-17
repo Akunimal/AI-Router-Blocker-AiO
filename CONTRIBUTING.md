@@ -1,4 +1,4 @@
-# Contributing to AI DevSec Gateway
+# Contributing to DevGate
 
 First off, **thank you** for considering a contribution! Every bug report, feature request, translation fix, and code improvement makes this project better for every developer who uses it.
 
@@ -122,7 +122,7 @@ sudo python3 ai_blocker.py
 
 ## 🤖 AI-Assisted Development Standard
 
-AI DevSec Gateway is a security tool built *for* the AI era, and we believe in using AI safely to build it. We actively encourage contributors to use AI coding assistants, provided they adhere to our zero-trust principles:
+DevGate is a security tool built *for* the AI era, and we believe in using AI safely to build it. We actively encourage contributors to use AI coding assistants, provided they adhere to our zero-trust principles:
 
 1. **AI-Generated Fuzzing:** We highly encourage using AI (e.g., Claude, ChatGPT, GitHub Copilot) to generate robust edge-case regression tests and fuzzing suites for your PRs, especially when modifying network interception or firewall logic.
 2. **Self-Review:** Use AI to review your own pull requests for unsafe subprocess usage or cross-platform vulnerabilities before submitting.
@@ -227,4 +227,4 @@ All contributors are recognized in our release notes. Significant contributions 
 
 ---
 
-Thank you for making AI DevSec Gateway better! 🛡️
+Thank you for making DevGate better! 🛡️
