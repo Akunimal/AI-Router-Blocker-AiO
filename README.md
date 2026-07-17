@@ -34,8 +34,10 @@ Originally created as a simple GUI to block AI endpoints, it is evolving into a 
 
 | Feature | Description |
 |---|---|
+| 📊 **Live Token Dashboard** | Real-time token in/out and request counts with auto-refresh every 5s while the gateway runs. Fetch stats via `/stats` HTTP endpoint. |
 | 🔀 **Transparent API Router** | Seamlessly reroute Copilot/Cursor HTTP traffic to your own Local LLM inference servers. |
 | 🛡️ **AI DevSec Auditor** | Live process analysis with on-demand OpenAI recommendations. API keys are memory-only and never persisted. |
+| 🔄 **DLP & Guardrails Toggle** | Enable or disable Deep Packet Inspection and semantic guardrails per-session via gateway config flags. |
 | 💻 **Native CLI Interface** | Full headless control for CI/CD environments. Use `ai-blocker --status` or `ai-devsec-gateway --block`. |
 | 🔒 **Deterministic Kill Switch** | Hard OS-level blocking through managed `hosts` entries. No reliance on remote DNS filtering servers. |
 | 📦 **Universal Distribution** | Install via `pip`, `brew`, `scoop`, or as a portable single-file binary for Windows/Linux/macOS. |
@@ -114,7 +116,9 @@ This project is intentionally explicit about what is implemented today and what 
 | Hosts-file blocking | Implemented and used by default in GUI/CLI. |
 | Local API gateway | Implemented for loopback HTTP routing to compatible local LLM servers. |
 | Backend selection | Implemented in CLI with `hosts` default and experimental `firewall-redirect` dry-run support. |
-| TLS/DPI interception | Planned, not implemented. No root CA is installed by current releases. |
+| TLS/DPI interception | Implemented. On-the-fly Root CA generator with OS trust store integration for surgical HTTPS inspection. |
+| Token usage monitoring | Implemented. Live `/stats` endpoint + UI dashboard with auto-refresh. |
+| DLP & guardrails toggle | Implemented. Per-session enable/disable flags for DPI and semantic guardrails. |
 | eBPF/WFP kernel interception | Planned future backend work, not active runtime behavior. |
 
 The roadmap is ambitious, but releases should be evaluated by the implemented capabilities above.
@@ -195,7 +199,8 @@ We believe that security tools must be 100% transparent. This project is built u
 ## 🗺️ Roadmap & Future Vision
 
 We are actively evolving towards an enterprise **Zero-Trust DLP Engine**. Upcoming milestones include:
-- **Real-Time DLP Sanitization:** On-the-fly regex and heuristics to strip PII before routing.
+- **Cloud-Assisted Semantic DLP:** Optional integration with OpenAI API for deep semantic analysis of prompts.
+- **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime for real-time prompt safety classification.
 - **eBPF Kernel Telemetry:** Detecting `.git/config` exfiltration directly at the Linux kernel level.
 - **Confidential Computing:** Running the Gateway within Trusted Execution Environments (TEEs) like Intel SGX.
 
