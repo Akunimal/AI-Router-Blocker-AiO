@@ -8,11 +8,11 @@ $ErrorActionPreference = "Stop"
     --add-data "icon.ico;." `
     --add-data "icon_green.ico;." `
     --add-data "icon_red.ico;." `
-    --name "AI-Router-Blocker-AiO" `
+    --name "CodeGate" `
     --clean `
     ai_blocker.py
 
-Copy-Item "dist\AI-Router-Blocker-AiO.exe" "AI-Router-Blocker-AiO.exe" -Force
+Copy-Item "dist\CodeGate.exe" "CodeGate.exe" -Force
 
-Write-Host "Windows build complete: AI-Router-Blocker-AiO.exe"
+Write-Host "Windows build complete: CodeGate.exe"
 Write-Host "Publish cross-platform releases from GitHub by creating a versioned release tag, for example v1.2.1."

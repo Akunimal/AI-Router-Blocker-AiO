@@ -39,7 +39,7 @@ python3 -m PyInstaller \
     --add-data "icon.ico:." \
     --add-data "icon_green.ico:." \
     --add-data "icon_red.ico:." \
-    --name "AI-Router-Blocker-AiO" \
+    --name "CodeGate" \
     --clean \
     ai_blocker.py
 
@@ -49,22 +49,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "[3/3] Copying binary to project root..."
-if [ -d "dist/AI-Router-Blocker-AiO.app" ]; then
-    cp -f "dist/AI-Router-Blocker-AiO.app/Contents/MacOS/AI-Router-Blocker-AiO" "./AI-Router-Blocker-AiO" 2>/dev/null
-elif [ -f "dist/AI-Router-Blocker-AiO" ]; then
-    cp -f dist/AI-Router-Blocker-AiO ./AI-Router-Blocker-AiO 2>/dev/null
+if [ -d "dist/CodeGate.app" ]; then
+    cp -f "dist/CodeGate.app/Contents/MacOS/CodeGate" "./CodeGate" 2>/dev/null
+elif [ -f "dist/CodeGate" ]; then
+    cp -f dist/CodeGate ./CodeGate 2>/dev/null
 fi
 
 echo ""
 echo "============================================================"
 echo "  Build completed successfully!"
 echo ""
-echo "  Binary: ./AI-Router-Blocker-AiO"
-if [ -f "./AI-Router-Blocker-AiO" ]; then
-    echo "  Size: $(du -h ./AI-Router-Blocker-AiO | cut -f1)"
+echo "  Binary: ./CodeGate"
+if [ -f "./CodeGate" ]; then
+    echo "  Size: $(du -h ./CodeGate | cut -f1)"
 fi
 echo ""
 echo "  NOTE: Run with sudo for hosts file access:"
-echo "    sudo ./AI-Router-Blocker-AiO"
+echo "    sudo ./CodeGate"
 echo "============================================================"
 echo ""

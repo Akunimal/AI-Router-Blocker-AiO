@@ -19,8 +19,8 @@ def get_cert_dir():
 
 def get_root_ca_paths():
     cert_dir = get_cert_dir()
-    ca_cert_path = os.path.join(cert_dir, "ai_devsec_root_ca.crt")
-    ca_key_path = os.path.join(cert_dir, "ai_devsec_root_ca.key")
+    ca_cert_path = os.path.join(cert_dir, "codegate_root_ca.crt")
+    ca_key_path = os.path.join(cert_dir, "codegate_root_ca.key")
     return ca_cert_path, ca_key_path
 
 def generate_root_ca():
@@ -34,8 +34,8 @@ def generate_root_ca():
 
     # Generate CA certificate
     subject = issuer = x509.Name([
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"AI DevSec Gateway"),
-        x509.NameAttribute(NameOID.COMMON_NAME, u"AI DevSec Local Root CA"),
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"AI CodeGate"),
+        x509.NameAttribute(NameOID.COMMON_NAME, u"CodeGate Local Root CA"),
     ])
 
     now = datetime.datetime.utcnow()
@@ -168,7 +168,7 @@ def clear_leaf_cache() -> None:
 # ?=??=? OS Trust Store management ?=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=??=?
 
 def is_root_ca_installed() -> bool:
-    """Check if the AI DevSec Root CA is installed in the OS trust store."""
+    """Check if the CodeGate Root CA is installed in the OS trust store."""
     import platform
     import subprocess
 
@@ -180,27 +180,27 @@ def is_root_ca_installed() -> bool:
     try:
         if current_os == "Windows":
             result = subprocess.run(
-                ["certutil", "-verifystore", "-user", "Root", "AI DevSec Local Root CA"],
+                ["certutil", "-verifystore", "-user", "Root", "CodeGate Local Root CA"],
                 capture_output=True, text=True
             )
             return result.returncode == 0
         elif current_os == "Darwin":
             result = subprocess.run(
-                ["security", "find-certificate", "-c", "AI DevSec Local Root CA",
+                ["security", "find-certificate", "-c", "CodeGate Local Root CA",
                  "/Library/Keychains/System.keychain"],
                 capture_output=True, text=True
             )
             return result.returncode == 0
         else:
             # Linux: check if our cert exists in the ca-certificates directory
-            dest = "/usr/local/share/ca-certificates/ai_devsec_root_ca.crt"
+            dest = "/usr/local/share/ca-certificates/codegate_root_ca.crt"
             return os.path.exists(dest)
     except Exception:
         return False
 
 
 def uninstall_root_ca() -> bool:
-    """Remove the AI DevSec Root CA from the OS trust store."""
+    """Remove the CodeGate Root CA from the OS trust store."""
     import platform
     import subprocess
 
@@ -208,7 +208,7 @@ def uninstall_root_ca() -> bool:
     try:
         if current_os == "Windows":
             subprocess.run(
-                ["certutil", "-delstore", "-user", "Root", "AI DevSec Local Root CA"],
+                ["certutil", "-delstore", "-user", "Root", "CodeGate Local Root CA"],
                 capture_output=True, text=True, check=True
             )
         elif current_os == "Darwin":
@@ -218,7 +218,7 @@ def uninstall_root_ca() -> bool:
                 capture_output=True, text=True, check=True
             )
         else:
-            dest = "/usr/local/share/ca-certificates/ai_devsec_root_ca.crt"
+            dest = "/usr/local/share/ca-certificates/codegate_root_ca.crt"
             if os.path.exists(dest):
                 os.remove(dest)
                 subprocess.run(

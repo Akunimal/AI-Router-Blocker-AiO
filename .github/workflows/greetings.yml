@@ -18,10 +18,10 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         issue_message: |
-          Hello! Thank you for opening your first issue in this repository. ğŸ›¡ï¸
+          Hello! Thank you for opening your first issue in this repository. Ø=Şáş
           
           A maintainer will review this issue shortly. In the meantime, please verify that you have provided all requested information in our Bug Report or Feature Request template.
         pr_message: |
-          Hello! Thank you for submitting your first Pull Request to DevGate. ğŸš€
+          Hello! Thank you for submitting your first Pull Request to CodeGate. Ø=Ş€
           
           We appreciate your contribution! A maintainer will review your code changes shortly. Please ensure your PR follows our contributing guidelines and has passed all local tests.

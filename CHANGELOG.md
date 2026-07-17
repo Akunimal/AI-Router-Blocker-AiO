@@ -10,12 +10,12 @@ All notable changes to this project will be documented in this file.
 - AI-Powered Threat Intelligence: request pattern analyzer, recursive loop detection, alerting system.
 - Threat intelligence dashboard UI with status indicators and auto-refresh.
 - On-Device ONNX Guardrail pipeline with fallback chain (ONNX -> Heuristic -> Allow).
-- Renamed project from AI DevSec Gateway to DevGate for cleaner branding.
+- Renamed project from AI DevSec Gateway to CodeGate for cleaner branding.
 
 ### Changed
 - DLP engine now supports optional escalation to cloud semantic analysis.
 - Gateway configuration includes Cloud DLP enable/disable flag.
-- All documentation, package metadata, and CLI commands updated to DevGate branding.
+- All documentation, package metadata, and CLI commands updated to CodeGate branding.
 - ROADMAP updated: Phase 3 progress at 30%, all Wave 2 items complete.
 
 ### Fixed
@@ -67,7 +67,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v1.3.2] - 2026-05-31
 ### Fixed
-- Replaced remaining in-app legacy product name references with DevGate.
+- Replaced remaining in-app legacy product name references with CodeGate.
 
 ## [v1.3.1] - 2026-05-31
 ### Changed

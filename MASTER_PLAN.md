@@ -1,4 +1,4 @@
-# Master Plan ? DevGate v1.5 ? v2.0
+# Master Plan ? CodeGate v1.5 ? v2.0
 
 > Plan integral de mejoras, organizado en oleadas (waves) con commits at?micos y pushes individuales.
 > Cada wave termina con `git commit` + `git push` contra `main`.
@@ -145,10 +145,10 @@ El plan se ejecuta secuencialmente, wave por wave.
 
 | Wave | Status | Commits | Push |
 |---|---|---|---|
-| Wave 0 | ✅ Hecho | 1/1 | 1/1 |
-| Wave 1 | ✅ Hecho | 5/5 | 5/5 |
-| Wave 2 | 🔶 En progreso | 4/8 | 3/8 |
-| Wave 3 | ❌ Pendiente | 0/6 | 0/6 |
-| Wave 4 | ❌ Pendiente | 0/3 | 0/3 |
-| Wave 5 | ❌ Pendiente | 0/4 | 0/4 |
-| Wave 6 | ❌ Pendiente | 0/4 | 0/4 |
+| Wave 0 | ' Hecho | 1/1 | 1/1 |
+| Wave 1 | ' Hecho | 5/5 | 5/5 |
+| Wave 2 | �=�6 En progreso | 4/8 | 3/8 |
+| Wave 3 | 'L Pendiente | 0/6 | 0/6 |
+| Wave 4 | 'L Pendiente | 0/3 | 0/3 |
+| Wave 5 | 'L Pendiente | 0/4 | 0/4 |
+| Wave 6 | 'L Pendiente | 0/4 | 0/4 |

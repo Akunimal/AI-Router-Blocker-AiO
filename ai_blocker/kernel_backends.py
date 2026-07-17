@@ -36,7 +36,7 @@ class WFPBackend:
     """
 
     name = "wfp"
-    windows_group = "AI DevSec Gateway WFP"
+    windows_group = "AI CodeGate WFP"
 
     def __init__(self, runner: CommandRunner | None = None):
         self.runner = runner or self._default_runner
@@ -123,9 +123,9 @@ class EBPFBackend:
        This backend is a **non-functional stub**.  A real implementation
        requires:
 
-       - A compiled BPF program (C → BPF bytecode via ``clang``/``llvm``)
+       - A compiled BPF program (C !' BPF bytecode via ``clang``/``llvm``)
        - ``bcc`` or ``libbpf`` Python bindings
-       - Root privileges and a Linux kernel ≥ 5.7 with BTF support
+       - Root privileges and a Linux kernel "e 5.7 with BTF support
        - The BPF program attached to ``cgroup/connect4`` or ``sockops``
 
     The stub provides ``plan_activate``/``plan_deactivate`` methods that
@@ -137,7 +137,7 @@ class EBPFBackend:
     # Reference BPF program path (would be compiled at install time)
     _bpf_prog_path = "/opt/devgate/redirect_ai.bpf.o"
     _cgroup_path = "/sys/fs/cgroup"
-    _map_name = "ai_devsec_blocked_ips"
+    _map_name = "codegate_blocked_ips"
 
     def activate(self, domains: Iterable[str]) -> BackendResult:
         raise NotImplementedError("EBPFBackend is an experimental stub. Use hosts or firewall-redirect for production.")
@@ -161,17 +161,17 @@ class EBPFBackend:
         commands: list[list[str]] = [
             # Load the BPF program
             ["bpftool", "prog", "load", self._bpf_prog_path,
-             "/sys/fs/bpf/ai_devsec_redirect",
-             "pinmaps", "/sys/fs/bpf/ai_devsec_maps"],
+             "/sys/fs/bpf/codegate_redirect",
+             "pinmaps", "/sys/fs/bpf/codegate_maps"],
             # Attach to cgroup for outbound connect interception
             ["bpftool", "cgroup", "attach", self._cgroup_path,
-             "connect4", "pinned", "/sys/fs/bpf/ai_devsec_redirect"],
+             "connect4", "pinned", "/sys/fs/bpf/codegate_redirect"],
         ]
         # Populate the blocked IPs map (one entry per domain)
         for domain in domains_list:
             commands.append([
                 "bpftool", "map", "update", "pinned",
-                f"/sys/fs/bpf/ai_devsec_maps/{self._map_name}",
+                f"/sys/fs/bpf/codegate_maps/{self._map_name}",
                 "key", f"hex {domain}",
                 "value", "hex 01",
             ])
@@ -180,7 +180,7 @@ class EBPFBackend:
     def plan_deactivate(self) -> list[list[str]]:
         return [
             ["bpftool", "cgroup", "detach", self._cgroup_path,
-             "connect4", "pinned", "/sys/fs/bpf/ai_devsec_redirect"],
-            ["rm", "-f", "/sys/fs/bpf/ai_devsec_redirect"],
-            ["rm", "-rf", "/sys/fs/bpf/ai_devsec_maps"],
+             "connect4", "pinned", "/sys/fs/bpf/codegate_redirect"],
+            ["rm", "-f", "/sys/fs/bpf/codegate_redirect"],
+            ["rm", "-rf", "/sys/fs/bpf/codegate_maps"],
         ]

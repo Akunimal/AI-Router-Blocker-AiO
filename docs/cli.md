@@ -1,13 +1,13 @@
 # Command Line Interface (CLI) Reference
 
-Starting in v1.2.1, DevGate supports a fully headless CLI mode. This allows you to manage blocks, check status, and script routing configurations without launching the Tkinter graphical interface.
+Starting in v1.2.1, CodeGate supports a fully headless CLI mode. This allows you to manage blocks, check status, and script routing configurations without launching the Tkinter graphical interface.
 
 ---
 
 ## Command Syntax
 
 ```bash
-devgate [options]
+codegate [options]
 # Or from source:
 python ai_blocker.py [options]
 ```
@@ -56,9 +56,9 @@ sudo python3 ai_blocker.py --block work
 **Output:**
 ```
 Block successfully activated!
-✓ 38 domains blocked in hosts file.
-✓ Closed processes: Cursor, code
-✓ DNS cache flushed.
+' 38 domains blocked in hosts file.
+' Closed processes: Cursor, code
+' DNS cache flushed.
 ```
 
 ### Deactivate Block Headless (Windows)
@@ -69,8 +69,8 @@ python ai_blocker.py --unblock
 **Output:**
 ```
 Block successfully deactivated!
-✓ 38 entries removed from hosts file.
-✓ DNS cache flushed.
+' 38 entries removed from hosts file.
+' DNS cache flushed.
 ```
 
 ### Inspect Available Backends

@@ -1,8 +1,8 @@
-site_name: DevGate
+site_name: CodeGate
 site_description: Take back control. Intercept, audit, and route your AI traffic.
 site_author: Akunimal
-repo_name: Akunimal/AI-Router-Blocker-AiO
-repo_url: https://github.com/Akunimal/AI-Router-Blocker-AiO
+repo_name: Akunimal/CodeGate
+repo_url: https://github.com/Akunimal/CodeGate
 
 theme:
   name: material

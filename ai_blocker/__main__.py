@@ -17,7 +17,7 @@ def acquire_single_instance_lock():
     else:
         try:
             import fcntl
-            lock_file = "/tmp/ai_devsec_gateway.lock"
+            lock_file = "/tmp/codegate_gateway.lock"
             fp = open(lock_file, "w")
             fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
             return True, fp
@@ -25,7 +25,7 @@ def acquire_single_instance_lock():
             return False, None
 
 def main():
-    parser = argparse.ArgumentParser(description="AI DevSec Gateway CLI")
+    parser = argparse.ArgumentParser(description="AI CodeGate CLI")
     parser.add_argument("--block", choices=["work", "personal", "free"], help="Activate blocking for the specified profile")
     parser.add_argument("--unblock", action="store_true", help="Deactivate all AI domain blocks")
     parser.add_argument("--status", action="store_true", help="Show current blocking status and active editors")
@@ -94,7 +94,7 @@ def main():
     # GUI execution path
     ok, lock_ref = acquire_single_instance_lock()
     if not ok:
-        print("AI DevSec Gateway is already running.")
+        print("AI CodeGate is already running.")
         sys.exit(0)
 
     if not is_admin():

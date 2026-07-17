@@ -62,7 +62,7 @@ jobs:
           --add-data "icon.ico;."
           --add-data "icon_green.ico;."
           --add-data "icon_red.ico;."
-          --name "AI-Router-Blocker-AiO"
+          --name "CodeGate"
           --clean ai_blocker.py
 
       - name: Build with PyInstaller (Unix)
@@ -73,7 +73,7 @@ jobs:
           --add-data "icon.ico:."
           --add-data "icon_green.ico:."
           --add-data "icon_red.ico:."
-          --name "AI-Router-Blocker-AiO"
+          --name "CodeGate"
           --clean ai_blocker.py
 
       - name: Rename release assets
@@ -81,31 +81,31 @@ jobs:
         run: |
           cd dist
           if [ "$RUNNER_OS" = "Windows" ]; then
-            mv "AI-Router-Blocker-AiO.exe" "AI-Router-Blocker-AiO-Windows.exe"
+            mv "CodeGate.exe" "CodeGate-Windows.exe"
           elif [ "$RUNNER_OS" = "macOS" ]; then
-            if [ -f "AI-Router-Blocker-AiO.app/Contents/MacOS/AI-Router-Blocker-AiO" ]; then
-              cp "AI-Router-Blocker-AiO.app/Contents/MacOS/AI-Router-Blocker-AiO" "AI-Router-Blocker-AiO-macOS"
+            if [ -f "CodeGate.app/Contents/MacOS/CodeGate" ]; then
+              cp "CodeGate.app/Contents/MacOS/CodeGate" "CodeGate-macOS"
             fi
-            if [ -d "AI-Router-Blocker-AiO.app" ]; then
-              zip -r "AI-Router-Blocker-AiO-macOS.app.zip" "AI-Router-Blocker-AiO.app"
+            if [ -d "CodeGate.app" ]; then
+              zip -r "CodeGate-macOS.app.zip" "CodeGate.app"
             fi
           else
-            mv "AI-Router-Blocker-AiO" "AI-Router-Blocker-AiO-Linux"
+            mv "CodeGate" "CodeGate-Linux"
           fi
 
       - name: Generate SHA256 checksums
         shell: bash
         run: |
           cd dist
-          for f in AI-Router-Blocker-AiO-*; do
+          for f in CodeGate-*; do
             sha256sum "$f" > "$f.sha256"
           done
 
       - name: Upload CI artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: AI-Router-Blocker-AiO-${{ runner.os }}
-          path: dist/AI-Router-Blocker-AiO-*
+          name: CodeGate-${{ runner.os }}
+          path: dist/CodeGate-*
           if-no-files-found: error
 
       - name: Upload GitHub Release assets
@@ -115,7 +115,7 @@ jobs:
           tag_name: ${{ github.event.release.tag_name || inputs.tag_name }}
           name: ${{ github.event.release.name || inputs.release_name }}
           body_path: RELEASE_NOTES.md
-          files: dist/AI-Router-Blocker-AiO-*
+          files: dist/CodeGate-*
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

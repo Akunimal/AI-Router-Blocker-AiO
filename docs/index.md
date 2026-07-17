@@ -1,8 +1,8 @@
-# Welcome to DevGate
+# Welcome to CodeGate
 
 > Take back control. Intercept, audit, and route your AI traffic.
 
-**DevGate** known as DevGate) is a free, open-source, desktop tool that puts you back in charge of the AI coding assistants running on your local machine.
+**CodeGate** known as CodeGate) is a free, open-source, desktop tool that puts you back in charge of the AI coding assistants running on your local machine.
 
 Originally created as a simple hosts-file DNS kill-switch, it is evolving into a local privacy gateway and security auditor for AI-assisted development.
 
@@ -21,7 +21,7 @@ Originally created as a simple hosts-file DNS kill-switch, it is evolving into a
 
 AI-powered editors have deep access to your open code buffers, file lists, terminal outputs, and git histories. When you close the IDE, background node processes often remain active, keeping connections open.
 
-Without a system-level override, you have zero visibility into what gets sent to cloud AI providers. **DevGate** gives you a deterministic, zero-trust way to control outbound traffic. If the domain resolves to loopback in the hosts file, it is physically impossible for the traffic to leak.
+Without a system-level override, you have zero visibility into what gets sent to cloud AI providers. **CodeGate** gives you a deterministic, zero-trust way to control outbound traffic. If the domain resolves to loopback in the hosts file, it is physically impossible for the traffic to leak.
 
 ---
 

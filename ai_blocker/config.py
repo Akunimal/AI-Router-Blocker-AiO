@@ -12,7 +12,7 @@ def get_config_path():
         base_dir = os.environ.get("APPDATA", os.path.expanduser("~"))
     else:
         base_dir = os.path.expanduser("~/.config")
-    app_dir = os.path.join(base_dir, "AI-Blocker")
+    app_dir = os.path.join(base_dir, "CodeGate")
     try:
         os.makedirs(app_dir, exist_ok=True)
     except Exception:

@@ -1,13 +1,13 @@
-# ğŸ¢ Enterprise Use Cases & Deployment Patterns
+# Ø<ßâ Enterprise Use Cases & Deployment Patterns
 
-DevGate is designed to solve real-world security and compliance challenges for organizations adopting AI-assisted development. This document outlines the primary deployment patterns and how the Gateway enforces zero-trust policies.
+CodeGate is designed to solve real-world security and compliance challenges for organizations adopting AI-assisted development. This document outlines the primary deployment patterns and how the Gateway enforces zero-trust policies.
 
 ## 1. Preventing Data Exfiltration (PII/Secrets)
 
 **The Problem:** Developers using IDEs with integrated AI (like Cursor, GitHub Copilot, or Continue.dev) may inadvertently highlight and transmit sensitive information, such as `.env` files containing AWS keys, production database credentials, or proprietary source code with conflicting copyleft licenses.
 
 **The Solution:**
-By deploying DevGate across developer workstations:
+By deploying CodeGate across developer workstations:
 - The Gateway intercepts outbound requests and acts as a **Real-Time DLP (Data Loss Prevention) pipeline**.
 - Before the prompt reaches the cloud, it is parsed and sanitized locally.
 - *Coming in Phase 3:* Cloud-assisted semantic DLP will use AI to evaluate complex IP leaks when local heuristics are insufficient.
@@ -17,7 +17,7 @@ By deploying DevGate across developer workstations:
 **The Problem:** A company has a strict policy against using public cloud LLMs but wants developers to benefit from AI completion using an internal, self-hosted model (e.g., Llama-3 running on vLLM or Ollama). Configuring every IDE plugin across hundreds of developers is tedious and error-prone.
 
 **The Solution:**
-- DevGate's **Local API Router** intercepts traffic intended for `api.openai.com` or `api.anthropic.com`.
+- CodeGate's **Local API Router** intercepts traffic intended for `api.openai.com` or `api.anthropic.com`.
 - It transparently rewrites and proxies the HTTP requests to the internal corporate LLM endpoint.
 - Developers experience zero friction: their existing plugins work seamlessly, but no data ever leaves the corporate intranet.
 

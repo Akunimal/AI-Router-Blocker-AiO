@@ -12,7 +12,7 @@ from ai_blocker import tls_manager
 def test_get_cert_dir(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         cert_dir = tls_manager.get_cert_dir()
         assert os.path.exists(cert_dir)
@@ -24,11 +24,11 @@ def test_get_cert_dir(mocker):
 def test_get_root_ca_paths(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         ca_cert_path, ca_key_path = tls_manager.get_root_ca_paths()
-        assert ca_cert_path.endswith("ai_devsec_root_ca.crt")
-        assert ca_key_path.endswith("ai_devsec_root_ca.key")
+        assert ca_cert_path.endswith("codegate_root_ca.crt")
+        assert ca_key_path.endswith("codegate_root_ca.key")
         assert os.path.dirname(ca_cert_path) == os.path.dirname(ca_key_path)
     finally:
         shutil.rmtree(temp_dir)
@@ -38,14 +38,14 @@ def test_generate_root_ca(mocker):
     from cryptography.x509 import load_pem_x509_certificate
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         ca_cert, ca_key = tls_manager.generate_root_ca()
         assert os.path.exists(ca_cert)
         assert os.path.exists(ca_key)
         with open(ca_cert, "rb") as f:
             cert = load_pem_x509_certificate(f.read())
-            assert cert.subject.get_attributes_for_oid(tls_manager.NameOID.COMMON_NAME)[0].value == "AI DevSec Local Root CA"
+            assert cert.subject.get_attributes_for_oid(tls_manager.NameOID.COMMON_NAME)[0].value == "CodeGate Local Root CA"
     finally:
         shutil.rmtree(temp_dir)
 
@@ -53,7 +53,7 @@ def test_generate_root_ca(mocker):
 def test_get_or_create_root_ca(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         ca_cert, ca_key = tls_manager.get_or_create_root_ca()
         assert os.path.exists(ca_cert)
@@ -70,7 +70,7 @@ def test_get_or_create_root_ca(mocker):
 def test_generate_leaf_cert(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         leaf_path = tls_manager.generate_leaf_cert("test.domain.com")
         assert os.path.exists(leaf_path)
@@ -82,7 +82,7 @@ def test_generate_leaf_cert(mocker):
 def test_generate_leaf_cert_wildcard_domain(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         leaf_path = tls_manager.generate_leaf_cert("*.example.com")
         assert os.path.exists(leaf_path)
@@ -94,7 +94,7 @@ def test_generate_leaf_cert_wildcard_domain(mocker):
 def test_get_or_generate_leaf_cert_cache(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         path1 = tls_manager.get_or_generate_leaf_cert("cached.domain.com")
         assert os.path.exists(path1)
@@ -109,7 +109,7 @@ def test_get_or_generate_leaf_cert_cache(mocker):
 def test_get_or_generate_leaf_cert_cache_miss_on_deleted_file(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         path = tls_manager.get_or_generate_leaf_cert("evict.me")
         assert os.path.exists(path)
@@ -123,7 +123,7 @@ def test_get_or_generate_leaf_cert_cache_miss_on_deleted_file(mocker):
 def test_clear_leaf_cache(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         tls_manager.get_or_generate_leaf_cert("clear.test")
         tls_manager.clear_leaf_cache()
@@ -136,7 +136,7 @@ def test_clear_leaf_cache(mocker):
 def test_is_root_ca_installed_no_cert_file(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         assert tls_manager.is_root_ca_installed() is False
     finally:
@@ -146,7 +146,7 @@ def test_is_root_ca_installed_no_cert_file(mocker):
 def test_is_root_ca_installed_windows(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         tls_manager.generate_root_ca()
         mocker.patch("platform.system", return_value="Windows")
@@ -163,7 +163,7 @@ def test_is_root_ca_installed_windows(mocker):
 def test_is_root_ca_installed_macos(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         tls_manager.generate_root_ca()
         mocker.patch("platform.system", return_value="Darwin")
@@ -177,7 +177,7 @@ def test_is_root_ca_installed_macos(mocker):
 def test_is_root_ca_installed_linux(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         tls_manager.generate_root_ca()
         mocker.patch("platform.system", return_value="Linux")
@@ -192,7 +192,7 @@ def test_is_root_ca_installed_linux(mocker):
 def test_uninstall_root_ca_windows(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         tls_manager.generate_root_ca()
         mocker.patch("platform.system", return_value="Windows")
@@ -206,7 +206,7 @@ def test_uninstall_root_ca_windows(mocker):
 def test_uninstall_root_ca_failure_returns_false(mocker):
     temp_dir = tempfile.mkdtemp()
     try:
-        mock_config_path = os.path.join(temp_dir, "AI-Blocker", "config.json")
+        mock_config_path = os.path.join(temp_dir, "CodeGate", "config.json")
         mocker.patch("ai_blocker.tls_manager.get_config_path", return_value=mock_config_path)
         tls_manager.generate_root_ca()
         mocker.patch("platform.system", return_value="Windows")

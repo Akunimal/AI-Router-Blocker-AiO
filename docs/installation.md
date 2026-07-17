@@ -1,33 +1,33 @@
 # Installation & Quickstart
 
-There are three ways to get started with DevGate, depending on whether you want a zero-dependency binary, a python script, or an installable library.
+There are three ways to get started with CodeGate, depending on whether you want a zero-dependency binary, a python script, or an installable library.
 
 ---
 
-## Option A — Standalone Executable (Recommended)
+## Option A   Standalone Executable (Recommended)
 
-This is the easiest option. The binaries are fully compiled and portable—no dependencies, python installations, or configuration steps required.
+This is the easiest option. The binaries are fully compiled and portable no dependencies, python installations, or configuration steps required.
 
-1.  Visit the [**GitHub Releases**](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases) page.
+1.  Visit the [**GitHub Releases**](https://github.com/Akunimal/CodeGate/releases) page.
 2.  Download the binary corresponding to your OS.
 3.  Run the application:
-    *   **Windows:** Double-click the `AI-Router-Blocker-AiO.exe`. Agree to the UAC prompt (required to edit the hosts file).
+    *   **Windows:** Double-click the `CodeGate.exe`. Agree to the UAC prompt (required to edit the hosts file).
     *   **macOS / Linux:** Run from terminal using sudo:
         ```bash
-        sudo ./AI-Router-Blocker-AiO
+        sudo ./CodeGate
         ```
 4.  Toggle the big button to activate or deactivate the system-level blocks.
 
 ---
 
-## Option B — Run from Source Code
+## Option B   Run from Source Code
 
 If you prefer to audit the code yourself and run it raw, you can clone and run with Python 3.10+.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/Akunimal/AI-Router-Blocker-AiO.git
-cd AI-Router-Blocker-AiO
+git clone https://github.com/Akunimal/CodeGate.git
+cd CodeGate
 
 # 2. Setup virtual environment
 python -m venv .venv
@@ -46,16 +46,16 @@ sudo python3 ai_blocker.py
 
 ---
 
-## Option C — Install via PyPI (pip)
+## Option C   Install via PyPI (pip)
 
-DevGate is published as a Python package. You can install it globally or in any environment.
+CodeGate is published as a Python package. You can install it globally or in any environment.
 
 ```bash
 # Install the package
-pip install devgate
+pip install codegate
 
 # Run the app
-devgate
+codegate
 ```
 
 ---

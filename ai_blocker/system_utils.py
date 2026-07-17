@@ -90,7 +90,7 @@ def install_root_ca(ca_cert_path):
         else:
             # Linux typically requires copying the file to /usr/local/share/ca-certificates and running update-ca-certificates
             import shutil
-            dest = "/usr/local/share/ca-certificates/ai_devsec_root_ca.crt"
+            dest = "/usr/local/share/ca-certificates/codegate_root_ca.crt"
             shutil.copy(ca_cert_path, dest)
             subprocess.run(["update-ca-certificates"], check=True, **kwargs)
         return True

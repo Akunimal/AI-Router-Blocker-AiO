@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: ðŸ”’ Report a Security Vulnerability
-    url: https://github.com/Akunimal/AI-Router-Blocker-AiO/security/advisories/new
+  - name: Ø=Ý Report a Security Vulnerability
+    url: https://github.com/Akunimal/CodeGate/security/advisories/new
     about: Please report security vulnerabilities through GitHub Security Advisories, not public issues.
-  - name: ðŸ’¬ Discussions & Questions
-    url: https://github.com/Akunimal/AI-Router-Blocker-AiO/discussions
+  - name: Ø=Ü¬ Discussions & Questions
+    url: https://github.com/Akunimal/CodeGate/discussions
     about: Ask questions, share ideas, or discuss features in our GitHub Discussions.

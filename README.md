@@ -1,259 +1,157 @@
-# 🛡️ DevGate 
+# 🛡️ CodeGate
 
-> **Local controls for blocking, auditing, and routing AI developer traffic.**
+> **Local gateway for AI developer traffic: block, route, audit, and protect locally.**
 
-<p align="center">
- <img src="assets/screenshot.png" alt="DevGate Interface" width="600">
-</p>
-
-[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)](#-quick-start)
-[![Test Suite Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/test.yml)
-[![Security Scan Status](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/AI-Router-Blocker-AiO/actions/workflows/codeql.yml)
-[![codecov](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO/graph/badge.svg)](https://codecov.io/gh/Akunimal/AI-Router-Blocker-AiO)
-[![PyPI version](https://img.shields.io/pypi/v/devgate?color=blue&label=PyPI)](https://pypi.org/project/devgate/)
+[![Python Version](https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12%20|%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20|%20Linux%20|%20macOS-0078D4?logo=windows&logoColor=white)](https://github.com/Akunimal/CodeGate#readme)
+[![Test Suite Status](https://github.com/Akunimal/CodeGate/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/CodeGate/actions/workflows/test.yml)
+[![Security Scan Status](https://github.com/Akunimal/CodeGate/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/CodeGate/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/Akunimal/CodeGate/graph/badge.svg)](https://codecov.io/gh/Akunimal/CodeGate)
 [![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 
 [English](README.md) | [Español](README.es.md)
 
 ---
 
-## 📖 What is this?
+## What is this?
 
-**DevGate** is an open-source privacy and DevSecOps tool for developers adopting AI coding assistants. It provides local controls to block known AI endpoints, route API traffic to local inference servers, and audit active AI editor processes.
+**CodeGate** is an open-source privacy and DevSecOps tool for developers adopting AI coding assistants. It provides local controls to block known AI endpoints, route API traffic to local inference servers, and audit active AI editor processes.
 
 Originally created as a simple GUI to block AI endpoints, it is evolving into a **Zero-Trust Gateway** for safer AI-assisted development. The current release focuses on deterministic hosts-file blocking, a local HTTP router, safe-by-default CLI controls, and a security auditor that keeps API keys in memory only.
 
-1. **Block:** A deterministic OS-level override via the `hosts` file that drops connections to 38+ known AI domains.
+1. **Block:** A deterministic OS-level override via the hosts file that drops connections to 38+ known AI domains.
 2. **Route:** A local HTTP proxy that can route compatible API clients to local LLMs such as Ollama, LM Studio, or vLLM.
 3. **Audit:** Process-aware security checks that help identify active AI tools and data-leak risk signals.
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
-| 📊 **Live Token Dashboard** | Real-time token in/out and request counts with auto-refresh every 5s while the gateway runs. Fetch stats via `/stats` HTTP endpoint. |
-| 🔀 **Transparent API Router** | Seamlessly reroute Copilot/Cursor HTTP traffic to your own Local LLM inference servers. |
-| 🛡️ **AI DevSec Auditor** | Live process analysis with on-demand OpenAI recommendations. API keys are memory-only and never persisted. |
-| 🔄 **DLP & Guardrails Toggle** | Enable or disable Deep Packet Inspection, semantic guardrails, and Cloud DLP per-session via gateway config flags. |
-| 💻 **Native CLI Interface** | Full headless control for CI/CD environments. Use `ai-blocker --status` or `devgate --block`. |
-| 🔒 **Deterministic Kill Switch** | Hard OS-level blocking through managed `hosts` entries. No reliance on remote DNS filtering servers. |
-| 📦 **Universal Distribution** | Install via `pip`, `brew`, `scoop`, or as a portable single-file binary for Windows/Linux/macOS. |
-| 🌍 **Multilingual GUI** | A premium Catppuccin Mocha interface with 10 supported languages and smart OS elevation (UAC/sudo). |
-| 🧠 **Cloud-Assisted Semantic DLP** | Optional OpenAI integration for deep semantic analysis of low-confidence DLP findings with LRU cache and escalation protocol. |
-| 🔍 **AI-Powered Threat Intelligence** | Request pattern analysis, recursive loop detection, and real-time alerting for autonomous AI agent anomalies. |
-| 🛡️ **On-Device ONNX Guardrails** | Embed a lightweight ONNX runtime (Phi-3-mini) for real-time prompt safety classification with automatic fallback chain. |
-| 📋 **Configurable DLP Policies** | Per-domain and per-route policies with REDACT, BLOCK, LOG_ONLY, and PASS_THROUGH actions. |
-| 📝 **Enhanced Audit Logging** | Granular per-finding audit trail with metadata (domain, endpoint, categories, scan time). |
+| Live Token Dashboard | Real-time token in/out and request counts with auto-refresh every 5s. Fetch stats via /stats HTTP endpoint. |
+| Transparent API Router | Seamlessly reroute Copilot/Cursor HTTP traffic to your own Local LLM inference servers. |
+| AI DevSec Auditor | Live process analysis with on-demand AI recommendations. API keys are memory-only, never persisted. |
+| DLP and Guardrails Toggle | Enable or disable Deep Packet Inspection, semantic guardrails, and Cloud DLP per-session. |
+| Native CLI Interface | Full headless control for CI/CD environments: codegate --status, codegate --block. |
+| Deterministic Kill Switch | Hard OS-level blocking through managed hosts entries. No reliance on remote DNS filtering. |
+| Universal Distribution | Install via pip, brew, scoop, or as a portable single-file binary. |
+| Multilingual GUI | Catppuccin Mocha interface with 10 supported languages and smart OS elevation (UAC/sudo). |
+| Cloud-Assisted Semantic DLP | Optional AI integration for deep semantic analysis of low-confidence DLP findings with LRU cache. |
+| AI-Powered Threat Intelligence | Request pattern analysis, recursive loop detection, and alerting for AI agent anomalies. |
+| On-Device ONNX Guardrails | Lightweight ONNX runtime (Phi-3-mini) for real-time prompt safety classification with fallback chain. |
+| Configurable DLP Policies | Per-domain and per-route policies: REDACT, BLOCK, LOG_ONLY, PASS_THROUGH. |
+| Enhanced Audit Logging | Granular per-finding audit trail with metadata (domain, endpoint, categories, scan time). |
 
 ---
 
-## 🛡️ Data Loss Prevention (DLP)
+## Data Loss Prevention (DLP)
 
-DevGate includes a built-in DLP engine that inspects all outbound API traffic for sensitive data before it leaves your network.
-The DLP engine supports **optional Cloud-Assisted Semantic Analysis** via OpenAI API for deep semantic inspection of low-confidence regex findings,
-with an LRU result cache to avoid redundant analysis and a configurable escalation protocol for hybrid local+cloud detection.
+CodeGate includes a built-in DLP engine that inspects all outbound API traffic for sensitive data before it leaves your network. The DLP engine supports optional Cloud-Assisted Semantic Analysis via AI API for deep semantic inspection of low-confidence regex findings, with an LRU result cache to avoid redundant analysis and a configurable escalation protocol for hybrid local+cloud detection.
 
 ### Detection Categories
 
 | Category | Examples | Default Action |
 |---|---|---|
-| 🔑 **API Keys & Tokens** | OpenAI sk-*, Anthropic sk-ant-*, GitHub ghp_*, xoxb-* | REDACT |
-| ☁️ **Cloud Credentials** | AWS keys, GCP tokens, Azure secrets, DigitalOcean, Heroku | REDACT |
-| 👤 **PII** | Emails, US SSN, credit cards, phone numbers | REDACT |
-| 🔐 **Private Keys** | RSA/EC/DSA/OpenSSH private keys | BLOCK |
-| ☁️ **Cloud DLP** | Optional OpenAI integration for deep semantic analysis of low-confidence findings | ESCALATE |
-| 🪪 **JWT Tokens** | JSON Web Tokens (eyJ...) | REDACT |
-| 🌐 **Internal IPs** | RFC 1918 addresses (10.x, 172.16-31.x, 192.168.x) | LOG_ONLY |
-| 📄 **License Conflicts** | AGPL-3.0, GPL-3.0 copyleft license headers | LOG_ONLY |
-| 🗄️ **DB Connection Strings** | PostgreSQL, MySQL, MongoDB, Redis URIs | REDACT |
-| 🔧 **Environment Variables** | AWS_SECRET_ACCESS_KEY, DB_PASSWORD, API_KEY references | LOG_ONLY |
+| API Keys and Tokens | OpenAI sk-*, Anthropic sk-ant-*, GitHub ghp_*, xoxb-* | REDACT |
+| Cloud Credentials | AWS keys, GCP tokens, Azure secrets, DigitalOcean, Heroku | REDACT |
+| PII | Emails, US SSN, credit cards, phone numbers | REDACT |
+| Private Keys | RSA/EC/DSA/OpenSSH private keys | BLOCK |
+| Cloud DLP | AI-powered semantic analysis of low-confidence findings | ESCALATE |
+| JWT Tokens | JSON Web Tokens (eyJ...) | REDACT |
+| Internal IPs | RFC 1918 addresses (10.x, 172.16-31.x, 192.168.x) | LOG_ONLY |
+| License Conflicts | AGPL-3.0, GPL-3.0 copyleft license headers | LOG_ONLY |
+| DB Connection Strings | PostgreSQL, MySQL, MongoDB, Redis URIs | REDACT |
+| Environment Variables | AWS_SECRET_ACCESS_KEY, DB_PASSWORD, API_KEY references | LOG_ONLY |
 
 ### DLP Policies
-
-Policies are configurable per-domain and per-route:
 
 - **REDACT** (default): Replace sensitive content with [REDACTED] while preserving structure
 - **BLOCK**: Return 403 and prevent the request from being sent
 - **LOG_ONLY**: Log findings without modifying the request
 - **PASS_THROUGH**: Skip DLP entirely for trusted domains
 
-Configure policies via YAML file or the /dlp/policy API endpoint.
+---
 
-## 🏢 Enterprise Use Cases
+## Supported Providers
 
-Why do DevSecOps teams and CISOs deploy DevGate?
+The default interception engine targets 38+ domains across major providers: OpenAI, Anthropic, GitHub Copilot, Google AI, Microsoft, Meta AI, Mistral, DeepSeek, xAI, and more.
 
-1. **Prevent Data Exfiltration (PII/Secrets):** Your team uses Cursor or Copilot, but compliance regulations (GDPR/HIPAA) strictly forbid sensitive environment variables (`.env`) or proprietary algorithms from leaving the local network. 
-2. **Air-Gapped LLM Routing:** You want to transparently force all Copilot traffic within the corporate network to route to an internal, self-hosted Llama-3 (Ollama) server, without requiring developers to change their IDE settings.
-3. **Shadow AI Auditing:** Passively discover which unapproved AI tools or autonomous agents are running in the background on developer workstations.
-
-Read our full **[Enterprise Use Cases](docs/use_cases.md)** guide for deployment patterns.
+The blocklist is dynamically configurable via ai_blocker/constants.py.
 
 ---
 
-## 🎯 Supported Providers
-
-The default interception engine targets **38+ domains** across major providers:
-
-| Provider | Key domains intercepted |
-|---|---|
-| 🟢 **OpenAI** | `api.openai.com`, `chatgpt.com`, `platform.openai.com` |
-| 🟠 **Anthropic** | `claude.ai`, `api.anthropic.com`, `anthropic.com` |
-| 🐙 **GitHub Copilot** | `copilot.github.com`, `api.githubcopilot.com`, `telemetry.githubcopilot.com` |
-| 🔵 **Google AI** | `gemini.google.com`, `aistudio.google.com` |
-| 🟦 **Microsoft** | `copilot.microsoft.com`, `bing.com` |
-| 🔷 **Meta AI** | `meta.ai`, `ai.meta.com` |
-| 🌊 **Mistral / DeepSeek / xAI** | `mistral.ai`, `api.deepseek.com`, `api.x.ai` |
-
-> *The blocklist is dynamically configurable via [`ai_blocker/constants.py`](ai_blocker/constants.py).*
-
----
-
-## 🏗️ Architecture
-
-DevGate operates at the boundary between your local development environment and the cloud.
-
-```mermaid
-graph TD
-  subgraph Local Environment ["Local Development Network"]
-    IDE[VS Code / Cursor / IDE]
-    CLI[ai-blocker CLI]
-    GUI[DevSec Gateway GUI]
-    
-    Gateway((Local API Gateway <br> 127.0.0.1))
-    OS_Hosts[(OS Hosts File)]
-  end
-
-  subgraph External ["Target Inference"]
-    LocalLLM[Private Local LLM <br> Ollama / vLLM]
-    PublicCloud[Public Cloud <br> OpenAI / Anthropic]
-  end
-
-  IDE -->|1. Outbound API Request| OS_Hosts
-  OS_Hosts -->|2. Intercepted| Gateway
-  
-  Gateway -->|3a. Route active| LocalLLM
-  Gateway -.->|3b. Audited pass-through| PublicCloud
-  Gateway -->|3c. Block active| Drop[Connection Refused]
-```
-
-For an in-depth dive into our modular structure, Deep Packet Inspection (DPI) plans, and Threat Models, read our **[Architecture Documentation](docs/architecture.md)**.
-
----
-
-## ✅ Current Capabilities vs Roadmap
-
-This project is intentionally explicit about what is implemented today and what remains future work.
-
-| Area | Current status |
-|---|---|
-| Hosts-file blocking | Implemented and used by default in GUI/CLI. |
-| Local API gateway | Implemented for loopback HTTP routing to compatible local LLM servers. |
-| Backend selection | Implemented in CLI with `hosts` default and experimental `firewall-redirect` dry-run support. |
-| TLS/DPI interception | Implemented. On-the-fly Root CA generator with OS trust store integration for surgical HTTPS inspection. |
-| Token usage monitoring | Implemented. Live `/stats` endpoint + UI dashboard with auto-refresh. |
-| DLP & guardrails toggle | Implemented. Per-session enable/disable flags for DPI and semantic guardrails. |
-| Expanded DLP patterns | Implemented. Detection of internal IPs (RFC 1918), cloud tokens (GCP, HF, Azure, npm, Slack), database connection strings, and environment variable references. |
-| Enhanced guardrails | Implemented. Leetspeak obfuscation detection and data exfiltration URL patterns (pastebin, gist, webhook). |
-| DLP Policies | Implemented. Per-domain and per-route policies with REDACT/BLOCK/LOG_ONLY/PASS_THROUGH. |
-| DLP Audit Logging | Implemented. Granular per-finding audit trail with metadata. |
-| Cloud-Assisted Semantic DLP | Implemented. Optional OpenAI integration with LRU cache and escalation protocol. |
-| AI-Powered Threat Intelligence | Implemented. Request analysis, loop detection, alerting, and dashboard. |
-| On-Device ONNX Guardrails | Implemented. Local Phi-3-mini classification with automatic fallback chain. |
-| eBPF/WFP kernel interception | Planned future backend work, not active runtime behavior. |
-
-The roadmap is ambitious, but releases should be evaluated by the implemented capabilities above.
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Python Package (Pip)
-The fastest way to get started with the headless CLI.
 
-```bash
-pip install devgate
+`ash
+pip install codegate
 
-# Native CLI commands are now available globally:
-ai-blocker --status
-devgate --block
-devgate --unblock
-```
+codegate --status
+codegate --block
+codegate --unblock
+`
 
-### 1.1 Backend Selection & Dry-Run
-Use hosts as the default backend, or explicitly inspect the experimental firewall backend with dry-run first:
-
-```bash
-# Show available backends
-ai-blocker --list-backends
-
-# Default behavior (hosts backend)
-ai-blocker --backend hosts --block work
-
-# Experimental backend plan only (no network changes applied)
-ai-blocker --backend firewall-redirect --block work --dry-run
-```
-
-### 2. Package Managers (macOS & Windows)
+### 2. Package Managers
 
 **macOS (Homebrew):**
-```bash
-brew tap Akunimal/devgate https://github.com/Akunimal/AI-Router-Blocker-AiO
-brew install devgate
-sudo ai-blocker --status
-```
+`ash
+brew tap Akunimal/codegate https://github.com/Akunimal/CodeGate
+brew install codegate
+sudo codegate --status
+`
 
 **Windows (Scoop):**
-```powershell
-scoop bucket add devgate https://github.com/Akunimal/AI-Router-Blocker-AiO.git
-scoop install devgate
-ai-blocker --status
-```
+`powershell
+scoop bucket add codegate https://github.com/Akunimal/CodeGate.git
+scoop install codegate
+codegate --status
+`
 
 ### 3. Portable GUI Binaries
-If you prefer a rich visual interface without installing Python:
-1. Visit the [**Releases**](https://github.com/Akunimal/AI-Router-Blocker-AiO/releases) page.
-2. Download the executable for your OS (`.exe`, macOS binary, or Linux AppImage).
-3. Run the application (it will automatically request Admin/sudo privileges when toggling the network switch).
+
+1. Visit the [Releases](https://github.com/Akunimal/CodeGate/releases) page.
+2. Download the executable for your OS (.exe, macOS binary, or Linux AppImage).
+3. Run the application (auto-requests Admin/sudo when toggling the network switch).
 
 ---
 
-## 🔒 Security Model
+## Security Model
 
-- **Zero-Persistence BYOK:** API keys for the semantic DevSec auditor are strictly kept in-memory. They are never written to disk, preventing supply-chain credential theft.
-- **Surgical OS Modifications:** The engine uses targeted `sed`-like parsing to inject `# AI-Block` markers into the OS hosts file. It guarantees absolute isolation from your existing DNS mappings.
-- **Isolated Telemetry:** The application itself contains absolutely zero tracking, analytics, or hidden background phone-home mechanics. 
-
----
-
-## 🤝 Open Source & Governance
-
-We believe that security tools must be 100% transparent. This project is built under strict open-source governance:
-- **[Architecture Guide](docs/architecture.md):** Complete technical specifications.
-- **[Contributing Guide](CONTRIBUTING.md):** Standards and PR templates.
-- **[Code of Conduct](CODE_OF_CONDUCT.md):** We foster a welcoming community.
-- **[Security Policy](SECURITY.md):** Responsible vulnerability disclosure.
-- **[License](LICENSE):** MIT Licensed.
+- **Zero-Persistence BYOK:** API keys are strictly kept in-memory. Never written to disk.
+- **Surgical OS Modifications:** Targeted parsing injects AI-Block markers into the OS hosts file. Absolute isolation from existing DNS mappings.
+- **Isolated Telemetry:** Zero tracking, analytics, or hidden phone-home mechanics.
 
 ---
 
-## 🗺️ Roadmap & Future Vision
+## Architecture
 
-We are actively evolving towards an enterprise **Zero-Trust DLP Engine**. Upcoming milestones include:
-- ✅ **Cloud-Assisted Semantic DLP:** Optional integration with OpenAI API for deep semantic analysis of prompts. *(Implemented in v1.6.0)*
-- ✅ **On-Device Semantic Guardrails:** Embed a lightweight ONNX runtime (Phi-3-mini) for real-time prompt safety classification with automatic fallback. *(Implemented in v1.7.0)*
-- ✅ **AI-Powered Threat Intelligence:** Analyze recursive loop patterns and network anomalies from autonomous AI agents (Devin, AutoGPT). *(Implemented in v1.7.0)*
-- **eBPF Kernel Telemetry:** Detecting `.git/config` exfiltration directly at the Linux kernel level.
-- **Confidential Computing:** Running the Gateway within Trusted Execution Environments (TEEs) like Intel SGX.
-
-Explore our [**ROADMAP.md**](ROADMAP.md) to see the full vision.
+CodeGate operates at the boundary between your local development environment and the cloud. For in-depth details on modular structure, Deep Packet Inspection (DPI), and threat models, read the [Architecture Documentation](docs/architecture.md).
 
 ---
 
-<p align="center">
- <strong>Audit the unseen. Route the restricted. Trust no packets.</strong><br>
- <em>The DevSecOps Gateway for the AI era.</em>
-</p>
+## Roadmap and Future Vision
+
+- Cloud-Assisted Semantic DLP - *Implemented in v1.6.0*
+- On-Device Semantic Guardrails (ONNX Phi-3-mini) - *Implemented in v1.7.0*
+- AI-Powered Threat Intelligence - *Implemented in v1.7.0*
+- eBPF Kernel Telemetry (detect .git/config exfiltration at kernel level)
+- Confidential Computing (Trusted Execution Environments like Intel SGX)
+
+See [ROADMAP.md](ROADMAP.md) for the full vision.
+
+---
+
+## Open Source and Governance
+
+Security tools must be 100% transparent. This project is built under strict open-source governance:
+- [Architecture Guide](docs/architecture.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
+- [License: MIT](LICENSE)
+
+---
+
+> Audit the unseen. Route the restricted. Trust no packets.
