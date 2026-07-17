@@ -221,3 +221,74 @@ class TestDLPEdgeCases:
         assert not self.engine.has_sensitive_data("The quick brown fox jumps over the lazy dog")
         assert not self.engine.has_sensitive_data("Lorem ipsum dolor sit amet")
 
+
+import json
+
+
+class TestDLPStructuredRedaction:
+    def setup_method(self):
+        self.engine = DLPEngine()
+
+    def test_redact_structured_simple(self):
+        text = '{"key": "sk-proj-abc123def456ghi789jkl012", "name": "normal"}'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert "REDACTED" in parsed["key"]
+        assert parsed["name"] == "normal"
+
+    def test_redact_structured_nested(self):
+        text = '{"user": {"token": "ghp_abc123def456ghi789jkl012mno345678901234", "email": "test@example.com"}}'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert "REDACTED" in parsed["user"]["token"]
+        assert "REDACTED" in parsed["user"]["email"]
+
+    def test_redact_structured_array(self):
+        text = '[{"k": "sk-proj-abc123def456ghi789jkl012"}, {"k": "safe"}]'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert "REDACTED" in parsed[0]["k"]
+        assert parsed[1]["k"] == "safe"
+
+    def test_redact_structured_non_string(self):
+        text = '{"count": 42, "active": true, "items": null, "name": "hello"}'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert parsed["count"] == 42
+        assert parsed["active"] is True
+        assert parsed["items"] is None
+        assert parsed["name"] == "hello"
+
+    def test_redact_structured_fallback_plain_text(self):
+        text = "this is plain text with sk-proj-abc123def456ghi789jkl012 inside"
+        result = self.engine.redact_structured(text)
+        assert "REDACTED" in result
+
+    def test_redact_structured_mixed_types(self):
+        text = '{"data": {"values": [1, 2, 3], "token": "ghp_abc123def456ghi789jkl012mno345678901234"}, "metadata": null}'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert "REDACTED" in parsed["data"]["token"]
+        assert parsed["data"]["values"] == [1, 2, 3]
+        assert parsed["metadata"] is None
+
+    def test_redact_structured_empty_object(self):
+        text = '{}'
+        result = self.engine.redact_structured(text)
+        assert result.strip() == "{}"
+
+    def test_redact_structured_empty_string(self):
+        result = self.engine.redact_structured("")
+        assert result == ""
+
+    def test_redact_structured_deep_nesting(self):
+        text = '{"a": {"b": {"c": {"d": "sk-proj-abc123def456ghi789jkl012"}}}}'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert "REDACTED" in parsed["a"]["b"]["c"]["d"]
+
+    def test_redact_structured_preserves_clean_data(self):
+        text = '{"safe1": "hello", "safe2": "world", "inner": {"x": 42}}'
+        result = self.engine.redact_structured(text)
+        parsed = json.loads(result)
+        assert parsed == {"safe1": "hello", "safe2": "world", "inner": {"x": 42}}

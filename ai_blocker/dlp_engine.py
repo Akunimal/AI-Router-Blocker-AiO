@@ -361,6 +361,41 @@ class DLPEngine:
 
         return result
 
+    def redact_structured(self, text: str, policy: DLPPolicy | None = None) -> str:
+        """Redact sensitive data in JSON text while preserving structure.
+
+        Walks the parsed JSON tree depth-first.  String values are scanned
+        and redacted individually.  Non-string JSON values are kept as-is.
+        If *text* is not valid JSON, falls back to plain :meth:
+edact.
+
+        If *policy* is provided, it is forwarded to the scan step.
+        """
+        try:
+            parsed = json.loads(text)
+        except (json.JSONDecodeError, ValueError):
+            return self.redact(text) if policy is None else self.redact(text, self.scan(text, policy=policy))
+
+        redacted = self._redact_value(parsed)
+
+        # Compact output to preserve original whitespace intent
+        result = json.dumps(redacted, ensure_ascii=False, indent=2)
+        return result
+
+    def _redact_value(self, value):
+        """Recursively redact a parsed JSON value."""
+        if isinstance(value, dict):
+            return {k: self._redact_value(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [self._redact_value(v) for v in value]
+        elif isinstance(value, str):
+            findings = self.scan(value)
+            if findings:
+                return self.redact(value, findings)
+            return value
+        else:
+            return value
+
     def has_sensitive_data(self, text: str) -> bool:
         """Return *True* if *text* contains any sensitive data."""
         return len(self.scan(text)) > 0
