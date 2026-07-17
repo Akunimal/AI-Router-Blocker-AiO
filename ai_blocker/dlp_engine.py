@@ -10,6 +10,9 @@ are forwarded to cloud AI providers.
 
 from __future__ import annotations
 
+import fnmatch
+import json
+import os
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -44,6 +47,144 @@ class DLPFinding:
     end: int
     confidence: float = 1.0  # 0.0?1.0
 
+class DLPAction(Enum):
+    """Action to take when DLP findings match."""
+    REDACT = "redact"
+    BLOCK = "block"
+    LOG_ONLY = "log_only"
+    PASS_THROUGH = "pass_through"
+
+
+@dataclass
+class DLPPolicy:
+    """Per-domain or per-route DLP policy override."""
+    action: DLPAction = DLPAction.REDACT
+    scan_secrets: bool | None = None
+    scan_pii: bool | None = None
+    scan_licenses: bool | None = None
+    scan_internal_ips: bool | None = None
+    scan_cloud_tokens: bool | None = None
+    scan_db_strings: bool | None = None
+    scan_env_vars: bool | None = None
+
+
+@dataclass
+class DLPRouteOverride:
+    """A route-specific DLP policy override."""
+    domain_pattern: str = "*"
+    path_pattern: str = "*"
+    policy: DLPPolicy | None = None
+
+
+def _default_policy_path() -> str:
+    try:
+        from ai_blocker.config import get_config_path
+        base = os.path.dirname(get_config_path())
+    except Exception:
+        base = os.path.expanduser("~/.config/ai-devsec-gateway")
+    return os.path.join(base, "dlp_policies.json")
+
+
+class DLPPolicyManager:
+    """Loads, resolves, and persists DLP policies."""
+
+    def __init__(self, policies_path=None):
+        self._policies_path = policies_path or _default_policy_path()
+        self._default_policy = DLPPolicy()
+        self._overrides = []
+        self._load()
+
+    @property
+    def default_policy(self):
+        return self._default_policy
+
+    @default_policy.setter
+    def default_policy(self, p):
+        self._default_policy = p
+
+    @property
+    def overrides(self):
+        return list(self._overrides)
+
+    def resolve(self, domain, path):
+        dl = domain.lower()
+        pl = path.lower()
+        for r in self._overrides:
+            if fnmatch.fnmatch(dl, r.domain_pattern.lower()):
+                if fnmatch.fnmatch(pl, r.path_pattern.lower()):
+                    return r.policy
+        return self._default_policy
+
+    def add_override(self, domain, path="*", policy=None):
+        self._overrides.append(DLPRouteOverride(
+            domain_pattern=domain, path_pattern=path,
+            policy=policy or DLPPolicy(),
+        ))
+
+    def save(self):
+        d = self._to_dict()
+        os.makedirs(os.path.dirname(self._policies_path), exist_ok=True)
+        with open(self._policies_path, "w") as f:
+            json.dump(d, f, indent=2)
+
+    def reload(self):
+        self._load()
+
+    def _to_dict(self):
+        def _pd(p):
+            d = {"action": p.action.value}
+            for cat in ("scan_secrets", "scan_pii", "scan_licenses",
+                        "scan_internal_ips", "scan_cloud_tokens",
+                        "scan_db_strings", "scan_env_vars"):
+                val = getattr(p, cat)
+                if val is not None:
+                    d[cat] = val
+            return d
+        return {
+            "default_policy": _pd(self._default_policy),
+            "overrides": [
+                {
+                    "domain_pattern": r.domain_pattern,
+                    "path_pattern": r.path_pattern,
+                    "policy": _pd(r.policy),
+                }
+                for r in self._overrides
+            ],
+        }
+
+    @staticmethod
+    def _policy_from_dict(d: dict):
+        am = {"redact": DLPAction.REDACT, "block": DLPAction.BLOCK,
+              "log_only": DLPAction.LOG_ONLY, "pass_through": DLPAction.PASS_THROUGH}
+        return DLPPolicy(
+            action=am.get(d.get("action", "redact"), DLPAction.REDACT),
+            scan_secrets=d.get("scan_secrets"),
+            scan_pii=d.get("scan_pii"),
+            scan_licenses=d.get("scan_licenses"),
+            scan_internal_ips=d.get("scan_internal_ips"),
+            scan_cloud_tokens=d.get("scan_cloud_tokens"),
+            scan_db_strings=d.get("scan_db_strings"),
+            scan_env_vars=d.get("scan_env_vars"),
+        )
+
+    def _load(self):
+        """Load policies from JSON file."""
+        try:
+            import json
+            with open(self._policies_path) as f:
+                data = json.load(f)
+        except (FileNotFoundError, ValueError):
+            self._default_policy = DLPPolicy()
+            self._overrides = []
+            return
+        self._default_policy = self._policy_from_dict(data.get("default_policy", {}))
+        self._overrides = []
+        for r in data.get("overrides", []):
+            self._overrides.append(DLPRouteOverride(
+                domain_pattern=r.get("domain_pattern", "*"),
+                path_pattern=r.get("path_pattern", "*"),
+                policy=self._policy_from_dict(r.get("policy", {})),
+            ))
 
 # ???? Pattern definitions ????????????????????????????????????????????????????????????????????????????????????????????????????????
 
@@ -130,24 +271,28 @@ class DLPEngine:
     scan_db_strings: bool = True
     scan_env_vars: bool = False
 
-    def scan(self, text: str) -> list[DLPFinding]:
-        """Return all findings in *text*."""
+    def scan(self, text: str, policy: DLPPolicy | None = None) -> list[DLPFinding]:
+        """Return all findings in *text*.
+
+        If *policy* is provided, its per-category overrides are applied
+        on top of the engine's default flags.
+        """
         findings: list[DLPFinding] = []
 
         patterns: list[tuple[FindingType, str, float]] = []
-        if self.scan_secrets:
+        if (policy is None and self.scan_secrets) or (policy is not None and policy.scan_secrets is None and self.scan_secrets) or (policy is not None and policy.scan_secrets is True):
             patterns.extend(_SECRET_PATTERNS)
-        if self.scan_pii:
+        if (policy is None and self.scan_pii) or (policy is not None and policy.scan_pii is None and self.scan_pii) or (policy is not None and policy.scan_pii is True):
             patterns.extend(_PII_PATTERNS)
-        if self.scan_licenses:
+        if (policy is None and self.scan_licenses) or (policy is not None and policy.scan_licenses is None and self.scan_licenses) or (policy is not None and policy.scan_licenses is True):
             patterns.extend(_LICENSE_PATTERNS)
-        if self.scan_internal_ips:
+        if (policy is None and self.scan_internal_ips) or (policy is not None and policy.scan_internal_ips is None and self.scan_internal_ips) or (policy is not None and policy.scan_internal_ips is True):
             patterns.extend(_INTERNAL_IP_PATTERNS)
-        if self.scan_cloud_tokens:
+        if (policy is None and self.scan_cloud_tokens) or (policy is not None and policy.scan_cloud_tokens is None and self.scan_cloud_tokens) or (policy is not None and policy.scan_cloud_tokens is True):
             patterns.extend(_CLOUD_TOKEN_PATTERNS)
-        if self.scan_db_strings:
+        if (policy is None and self.scan_db_strings) or (policy is not None and policy.scan_db_strings is None and self.scan_db_strings) or (policy is not None and policy.scan_db_strings is True):
             patterns.extend(_DB_STRING_PATTERNS)
-        if self.scan_env_vars:
+        if (policy is None and self.scan_env_vars) or (policy is not None and policy.scan_env_vars is None and self.scan_env_vars) or (policy is not None and policy.scan_env_vars is True):
             patterns.extend(_ENV_VAR_PATTERNS)
 
         for finding_type, pattern, confidence in patterns:

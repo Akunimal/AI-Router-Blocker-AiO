@@ -36,7 +36,7 @@ from ai_blocker.constants import (
     _get_ui_font,
 )
 from ai_blocker.context_anonymizer import CodeAnonymizer
-from ai_blocker.dlp_engine import DLPEngine, DLPFinding, FindingType
+from ai_blocker.dlp_engine import DLPAction, DLPEngine, DLPFinding, DLPPolicy, DLPPolicyManager, FindingType
 from ai_blocker.domain_matcher import BLOCKLIST_PATTERNS, is_domain_blocked, matches_any_pattern
 
 # Phase 2+3 modules (always available — pure stdlib)

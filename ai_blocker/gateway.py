@@ -19,9 +19,11 @@ except ImportError:
 from ai_blocker.dpi_rules import DPIAction, DPIRuleEngine
 
 try:
-    from ai_blocker.dlp_engine import DLPEngine
+    from ai_blocker.dlp_engine import DLPAction, DLPEngine, DLPPolicy, DLPPolicyManager
 except ImportError:
     DLPEngine = None  # type: ignore[assignment,misc]
+    DLPPolicy = None  # type: ignore[assignment,misc]
+    DLPPolicyManager = None  # type: ignore[assignment,misc]
 
 try:
     from ai_blocker.audit_log import AuditEntry, AuditLog
@@ -344,14 +346,26 @@ class GatewayHandler(BaseHTTPRequestHandler):
         if dlp is None:
             return data
         try:
+            policy = self._get_dlp_policy(domain, path)
+            if policy.action == DLPAction.PASS_THROUGH:
+                return data
             text = data.decode("utf-8", errors="ignore")
-            findings = dlp.scan(text)
+            findings = dlp.scan(text, policy=policy)
             if findings:
+                if policy.action == DLPAction.BLOCK:
+                    self._log_audit(
+                        domain, path, method, "blocked",
+                        metadata={"dlp_findings": len(findings), "policy": "block"},
+                    )
+                    return b""
                 redacted = dlp.redact(text, findings)
                 self._log_audit(
-                    domain, path, method, "redacted",
+                    domain, path, method,
+                    "log_only" if policy.action == DLPAction.LOG_ONLY else "redacted",
                     metadata={"dlp_findings": len(findings)},
                 )
+                if policy.action == DLPAction.LOG_ONLY:
+                    return data
                 return redacted.encode("utf-8")
         except Exception:
             pass
@@ -410,6 +424,13 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     def _get_dlp_engine(self):
         return getattr(self.server, 'dlp_engine', None)
+
+    def _get_dlp_policy(self, domain: str, path: str):
+        """Return DLP policy for given domain/path."""
+        mgr = getattr(self.server, 'dlp_policy_manager', None)
+        if mgr is None:
+            return DLPPolicy()
+        return mgr.resolve(domain, path)
 
     def _get_audit_log(self):
         return getattr(self.server, 'audit_log', None)
