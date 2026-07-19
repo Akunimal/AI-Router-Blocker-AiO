@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Software Development :: Build Tools",
 ]
-dependencies = ["cryptography>=41.0.0"]
+dependencies = ["cryptography>=49.0.0"]
 
 [project.urls]
 Homepage = "https://github.com/Akunimal/CodeGate"
