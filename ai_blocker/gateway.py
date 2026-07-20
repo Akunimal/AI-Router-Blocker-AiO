@@ -110,7 +110,12 @@ class GatewayHandler(BaseHTTPRequestHandler):
                     f"Content-Length: {len(err_body_bytes)}\r\n"
                     "Connection: close\r\n\r\n"
                 ).encode('utf-8') + err_body_bytes
-                client_conn.sendall(err_response)
+                # Support both SSL sockets (sendall) and http.server wfile (write)
+                import socket
+                if isinstance(client_conn, socket.socket):
+                    client_conn.sendall(err_response)
+                else:
+                    client_conn.write(err_response)
                 self._log_audit(domain, path, method, "blocked")
                 client_conn.close()
                 return
@@ -168,7 +173,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
             self._tunnel(client_conn, remote_ssl_conn)
 
             # Record token usage (response token estimation not available from tunnel)
-            if content_length > 0 and monitor:
+            if content_length > 0 and monitor and getattr(self.server, 'token_monitor_enabled', True):
                 monitor.record(tokens_in, 0, domain=domain, path=path)
 
             self._log_audit(domain, path, method, "allowed")
@@ -279,7 +284,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
                 # Record token usage
                 monitor = self._get_token_monitor()
-                if monitor:
+                if monitor and getattr(self.server, 'token_monitor_enabled', True):
                     tokens_out = monitor.estimate_tokens(response_data)
                     monitor.record(tokens_in, tokens_out, domain="", path=self.path)
 
@@ -296,7 +301,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
             # Record token usage for errors too
             monitor = self._get_token_monitor()
-            if monitor:
+            if monitor and getattr(self.server, 'token_monitor_enabled', True):
                 tokens_out = monitor.estimate_tokens(error_data)
                 monitor.record(tokens_in, tokens_out, domain="", path=self.path)
 
