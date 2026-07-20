@@ -472,6 +472,8 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
     def _check_guardrails(self, body: bytes, client_conn, domain: str, path: str, method: str) -> bool:
         """Check prompt guardrails. Returns False if the request was blocked."""
+        if not body:
+            return True
         if not getattr(self.server, 'guardrails_enabled', True):
             return True
         guardrail = self._get_guardrail()
@@ -493,10 +495,20 @@ class GatewayHandler(BaseHTTPRequestHandler):
                     f"Content-Length: {len(err_body_bytes)}\r\n"
                     "Connection: close\r\n\r\n"
                 ).encode('utf-8') + err_body_bytes
-                client_conn.sendall(err_response)
+                # CONNECT tunnel path (SSL socket) vs HTTP proxy path (self.wfile/BytesIO/MagicMock)
+                import socket as _socket
+                if isinstance(client_conn, _socket.socket):
+                    client_conn.sendall(err_response)
+                else:
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(err_body_bytes)))
+                    self.end_headers()
+                    self.wfile.write(err_body_bytes)
                 self._log_audit(domain, path, method, "blocked",
                                 metadata={"guardrail": result.category.value})
-                client_conn.close()
+                if isinstance(client_conn, _socket.socket):
+                    client_conn.close()
                 return False
         except Exception:
             pass
