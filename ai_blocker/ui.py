@@ -86,6 +86,7 @@ class AIBlockerApp:
         self.gateway_running = False
         self.dlp_var = tk.BooleanVar(value=self.enable_dlp)
         self.guardrails_var = tk.BooleanVar(value=self.enable_guardrails)
+        self.dry_run_var = tk.BooleanVar(value=False)
 
         self.selected_profile_key = self.config.get("profile", "work")
 
@@ -266,6 +267,19 @@ class AIBlockerApp:
             command=self._handle_toggle,
         )
         self.toggle_btn.pack(fill=tk.X, ipady=6)
+
+        dry_run_frame = tk.Frame(btn_frame, bg=COL_BASE)
+        dry_run_frame.pack(fill=tk.X, pady=(6, 0))
+        self.dry_run_cb = tk.Checkbutton(
+            dry_run_frame, text="",
+            variable=self.dry_run_var,
+            font=(UI_FONT, 9),
+            bg=COL_BASE, fg=COL_SUBTEXT,
+            selectcolor=COL_SURFACE0,
+            activebackground=COL_BASE, activeforeground=COL_TEXT,
+            padx=4, pady=2, anchor="w",
+        )
+        self.dry_run_cb.pack(side=tk.LEFT)
 
     def _build_info_panel(self):
         self.info_panel = tk.Frame(
@@ -1182,6 +1196,9 @@ class AIBlockerApp:
             self.log_toggle_btn.configure(text=f"{arrow}  {s.get('log_title', 'Activity Log')}")
             self._update_log_display()
 
+        if hasattr(self, 'dry_run_cb'):
+            self.dry_run_cb.configure(text=s.get("dry_run_label", "☑ Dry-run (preview only, no changes)"))
+
     def _get_active_categories(self):
         return [cat for cat, var in self.category_vars.items() if var.get()]
 
@@ -1298,13 +1315,14 @@ class AIBlockerApp:
         self.is_busy = True
 
         s = STRINGS[self.current_lang]
+        is_dry_run = self.dry_run_var.get()
         self.toggle_btn.configure(state="disabled", text=s["busy_text"])
 
         def task():
             backend = self.config.get("network_backend", "hosts")
             if self.is_blocked:
-                ok, msg = deactivate_block(self.current_lang, backend_name=backend)
-                if ok:
+                ok, msg = deactivate_block(self.current_lang, backend_name=backend, dry_run=is_dry_run)
+                if ok and not is_dry_run:
                     self.is_blocked = False
             else:
                 active_cats = self._get_active_categories()
@@ -1312,36 +1330,41 @@ class AIBlockerApp:
                     for cat in self.category_vars:
                         self.category_vars[cat].set(True)
                     active_cats = list(self.category_vars.keys())
-                ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend)
-                if ok:
+                ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend, dry_run=is_dry_run)
+                if ok and not is_dry_run:
                     self.is_blocked = True
 
-            self.root.after(0, lambda: self._on_task_done(ok, msg))
+            self.root.after(0, lambda: self._on_task_done(ok, msg, is_dry_run))
 
         threading.Thread(target=task, daemon=True).start()
 
-    def _on_task_done(self, ok, msg):
+    def _on_task_done(self, ok, msg, is_dry_run=False):
         self.is_busy = False
         self.toggle_btn.configure(state="normal")
 
-        if ok:
-            self.last_toggle_time = time.time()
-            self.config["last_toggle_time"] = self.last_toggle_time
-            self._save_current_config()
-
-        self._update_visuals()
-        self._refresh_editors_label()
-        self._run_connectivity_check()
-
         s = STRINGS[self.current_lang]
+
         if ok:
-            title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
-            self.show_toast(title, msg, "success")
-            actual_blocked, blocked_count = get_hosts_status()
-            if actual_blocked:
-                self.log_action("log_blocked", count=blocked_count)
+            if not is_dry_run:
+                self.last_toggle_time = time.time()
+                self.config["last_toggle_time"] = self.last_toggle_time
+                self._save_current_config()
+
+            self._update_visuals()
+            self._refresh_editors_label()
+            self._run_connectivity_check()
+
+            if is_dry_run:
+                title = "🔍 Dry-Run Preview"
+                self.show_toast(title, msg, "info")
             else:
-                self.log_action("log_unblocked")
+                title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
+                self.show_toast(title, msg, "success")
+                actual_blocked, blocked_count = get_hosts_status()
+                if actual_blocked:
+                    self.log_action("log_blocked", count=blocked_count)
+                else:
+                    self.log_action("log_unblocked")
         else:
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
             self.show_toast(title, msg, "error")

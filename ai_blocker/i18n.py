@@ -84,7 +84,8 @@ def load_translations():
             "profile_work": "Work",
             "profile_personal": "Personal",
             "profile_free": "Free",
-            "profile_custom": "Custom"
+            "profile_custom": "Custom",
+            "dry_run_label": "☑ Dry-run (preview only, no changes)"
         }}
 
     # Resolve platform specific strings
