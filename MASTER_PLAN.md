@@ -298,7 +298,7 @@ El plan se ejecuta secuencialmente, wave por wave.
 
 | Wave 2 | ✅ Hecho | 8/8 | 8/8 |
 
-| Wave 3 | 'L Pendiente | 0/6 | 0/6 |
+| Wave 3 | ✅ Hecho | 6/6 | 6/6 |
 
 | Wave 4 | 'L Pendiente | 0/3 | 0/3 |
 
