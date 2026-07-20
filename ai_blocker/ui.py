@@ -44,10 +44,13 @@ except ImportError:
 
 
 class AIBlockerApp:
-    def __init__(self, root):
+    def __init__(self, root, enable_dlp=True, enable_guardrails=True, enable_token_monitor=True):
         self.root = root
         self.root.title("AI DevSec Gateway")
         self.root.geometry("520x650")
+        self.enable_dlp = enable_dlp
+        self.enable_guardrails = enable_guardrails
+        self.enable_token_monitor = enable_token_monitor
         self.root.minsize(480, 600)
         self.root.configure(bg=COL_BASE)
 
@@ -738,6 +741,9 @@ class AIBlockerApp:
             try:
                 self.gateway_server = ThreadingHTTPServer(('127.0.0.1', 8080), GatewayHandler)
                 self.gateway_server.target_url = target
+                self.gateway_server.dlp_enabled = self.enable_dlp
+                self.gateway_server.guardrails_enabled = self.enable_guardrails
+                self.gateway_server.token_monitor_enabled = self.enable_token_monitor
                 threading.Thread(target=self.gateway_server.serve_forever, daemon=True).start()
                 self.gateway_running = True
                 self.gateway_btn.configure(text="■ Stop Gateway", bg=COL_RED)

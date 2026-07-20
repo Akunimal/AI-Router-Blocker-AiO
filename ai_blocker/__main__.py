@@ -36,6 +36,8 @@ def main():
     parser.add_argument("--guardrails", action="store_true", default=True, help="Enable prompt guardrails (default: enabled)")
     parser.add_argument("--no-dlp", action="store_true", help="Disable DLP content inspection")
     parser.add_argument("--no-guardrails", action="store_true", help="Disable prompt guardrails")
+    parser.add_argument("--token-monitor", action="store_true", default=True, help="Enable token usage monitoring (default: enabled)")
+    parser.add_argument("--no-token-monitor", action="store_true", help="Disable token usage monitoring")
 
     args, unknown = parser.parse_known_args()
 
@@ -105,8 +107,13 @@ def main():
 
     from ai_blocker.ui import AIBlockerApp
 
+    # Resolve feature flags: --no-* overrides --*
+    enable_dlp = not args.no_dlp if args.no_dlp else args.dlp
+    enable_guardrails = not args.no_guardrails if args.no_guardrails else args.guardrails
+    enable_token_monitor = not args.no_token_monitor if args.no_token_monitor else args.token_monitor
+
     root = tk.Tk()
-    AIBlockerApp(root)
+    AIBlockerApp(root, enable_dlp=enable_dlp, enable_guardrails=enable_guardrails, enable_token_monitor=enable_token_monitor)
     if "--minimized" in sys.argv and CURRENT_OS == "Windows":
         root.withdraw()
     root.mainloop()

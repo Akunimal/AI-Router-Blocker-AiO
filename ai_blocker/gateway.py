@@ -134,7 +134,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 # Token monitoring (pre-flight check)
                 monitor = self._get_token_monitor()
                 tokens_in = 0
-                if monitor:
+                if monitor and getattr(self.server, 'token_monitor_enabled', True):
                     tokens_in = monitor.estimate_tokens(body)
                     if monitor.is_over_limit():
                         err_body = json.dumps({
@@ -246,7 +246,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
         # Token monitoring
         tokens_in = 0
         monitor = self._get_token_monitor()
-        if monitor:
+        if monitor and getattr(self.server, 'token_monitor_enabled', True):
             if data:
                 tokens_in = monitor.estimate_tokens(data)
             if monitor.is_over_limit():
