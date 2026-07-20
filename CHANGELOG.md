@@ -4,11 +4,20 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Unreleased]
-### Planned
-- Dry-run mode visual in GUI (Wave 5.1)
-- Cleanup of stale build artifacts (Wave 5.2)
-- UX improvements and version bump (Wave 5.3)
-- CHANGELOG and documentation finalization (Wave 5.4)
+### Added
+- Dry-run mode visual in GUI with toggle, plan preview, and toast notifications. (Wave 5.1)
+- HostsBackend plan_activate/plan_deactivate methods for dry-run command previews.
+
+### Changed
+- Bump version to 1.8.0 for Wave 5 release.
+- pyproject.toml synchronized with __init__.py version (1.8.0).
+
+### Fixed
+- [Bug #1] HostsBackend missing plan_activate/plan_deactivate methods.
+- [Bug #2] Dry-run mode executing _update_visuals(), _refresh_editors_label(), _run_connectivity_check().
+- [Bug #3] Dry-run mode modifying category_vars as side-effect.
+- [Bug #4] Hardcoded "Dry-Run Preview" string lacking i18n support.
+- [Bug #5] _handle_reapply_block not respecting dry-run mode.
 
 ## [v1.7.0] - 2026-07-17
 ### Added
@@ -32,16 +41,7 @@ All notable changes to this project will be documented in this file.
 - All documentation, package metadata, and CLI commands updated to CodeGate branding.
 - ROADMAP updated: Phase 3 progress at 30%, all Wave 2 items complete.
 
-### Changed
-- DLP engine now supports optional escalation to cloud semantic analysis.
-- Gateway configuration includes Cloud DLP enable/disable flag.
-- All documentation, package metadata, and CLI commands updated to CodeGate branding.
-- ROADMAP updated: Phase 3 progress at 30%, all Wave 2 items complete.
 
-### Fixed
-- Fixed NameError in Cloud DLP test button (undefined exception variable).
-- Fixed flaky test_ttl_expiry on Windows CI (timer resolution).
-- Fixed token_z computation in RequestAnalyzer (unit mismatch).
 
 ## [v1.6.1] - 2026-07-17
 ### Added
