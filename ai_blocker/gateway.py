@@ -192,6 +192,9 @@ class GatewayHandler(BaseHTTPRequestHandler):
         if self.path == "/stats":
             self._handle_stats()
             return
+        if self.path == "/findings":
+            self._handle_findings()
+            return
         self._proxy_request("GET")
     def do_POST(self): self._proxy_request("POST")
     def do_PUT(self): self._proxy_request("PUT")
@@ -221,6 +224,42 @@ class GatewayHandler(BaseHTTPRequestHandler):
             "domains": breakdown,
             "dlp_metrics": dlp_metrics,
         }).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _handle_findings(self):
+        """Return collected DLP and Guardrails findings as JSON."""
+        audit = self._get_audit_log()
+        findings = []
+        if audit is not None:
+            try:
+                entries = audit.search_entries(limit=100)
+                for entry in entries:
+                    if entry.dlp_findings:
+                        for f in entry.dlp_findings:
+                            findings.append({
+                                "type": "DLP",
+                                "severity": f.get("risk_score", 0) > 0.7 and "high" or f.get("risk_score", 0) > 0.3 and "medium" or "low",
+                                "description": f.get("pattern", "DLP match") if isinstance(f, dict) else str(f),
+                                "timestamp": entry.timestamp,
+                                "method": entry.method,
+                                "domain": entry.domain,
+                            })
+                    if entry.metadata and "guardrail" in entry.metadata:
+                        findings.append({
+                            "type": "Guardrail",
+                            "severity": "high",
+                            "description": entry.metadata["guardrail"],
+                            "timestamp": entry.timestamp,
+                            "method": entry.method,
+                            "domain": entry.domain,
+                        })
+            except Exception:
+                pass
+        body = json.dumps({"findings": findings[-50:]}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))

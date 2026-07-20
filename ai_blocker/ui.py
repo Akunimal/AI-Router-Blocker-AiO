@@ -84,6 +84,8 @@ class AIBlockerApp:
         self.last_toggle_time = self.config.get("last_toggle_time", None)
         self.gateway_server = None
         self.gateway_running = False
+        self.dlp_var = tk.BooleanVar(value=self.enable_dlp)
+        self.guardrails_var = tk.BooleanVar(value=self.enable_guardrails)
 
         self.selected_profile_key = self.config.get("profile", "work")
 
@@ -552,6 +554,24 @@ class AIBlockerApp:
         self.target_url_var = tk.StringVar(value=self.config.get("target_url", "http://localhost:11434"))
         tk.Entry(url_frame, textvariable=self.target_url_var, bg=COL_BASE, fg=COL_TEXT, insertbackground=COL_TEXT, relief="flat").pack(side=tk.LEFT, fill=tk.X, expand=True, padx=8)
 
+        # Feature toggles row
+        feat_frame = tk.Frame(router_frame, bg=COL_SURFACE0)
+        feat_frame.pack(fill=tk.X, padx=16, pady=(4, 8))
+        self.dlp_chk = tk.Checkbutton(
+            feat_frame, text="DLP", variable=self.dlp_var,
+            bg=COL_SURFACE0, fg=COL_TEXT, selectcolor=COL_SURFACE0,
+            activebackground=COL_SURFACE0, activeforeground=COL_TEXT,
+            font=(UI_FONT, 9),
+        )
+        self.dlp_chk.pack(side=tk.LEFT, padx=(0, 12))
+        self.guardrails_chk = tk.Checkbutton(
+            feat_frame, text="Guardrails", variable=self.guardrails_var,
+            bg=COL_SURFACE0, fg=COL_TEXT, selectcolor=COL_SURFACE0,
+            activebackground=COL_SURFACE0, activeforeground=COL_TEXT,
+            font=(UI_FONT, 9),
+        )
+        self.guardrails_chk.pack(side=tk.LEFT, padx=(0, 12))
+
         self.gateway_btn = tk.Button(router_frame, text="▶ Start Gateway", font=(UI_FONT, 10, "bold"), bg=COL_GREEN, fg="#000000", bd=0, command=self._toggle_gateway)
         self.gateway_btn.pack(fill=tk.X, padx=16, pady=12)
 
@@ -691,6 +711,40 @@ class AIBlockerApp:
         )
         self.stats_status_lbl.pack(padx=16, pady=(4, 12))
 
+        # Section 1.8: Live DLP & Guardrails Findings
+        findings_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
+        findings_frame.pack(fill=tk.X, pady=(0, 16))
+
+        findings_header = tk.Frame(findings_frame, bg=COL_SURFACE0)
+        findings_header.pack(fill=tk.X, padx=16, pady=(12, 0))
+        tk.Label(
+            findings_header, text="🔍 DLP & Guardrails Findings",
+            font=(UI_FONT, 11, "bold"), bg=COL_SURFACE0, fg=COL_TEXT,
+        ).pack(side=tk.LEFT)
+        self.findings_refresh_btn = tk.Button(
+            findings_header, text="⟳ Refresh", font=(UI_FONT, 8),
+            bg=COL_SURFACE1, fg=COL_TEXT,
+            command=self._fetch_findings,
+        )
+        self.findings_refresh_btn.pack(side=tk.RIGHT)
+
+        findings_list_frame = tk.Frame(findings_frame, bg=COL_SURFACE0)
+        findings_list_frame.pack(fill=tk.X, padx=16, pady=(8, 12))
+
+        findings_scroll = tk.Scrollbar(findings_list_frame, bg=COL_SURFACE1, troughcolor=COL_BASE)
+        findings_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self._findings_list = tk.Listbox(
+            findings_list_frame, bg=COL_BASE, fg=COL_TEXT, font=(UI_FONT, 9),
+            selectbackground=COL_BLUE, selectforeground="#000000",
+            relief="flat", highlightthickness=0, height=6,
+            yscrollcommand=findings_scroll.set,
+        )
+        self._findings_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        findings_scroll.config(command=self._findings_list.yview)
+        self._findings_list.insert(tk.END, " Gateway not running. Start the gateway above to see live findings.")
+        self._findings_list.itemconfig(0, fg=COL_SUBTEXT)
+
         # Section 2: Auditor
         audit_frame = tk.Frame(container, bg=COL_SURFACE0, highlightbackground=COL_SURFACE1, highlightthickness=1)
         audit_frame.pack(fill=tk.BOTH, expand=True)
@@ -768,18 +822,27 @@ class AIBlockerApp:
         if not self.gateway_running:
             target = self.target_url_var.get().strip()
             self.config["target_url"] = target
+            self.config["dlp_enabled"] = self.dlp_var.get()
+            self.config["guardrails_enabled"] = self.guardrails_var.get()
             self._save_current_config()
             try:
                 self.gateway_server = ThreadingHTTPServer(('127.0.0.1', 8080), GatewayHandler)
                 self.gateway_server.target_url = target
-                self.gateway_server.dlp_enabled = self.enable_dlp
-                self.gateway_server.guardrails_enabled = self.enable_guardrails
+                self.gateway_server.dlp_enabled = self.dlp_var.get()
+                self.gateway_server.guardrails_enabled = self.guardrails_var.get()
                 self.gateway_server.token_monitor_enabled = self.enable_token_monitor
                 threading.Thread(target=self.gateway_server.serve_forever, daemon=True).start()
                 self.gateway_running = True
                 self.gateway_btn.configure(text="■ Stop Gateway", bg=COL_RED)
+                self.dlp_chk.configure(state="disabled")
+                self.guardrails_chk.configure(state="disabled")
                 self.log_action("log_gateway_started", url=target)
                 self._fetch_stats()
+                # Reset findings display
+                if hasattr(self, '_findings_list'):
+                    self._findings_list.delete(0, tk.END)
+                    self._findings_list.insert(tk.END, " Gateway running — findings will appear here.")
+                    self._findings_list.itemconfig(0, fg=COL_SUBTEXT)
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to start gateway: {e}")
         else:
@@ -790,7 +853,13 @@ class AIBlockerApp:
             if hasattr(self, '_stats_refresh_id'):
                 self.root.after_cancel(self._stats_refresh_id)
             self.gateway_btn.configure(text="▶ Start Gateway", bg=COL_GREEN)
+            self.dlp_chk.configure(state="normal")
+            self.guardrails_chk.configure(state="normal")
             self.log_action("log_gateway_stopped")
+            if hasattr(self, '_findings_list'):
+                self._findings_list.delete(0, tk.END)
+                self._findings_list.insert(tk.END, " Gateway stopped. Start to monitor findings.")
+                self._findings_list.itemconfig(0, fg=COL_SUBTEXT)
 
 
     def _on_cloud_dlp_toggle(self):
@@ -830,6 +899,42 @@ class AIBlockerApp:
                 ))
 
         threading.Thread(target=test, daemon=True).start()
+
+    def _fetch_findings(self):
+        """Fetch DLP/Guardrails findings from the gateway's /findings endpoint."""
+        def fetch():
+            try:
+                req = urllib.request.Request("http://127.0.0.1:8080/findings")
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    data = json.loads(resp.read().decode())
+                self.root.after(0, self._update_findings_display, data)
+            except Exception:
+                self.root.after(0, self._update_findings_display, None)
+        threading.Thread(target=fetch, daemon=True).start()
+
+    def _update_findings_display(self, data):
+        """Update findings listbox with fetched data."""
+        if not hasattr(self, '_findings_list'):
+            return
+        self._findings_list.delete(0, tk.END)
+        if data is None or "error" in data:
+            self._findings_list.insert(tk.END, " No findings available (gateway may not be running).")
+            self._findings_list.itemconfig(0, fg=COL_SUBTEXT)
+            return
+        if not data.get("findings"):
+            self._findings_list.insert(tk.END, " No DLP or Guardrails findings yet.")
+            self._findings_list.itemconfig(0, fg=COL_SUBTEXT)
+            return
+        for f in data["findings"][-30:]:
+            ts = f.get("timestamp", "")[-8:] if f.get("timestamp") else ""
+            typ = f.get("type", "DLP")
+            sev = f.get("severity", "info")
+            desc = f.get("description", str(f))
+            sev_colors = {"high": COL_RED, "medium": COL_YELLOW, "low": COL_GREEN, "info": COL_SUBTEXT}
+            color = sev_colors.get(sev, COL_TEXT)
+            line = f" [{ts}] [{typ}] {desc}"[:120]
+            idx = self._findings_list.insert(tk.END, line)
+            self._findings_list.itemconfig(idx, fg=color)
 
     def _build_threats_tab(self):
         """Build the Threat Intelligence dashboard tab."""

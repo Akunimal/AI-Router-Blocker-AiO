@@ -49,7 +49,7 @@ class DLPFinding:
     matched_text: str
     start: int
     end: int
-    confidence: float = 1.0  # 0.0?1.0
+    confidence: float = 1.0
     def to_dict(self) -> dict:
         """Serialize finding to a dict for audit logging."""
         return {
