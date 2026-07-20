@@ -85,7 +85,8 @@ def load_translations():
             "profile_personal": "Personal",
             "profile_free": "Free",
             "profile_custom": "Custom",
-            "dry_run_label": "☑ Dry-run (preview only, no changes)"
+            "dry_run_label": "☑ Dry-run (preview only, no changes)",
+"dry_run_preview_title": "🔍 Dry-Run Preview"
         }}
 
     # Resolve platform specific strings

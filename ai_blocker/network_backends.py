@@ -62,6 +62,18 @@ class HostsBackend:
         self.comment_tag = comment_tag
         self.flush_dns = flush_func
 
+    def plan_activate(self, domains: Iterable[str]) -> list[list[str]]:
+        domains_to_block = unique_domains(domains)
+        return [[domain] for domain in domains_to_block]  # each entry as its own "command" for display
+
+    def plan_deactivate(self) -> list[list[str]]:
+        existing_lines = []
+        if os.path.exists(self.hosts_path):
+            with open(self.hosts_path, "r", encoding="utf-8") as f:
+                existing_lines = f.readlines()
+        tagged = [line for line in existing_lines if self.comment_tag in line]
+        return [line.strip().split() for line in tagged if line.strip()]
+
     def activate(self, domains: Iterable[str]) -> BackendResult:
         domains_to_block = unique_domains(domains)
         existing_lines = []

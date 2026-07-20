@@ -1269,45 +1269,52 @@ class AIBlockerApp:
             return
         self.is_busy = True
         s = STRINGS[self.current_lang]
+        is_dry_run = self.dry_run_var.get()
         self.toggle_btn.configure(state="disabled", text=s["busy_text"])
 
         def task():
             active_cats = self._get_active_categories()
             backend = self.config.get("network_backend", "hosts")
             if not active_cats:
-                ok, msg = deactivate_block(self.current_lang, backend_name=backend)
+                ok, msg = deactivate_block(self.current_lang, backend_name=backend, dry_run=is_dry_run)
             else:
-                ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend)
+                ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend, dry_run=is_dry_run)
 
             if ok:
-                self.is_blocked = bool(active_cats)
-            self.root.after(0, lambda: self._on_reapply_done(ok, msg))
+                if not is_dry_run:
+                    self.is_blocked = bool(active_cats)
+            self.root.after(0, lambda: self._on_reapply_done(ok, msg, is_dry_run))
 
         threading.Thread(target=task, daemon=True).start()
 
-    def _on_reapply_done(self, ok, msg):
+    def _on_reapply_done(self, ok, msg, is_dry_run=False):
         self.is_busy = False
         self.toggle_btn.configure(state="normal")
 
-        if ok:
-            self.last_toggle_time = time.time()
-            self.config["last_toggle_time"] = self.last_toggle_time
-            self._save_current_config()
+        s = STRINGS[self.current_lang]
 
-        self._update_visuals()
-        self._refresh_editors_label()
-        self._run_connectivity_check()
-        if not ok:
-            s = STRINGS[self.current_lang]
+        if ok:
+            if not is_dry_run:
+                self.last_toggle_time = time.time()
+                self.config["last_toggle_time"] = self.last_toggle_time
+                self._save_current_config()
+                self._update_visuals()
+                self._refresh_editors_label()
+                self._run_connectivity_check()
+                actual_blocked, blocked_count = get_hosts_status()
+                if actual_blocked:
+                    self.log_action("log_blocked", count=blocked_count)
+                else:
+                    self.log_action("log_unblocked")
+                title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
+                self.show_toast(title, msg, "success")
+            else:
+                title = s.get("dry_run_preview_title", "🔍 Dry-Run Preview")
+                self.show_toast(title, msg, "info")
+        else:
             title = s["hosts_write_error_title"] if "hosts" in msg else s["unexpected_error_title"]
             self.show_toast(title, msg, "error")
             self.log_action("log_error", error=msg)
-        else:
-            actual_blocked, blocked_count = get_hosts_status()
-            if actual_blocked:
-                self.log_action("log_blocked", count=blocked_count)
-            else:
-                self.log_action("log_unblocked")
 
     def _handle_toggle(self):
         if self.is_busy:
@@ -1327,9 +1334,19 @@ class AIBlockerApp:
             else:
                 active_cats = self._get_active_categories()
                 if not active_cats:
-                    for cat in self.category_vars:
-                        self.category_vars[cat].set(True)
-                    active_cats = list(self.category_vars.keys())
+                    if not is_dry_run:
+                        for cat in self.category_vars:
+                            self.category_vars[cat].set(True)
+                        active_cats = list(self.category_vars.keys())
+                    else:
+                        self.root.after(0, lambda: self.show_toast(
+                            "No categories selected",
+                            "Select at least one category to preview the blocking plan.",
+                            "warning"
+                        ))
+                        self.is_busy = False
+                        self.toggle_btn.configure(state="normal")
+                        return
                 ok, msg = activate_block(self.current_lang, active_cats, backend_name=backend, dry_run=is_dry_run)
                 if ok and not is_dry_run:
                     self.is_blocked = True
@@ -1349,13 +1366,11 @@ class AIBlockerApp:
                 self.last_toggle_time = time.time()
                 self.config["last_toggle_time"] = self.last_toggle_time
                 self._save_current_config()
-
-            self._update_visuals()
-            self._refresh_editors_label()
-            self._run_connectivity_check()
-
+                self._update_visuals()
+                self._refresh_editors_label()
+                self._run_connectivity_check()
             if is_dry_run:
-                title = "🔍 Dry-Run Preview"
+                title = s.get("dry_run_preview_title", "🔍 Dry-Run Preview")
                 self.show_toast(title, msg, "info")
             else:
                 title = s["block_success_title"] if self.is_blocked else s["unblock_success_title"]
