@@ -131,6 +131,27 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 if not self._check_guardrails(body, client_conn, domain, path, method):
                     return
 
+                # Token monitoring (pre-flight check)
+                monitor = self._get_token_monitor()
+                tokens_in = 0
+                if monitor:
+                    tokens_in = monitor.estimate_tokens(body)
+                    if monitor.is_over_limit():
+                        err_body = json.dumps({
+                            "error": "Token rate limit exceeded (AI DevSec Gateway)",
+                        })
+                        err_body_bytes = err_body.encode('utf-8')
+                        err_response = (
+                            "HTTP/1.1 429 Too Many Requests\r\n"
+                            "Content-Type: application/json\r\n"
+                            f"Content-Length: {len(err_body_bytes)}\r\n"
+                            "Connection: close\r\n\r\n"
+                        ).encode('utf-8') + err_body_bytes
+                        client_conn.sendall(err_response)
+                        self._log_audit(domain, path, method, "blocked")
+                        client_conn.close()
+                        return
+
             # 7. Forward to real destination
             remote_conn = socket.create_connection((domain, port), timeout=10)
             remote_context = ssl.create_default_context()
@@ -145,6 +166,11 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
             # 8. Bidirectional forward for the response
             self._tunnel(client_conn, remote_ssl_conn)
+
+            # Record token usage (response token estimation not available from tunnel)
+            if content_length > 0 and monitor:
+                monitor.record(tokens_in, 0, domain=domain, path=path)
+
             self._log_audit(domain, path, method, "allowed")
 
         except Exception as e:
@@ -212,6 +238,10 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
                 # DLP sanitization on outbound data
                 data = self._apply_dlp(data, "", self.path, method)
+
+                # Guardrails check
+                if not self._check_guardrails(data, self.wfile, "", self.path, method):
+                    return
 
         # Token monitoring
         tokens_in = 0

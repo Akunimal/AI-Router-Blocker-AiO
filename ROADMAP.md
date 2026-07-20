@@ -1,4 +1,4 @@
-# Ø=Ýúþ CodeGate - Roadmap
+﻿# CodeGate - Roadmap
 
 
 
@@ -14,7 +14,7 @@ This roadmap outlines our technical vision, showing our completed work, upcoming
 
 
 
-## Ø=ÜÅ Roadmap Overview
+## Roadmap Overview
 
 
 
@@ -40,7 +40,7 @@ This roadmap outlines our technical vision, showing our completed work, upcoming
 
 
 
-## Ø=Ý Continuous Track: AI-Assisted DevSecOps & Maintenance
+## Continuous Track: AI-Assisted DevSecOps & Maintenance
 
 
 
@@ -74,7 +74,7 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 
 
 
-## Ø=Þ Phase 1: Modularization, CLI & Gateway (Completed - v1.2 - v1.2.1)
+## = Phase 1: Modularization, CLI & Gateway (Completed - v1.2 - v1.2.1)
 
 - [x] **Modular Package Refactoring:** Broke down the 92KB monolith into single-responsibility package submodules (config, constants, system_utils, block_actions, gateway, tray, ui).
 
@@ -92,7 +92,7 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 
 
 
-## Ø>Ýê Phase 2: Network Interception & HTTPS TLS Decryption (Completed - v1.3 - v1.5)
+## > Phase 2: Network Interception & HTTPS TLS Decryption (Completed - v1.3 - v1.5)
 
 - [x] **Internal Network Backend Interface:** Pluggable backend boundary for hosts-file, firewall redirects, and kernel-level interceptors.
 
@@ -106,7 +106,7 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 
 
 
-## Ø=ÜÊ Phase 3: DLP Sanitization, Hybrid Guardrails & Threat Intel (v1.6 - v1.7)
+## = Phase 3: DLP Sanitization, Hybrid Guardrails & Threat Intel (v1.6 - v1.7)
 
 - [x] **Real-Time DLP Sanitization Pipeline:** Regex and heuristic parsing of prompt request bodies to redact secrets, keys, PII, and proprietary source code before forwarding.
 
@@ -124,13 +124,13 @@ We believe in *dogfooding* and leveraging AI to secure and accelerate our own de
 
 ---
 
-## Ø=Ýúþ Mega Plan: Phase 3 (v1.6 ! v1.7)
+## = Mega Plan: Phase 3 (v1.6 ! v1.7)
 
 
 
 **DLP Sanitization, Hybrid Guardrails & Threat Intelligence**
 
-Basado en el roadmap existente y el código actual (DLP engine, guardrails, DPI ya implementados).
+Basado en el roadmap existente y el codigo actual (DLP engine, guardrails, DPI ya implementados).
 
 
 
@@ -142,7 +142,7 @@ Basado en el roadmap existente y el código actual (DLP engine, guardrails, DPI 
 
 
 
-Prep antes de tocar código.
+Prep antes de tocar cdigo.
 
 
 
@@ -150,9 +150,9 @@ Prep antes de tocar código.
 
 |---|---|---|
 
-| 0.1 | [OK] Auditar DLPEngine actual: qué findings categories cubre, qué falta (IPs internas, tokens específicos de proveedores cloud, vars de entorno) | dlp_engine.py review |
+| 0.1 | [OK] Auditar DLPEngine actual: qu findings categories cubre, qu falta (IPs internas, tokens especficos de proveedores cloud, vars de entorno) | dlp_engine.py review |
 
-| 0.2 | [OK] Auditar PromptGuardrail: qué patrones de inyección cubre, falsos positivos conocidos | guardrails.py review |
+| 0.2 | [OK] Auditar PromptGuardrail: qu patrones de inyeccin cubre, falsos positivos conocidos | guardrails.py review |
 
 | 0.3 | [OK] Documentar la arquitectura DLP ! Guardrail ! DPI pipeline en docs/architecture.md | docs/architecture.md |
 
@@ -172,17 +172,17 @@ Prep antes de tocar código.
 
 
 
-Llevar el DLPEngine de "scan + redact" a un pipeline completo con políticas, estructura y métricas.
+Llevar el DLPEngine de "scan + redact" a un pipeline completo con polticas, estructura y mtricas.
 
 
 
-#### 1.1 Políticas DLP configurables
+#### 1.1 Polticas DLP configurables
 
-- Nueva clase DLPPolicy: por-domain, por-endpoint, categorías habilitadas, acción (redact/block/log-only)
+- Nueva clase DLPPolicy: por-domain, por-endpoint, categoras habilitadas, accin (redact/block/log-only)
 
-- Archivo de configuración dlp_policies.json con política por defecto
+- Archivo de configuracin dlp_policies.json con poltica por defecto
 
-- Integración con gateway: _get_dlp_policy(domain, path) -> DLPPolicy
+- Integracin con gateway: _get_dlp_policy(domain, path) -> DLPPolicy
 
 
 
@@ -190,9 +190,9 @@ Llevar el DLPEngine de "scan + redact" a un pipeline completo con políticas, es
 
 
 
-#### 1.2 Redacción estructurada (JSON-aware)
+#### 1.2 Redaccin estructurada (JSON-aware)
 
-- DLPEngine.redact_structured(text) que parsea JSON, aplica redacción campo a campo
+- DLPEngine.redact_structured(text) que parsea JSON, aplica redaccin campo a campo
 
 - Preserva estructura JSON (no rompe el payload)
 
@@ -204,13 +204,13 @@ Llevar el DLPEngine de "scan + redact" a un pipeline completo con políticas, es
 
 
 
-#### 1.3 Métricas y circuit breaker
+#### 1.3 Mtricas y circuit breaker
 
 - Contadores de findings por tipo, tiempo de scan, tasa de falsos positivos
 
 - Circuit breaker: si DLP tarda >500ms, pasa a log-only
 
-- Exportar métricas vía el /stats endpoint existente
+- Exportar mtricas va el /stats endpoint existente
 
 
 
@@ -220,11 +220,11 @@ Llevar el DLPEngine de "scan + redact" a un pipeline completo con políticas, es
 
 #### 1.4 Audit logging mejorado
 
-- Log granular de cada acción DLP (scan, redact, block, bypass)
+- Log granular de cada accin DLP (scan, redact, block, bypass)
 
-- Metadata completa: dominio, endpoint, categorías encontradas, tiempo de scan
+- Metadata completa: dominio, endpoint, categoras encontradas, tiempo de scan
 
-- Integración con AuditLog existente
+- Integracin con AuditLog existente
 
 
 
@@ -240,17 +240,17 @@ Llevar el DLPEngine de "scan + redact" a un pipeline completo con políticas, es
 
 
 
-Integración opcional con OpenAI API para análisis semántico profundo.
+Integracin opcional con OpenAI API para anlisis semntico profundo.
 
 
 
-#### 2.1 Módulo SemanticDLPClient
+#### 2.1 Mdulo SemanticDLPClient
 
 - Nueva clase SemanticDLPClient en i_blocker/semantic_dlp.py
 
 - Llamada a OpenAI API con prompt template para clasificar texto
 
-- Timeout configurable, retry lógico, manejo de errores
+- Timeout configurable, retry lgico, manejo de errores
 
 - API key desde config o variable de entorno (nunca persistida)
 
@@ -260,7 +260,7 @@ Integración opcional con OpenAI API para análisis semántico profundo.
 
 
 
-#### 2.2 Protocolo de escalación
+#### 2.2 Protocolo de escalacin
 
 - Si DLP local encuentra algo sospechoso -> enviar a SemanticDLPClient
 
@@ -274,13 +274,13 @@ Integración opcional con OpenAI API para análisis semántico profundo.
 
 
 
-#### 2.3 Caché de resultados
+#### 2.3 Cach de resultados
 
-- Cache LRU para evitar re-análisis de texto idéntico
+- Cache LRU para evitar re-anlisis de texto idntico
 
 - TTL configurable (default 5 min)
 
-- Invalidación manual desde UI
+- Invalidacin manual desde UI
 
 
 
@@ -294,7 +294,7 @@ Integración opcional con OpenAI API para análisis semántico profundo.
 
 - Indicador de estado (disponible/no disponible)
 
-- Configuración de threshold y API key (in-memory, no persistida)
+- Configuracin de threshold y API key (in-memory, no persistida)
 
 
 
@@ -310,7 +310,7 @@ Integración opcional con OpenAI API para análisis semántico profundo.
 
 
 
-Detección de patrones anómalos y amenazas de agentes autónomos.
+Deteccin de patrones anmalos y amenazas de agentes autnomos.
 
 
 
@@ -318,11 +318,11 @@ Detección de patrones anómalos y amenazas de agentes autónomos.
 
 - Nueva clase RequestAnalyzer en i_blocker/threat_intel.py
 
-- Ventana deslizante de requests (últimos N segundos/minutos)
+- Ventana deslizante de requests (ltimos N segundos/minutos)
 
-- Detección de anomalías: frecuencia inusual, volumen de tokens, endpoints inusuales
+- Deteccin de anomalas: frecuencia inusual, volumen de tokens, endpoints inusuales
 
-- Almacenamiento en memoria con poda periódica
+- Almacenamiento en memoria con poda peridica
 
 
 
@@ -330,13 +330,13 @@ Detección de patrones anómalos y amenazas de agentes autónomos.
 
 
 
-#### 3.2 Detección de loops recursivos
+#### 3.2 Deteccin de loops recursivos
 
-- Identificar patrones de agente autónomo: request -> response -> request (idéntico o similar)
+- Identificar patrones de agente autnomo: request -> response -> request (idntico o similar)
 
 - Hash de contenido + similitud coseno para detectar ciclos
 
-- Alerta si mismo contenido se envía >N veces en ventana de tiempo
+- Alerta si mismo contenido se enva >N veces en ventana de tiempo
 
 
 
@@ -350,7 +350,7 @@ Detección de patrones anómalos y amenazas de agentes autónomos.
 
 - Notificaciones en UI cuando se detecta amenaza
 
-- Log de eventos de amenaza con timestamp, categoría, dominio
+- Log de eventos de amenaza con timestamp, categora, dominio
 
 
 
@@ -358,13 +358,13 @@ Detección de patrones anómalos y amenazas de agentes autónomos.
 
 
 
-#### 3.4 Visualización en dashboard
+#### 3.4 Visualizacin en dashboard
 
-- Nueva sección "Threats" en la UI
+- Nueva seccin "Threats" en la UI
 
-- Timeline de eventos, contadores por categoría
+- Timeline de eventos, contadores por categora
 
-- Integración con el sistema de notificaciones existente
+- Integracin con el sistema de notificaciones existente
 
 
 
@@ -380,7 +380,7 @@ Detección de patrones anómalos y amenazas de agentes autónomos.
 
 
 
-Clasificación ONNX local para guardrails en <15ms.
+Clasificacin ONNX local para guardrails en <15ms.
 
 
 
@@ -392,7 +392,7 @@ Clasificación ONNX local para guardrails en <15ms.
 
 - Cache de modelo en ~/.cache/codegate/models/
 
-- Verificación de integridad (SHA256)
+- Verificacin de integridad (SHA256)
 
 
 
@@ -400,15 +400,15 @@ Clasificación ONNX local para guardrails en <15ms.
 
 
 
-#### 4.2 Runtime de clasificación
+#### 4.2 Runtime de clasificacin
 
 - Carga del modelo ONNX con onnxruntime
 
-- Preprocesamiento de texto (tokenización)
+- Preprocesamiento de texto (tokenizacin)
 
 - Inferencia con timeout (target 15ms)
 
-- Postprocesamiento: categorías + confidence score
+- Postprocesamiento: categoras + confidence score
 
 
 
@@ -418,9 +418,9 @@ Clasificación ONNX local para guardrails en <15ms.
 
 #### 4.3 Cadena de fallback
 
-- ONNX -> Heuristic -> Allow (si ONNX no disponible, cae a heurísticas)
+- ONNX -> Heuristic -> Allow (si ONNX no disponible, cae a heursticas)
 
-- Si ONNX tarda >15ms, timeout y fallback automático
+- Si ONNX tarda >15ms, timeout y fallback automtico
 
 - Log de modo y tiempo de inferencia
 
@@ -430,13 +430,13 @@ Clasificación ONNX local para guardrails en <15ms.
 
 
 
-#### 4.4 Benchmarks y optimización
+#### 4.4 Benchmarks y optimizacin
 
 - Pruebas de rendimiento: latency, throughput, memory
 
-- Quantization del modelo (INT8) para reducir tamaño y mejorar velocidad
+- Quantization del modelo (INT8) para reducir tamao y mejorar velocidad
 
-- Documentación de resultados
+- Documentacin de resultados
 
 
 
@@ -490,7 +490,7 @@ elease: bump version to 1.7.0 and update CHANGELOG
 
 
 
-| Wave | Commits | Versión |
+| Wave | Commits | Versin |
 
 |---|---|---|
 
@@ -514,7 +514,7 @@ elease: bump version to 1.7.0 and update CHANGELOG
 
 
 
-## Ø=Þáþ Phase 4: System Daemons, TPM 2.0 & Enterprise Compliance (v2.0+)
+## = Phase 4: System Daemons, TPM 2.0 & Enterprise Compliance (v2.0+)
 
 - [ ] **Hardware Security Integration:** Bind proxy authorization keys and local CA private keys securely to TPM 2.0 modules or Apple Secure Enclaves.
 
@@ -530,7 +530,7 @@ elease: bump version to 1.7.0 and update CHANGELOG
 
 
 
-## Ø=Ý Phase 5: Confidential Computing & eBPF Telemetry Analysis (v3.0+)
+## = Phase 5: Confidential Computing & eBPF Telemetry Analysis (v3.0+)
 
 - [ ] **Trusted Execution Environments (TEEs):** Deploy the gateway proxy within hardware-isolated confidential VMs (Intel SGX, AMD SEV).
 
