@@ -663,10 +663,27 @@ class AIBlockerApp:
             summary_frame, text="Out: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
         )
         self.stats_out_lbl.pack(side=tk.LEFT, padx=(0, 12))
+        self.stats_total_lbl = tk.Label(
+            summary_frame, text="Total: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+        )
+        self.stats_total_lbl.pack(side=tk.LEFT, padx=(0, 12))
         self.stats_req_lbl = tk.Label(
-            summary_frame, text="Requests: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+            summary_frame, text="Req: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
         )
         self.stats_req_lbl.pack(side=tk.LEFT, padx=(0, 12))
+
+        # Limits / budget row
+        limit_frame = tk.Frame(stats_frame, bg=COL_SURFACE0)
+        limit_frame.pack(fill=tk.X, padx=16, pady=(2, 0))
+
+        self.stats_cap_lbl = tk.Label(
+            limit_frame, text="Cap: --", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+        )
+        self.stats_cap_lbl.pack(side=tk.LEFT, padx=(0, 12))
+        self.stats_usage_lbl = tk.Label(
+            limit_frame, text="Usage: --%", bg=COL_SURFACE0, fg=COL_SUBTEXT, font=(UI_FONT, 9),
+        )
+        self.stats_usage_lbl.pack(side=tk.LEFT, padx=(0, 12))
 
         self.stats_status_lbl = tk.Label(
             stats_frame, text="Gateway not running. Start the router above to see stats.",
@@ -714,16 +731,30 @@ class AIBlockerApp:
         if data is None or "error" in data:
             self.stats_in_lbl.configure(text="In: --")
             self.stats_out_lbl.configure(text="Out: --")
-            self.stats_req_lbl.configure(text="Requests: --")
+            self.stats_total_lbl.configure(text="Total: --")
+            self.stats_req_lbl.configure(text="Req: --")
+            self.stats_cap_lbl.configure(text="Cap: --")
+            self.stats_usage_lbl.configure(text="Usage: --%")
             self.stats_status_lbl.configure(text="Could not reach gateway. Is it running?")
             return
         summary = data.get("summary", {})
         tokens_in = summary.get("tokens_in", 0)
         tokens_out = summary.get("tokens_out", 0)
-        requests = summary.get("requests", 0)
+        total = summary.get("total_tokens", 0)
+        requests = summary.get("request_count", 0)
+        cap = summary.get("cap", 0)
+        usage_pct = summary.get("cap_usage_pct", 0.0)
         self.stats_in_lbl.configure(text=f"In: {tokens_in}")
         self.stats_out_lbl.configure(text=f"Out: {tokens_out}")
-        self.stats_req_lbl.configure(text=f"Requests: {requests}")
+        self.stats_total_lbl.configure(text=f"Total: {total}")
+        self.stats_req_lbl.configure(text=f"Req: {requests}")
+        if cap > 0:
+            self.stats_cap_lbl.configure(text=f"Cap: {cap}")
+            usage_color = COL_RED if usage_pct > 80 else COL_YELLOW if usage_pct > 50 else COL_SUBTEXT
+            self.stats_usage_lbl.configure(text=f"Usage: {usage_pct}%", fg=usage_color)
+        else:
+            self.stats_cap_lbl.configure(text="Cap: unlimited")
+            self.stats_usage_lbl.configure(text="Usage: --%")
         now = datetime.datetime.now().strftime("%H:%M:%S")
         self.stats_status_lbl.configure(text=f"Updated: {now}")
 

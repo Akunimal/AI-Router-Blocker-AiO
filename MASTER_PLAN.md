@@ -300,7 +300,7 @@ El plan se ejecuta secuencialmente, wave por wave.
 
 | Wave 3 | ✅ Hecho | 6/6 | 6/6 |
 
-| Wave 4 | 'L Pendiente | 0/3 | 0/3 |
+| Wave 4 | 🔄 Parcial | 0/3 | 0/3 |
 
 | Wave 5 | 'L Pendiente | 0/4 | 0/4 |
 
