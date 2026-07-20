@@ -3,14 +3,34 @@
 All notable changes to this project will be documented in this file.
 
 
+## [Unreleased]
+### Planned
+- Dry-run mode visual in GUI (Wave 5.1)
+- Cleanup of stale build artifacts (Wave 5.2)
+- UX improvements and version bump (Wave 5.3)
+- CHANGELOG and documentation finalization (Wave 5.4)
+
 ## [v1.7.0] - 2026-07-17
 ### Added
+- DLP & Guardrails UI panel: live findings table with refresh, DLP toggle, guardrails toggle, /findings endpoint. (3.5)
+- Token usage dashboard: cap display, total consumption, usage% with color-coded thresholds in UI. (4.2)
+- Token cap configuration: configurable usage limit, hourly enforcement, percentage display. (4.2)
 - Cloud-Assisted Semantic DLP with LRU result cache and escalation protocol.
 - Hybrid DLP mode UI controls (toggle, API key entry, test button).
 - AI-Powered Threat Intelligence: request pattern analyzer, recursive loop detection, alerting system.
 - Threat intelligence dashboard UI with status indicators and auto-refresh.
 - On-Device ONNX Guardrail pipeline with fallback chain (ONNX -> Heuristic -> Allow).
+- Integration tests for DLP+Guardrails+TokenMonitor pipeline in gateway. (3.6)
+- TokenMonitor flag check and per-request token tracking in gateway. (3.3)
 - Renamed project from AI DevSec Gateway to CodeGate for cleaner branding.
+
+### Changed
+- GatewayHandler now integrates DLP scanning (redact/block), PromptGuardrail (classify/reject), and TokenMonitor (track caps) in end-to-end proxy flow. (3.1-3.3)
+- CLI now accepts --dlp, --guardrails, --token-monitor flags with config persistence. (3.4)
+- DLP engine now supports optional escalation to cloud semantic analysis.
+- Gateway configuration includes Cloud DLP enable/disable flag.
+- All documentation, package metadata, and CLI commands updated to CodeGate branding.
+- ROADMAP updated: Phase 3 progress at 30%, all Wave 2 items complete.
 
 ### Changed
 - DLP engine now supports optional escalation to cloud semantic analysis.

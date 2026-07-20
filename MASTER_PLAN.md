@@ -6,7 +6,7 @@
 
 > Cada wave termina con `git commit` + `git push` contra `main`.
 
-> Fecha de inicio: 2026-07-16 | Versi?n objetivo: **1.5.0**
+> Fecha de inicio: 2026-07-16 | Versi?n actual: **1.7.0** | Versi?n objetivo Wave 5: **1.8.0**
 
 
 
@@ -184,9 +184,9 @@ Conectar los m?dulos existentes (dlp_engine.py, guardrails.py, token_monitor.py,
 
 | 5.2 | Limpiar build artifacts obsoletos | ? | `chore: remove stale coverage.xml and unreferenced build artifacts` |
 
-| 5.3 | Bump version a 1.5.0 | pyproject.toml, ai_blocker/__init__.py | `chore: bump version to 1.5.0` |
+| 5.3 | Bump version a 1.8.0 | pyproject.toml, ai_blocker/__init__.py, ai_blocker/constants.py | `chore: bump version to 1.8.0` |
 
-| 5.4 | Actualizar CHANGELOG.md | CHANGELOG.md | `docs: update changelog for v1.5.0` |
+| 5.4 | Actualizar CHANGELOG.md y READMEs | CHANGELOG.md, README.md, README.es.md | `docs: update changelog and readmes for v1.8.0` |
 
 
 

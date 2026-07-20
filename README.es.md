@@ -1,420 +1,160 @@
-# Ø=Þáþ CodeGate
+# 🛡️ CodeGate
 
-
-
-> **Controles locales para bloquear, auditar y enrutar tráfico de IA en entornos de desarrollo.**
-
-
-
-<p align="center">
-
-  <img src="assets/screenshot.png" alt="Interfaz de CodeGate" width="600">
-
-</p>
-
-
+> **Controles locales para bloquear, auditar, enrutar y proteger tráfico de IA en entornos de desarrollo.**
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)](#-inicio-rápido)
-
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D4?logo=windows&logoColor=white)](https://github.com/Akunimal/CodeGate#readme)
 [![Test Suite Status](https://github.com/Akunimal/CodeGate/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Akunimal/CodeGate/actions/workflows/test.yml)
-
 [![Security Scan Status](https://github.com/Akunimal/CodeGate/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Akunimal/CodeGate/actions/workflows/codeql.yml)
-
 [![codecov](https://codecov.io/gh/Akunimal/CodeGate/graph/badge.svg)](https://codecov.io/gh/Akunimal/CodeGate)
-
-[![PyPI version](https://img.shields.io/pypi/v/codegate?color=blue&label=PyPI)](https://pypi.org/project/codegate/)
-
 [![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
-
-
 
 [English](README.md) | [Español](README.es.md)
 
+---
 
+## ¿Qué es esto?
+
+**CodeGate** es una herramienta open-source de privacidad y DevSecOps para desarrolladores que adoptan asistentes de código con IA. Ofrece controles locales para bloquear endpoints conocidos de IA, enrutar tráfico API hacia servidores de inferencia locales, auditar procesos activos de editores con IA y proteger datos sensibles mediante DLP.
+
+Creado originalmente como una simple interfaz gráfica para bloquear dominios de IA, está evolucionando hacia un **Gateway Zero-Trust** para desarrollo asistido por IA más seguro.
+
+1. **Bloquear:** Anulación determinista a nivel de SO mediante el archivo `hosts` que descarta conexiones a 38+ dominios conocidos de IA.
+2. **Enrutar:** Proxy HTTP local que dirige clientes API compatibles hacia LLMs locales (Ollama, LM Studio, vLLM).
+3. **Auditar:** Revisiones de seguridad de procesos activos para detectar herramientas de IA y señales de riesgo de fuga de datos.
+4. **Proteger:** Sanitización DLP en tiempo real, guardrails semánticos y monitoreo de uso de tokens.
 
 ---
 
-
-
-## Ø=ÜÖ ¿Qué es esto?
-
-
-
-**CodeGate** es una herramienta open-source de privacidad y DevSecOps para desarrolladores que adoptan asistentes de código con IA. Ofrece controles locales para bloquear endpoints conocidos de IA, enrutar tráfico API hacia servidores de inferencia locales y auditar procesos activos de editores con IA.
-
-
-
-Creado originalmente como una simple interfaz gráfica para bloquear dominios de IA, está evolucionando hacia un **Gateway Zero-Trust** para desarrollo asistido por IA más seguro. La versión actual se centra en bloqueo determinista por archivo `hosts`, router HTTP local, controles CLI seguros por defecto y un auditor de seguridad que mantiene las claves API solo en memoria.
-
-
-
-1. **Bloquear:** Una anulación determinista a nivel del sistema operativo mediante el archivo `hosts` que descarta conexiones a más de 38 dominios conocidos de IA.
-
-2. **Enrutar:** Un proxy HTTP local que puede dirigir clientes API compatibles hacia LLMs locales como Ollama, LM Studio o vLLM.
-
-3. **Auditar:** Revisiones de seguridad conscientes de procesos activos para detectar herramientas de IA y señales de riesgo de fuga de datos.
-
-
-
----
-
-
-
-## '( Características
-
-
+## Características
 
 | Función | Descripción |
-
 |---|---|
-
-| Ø=Ý **Enrutador API Transparente** | Redirige sin problemas el tráfico HTTP de Copilot/Cursor a tus propios servidores locales de inferencia LLM. |
-
-| Ø=Þáþ **Auditor AI DevSec** | Análisis en vivo de procesos con recomendaciones de OpenAI bajo demanda. Las claves API se mantienen solo en memoria. |
-
-| Ø=Ü» **Interfaz CLI Nativa** | Control completo desde la terminal para entornos CI/CD. Usa `ai-blocker --status` o `codegate --block`. |
-
-| Ø=Ý **Interruptor de Apagado Determinista** | Bloqueo a nivel de sistema operativo mediante entradas administradas en `hosts`. Sin dependencia de servidores remotos de filtrado DNS. |
-
-| Ø=Üæ **Distribución Universal** | Instalable vía `pip`, `brew`, `scoop`, o como un único binario ejecutable portable para Windows/Linux/macOS. |
-
-| Ø<ß
- **Interfaz Multilingüe** | Una interfaz gráfica premium (Catppuccin Mocha) con 10 idiomas soportados y elevación inteligente de privilegios del SO (UAC/sudo). |
-
-
-
----
-
-
-
-## Ø<ßâ Casos de Uso Empresariales
-
-
-
-¿Por qué los equipos DevSecOps despliegan CodeGate?
-
-
-
-1. **Prevención de Fuga de Datos (PII/Secretos):** Tu equipo usa Cursor o Copilot, pero las normativas (GDPR/HIPAA) prohíben estrictamente que las credenciales o el código propietario salgan a la nube.
-
-2. **Enrutamiento a LLMs "Air-Gapped":** Quieres forzar de manera transparente que todo el tráfico de Copilot en tu red corporativa se dirija a un servidor interno Llama-3 (Ollama), sin que los desarrolladores tengan que tocar la configuración de su IDE.
-
-3. **Auditoría de "Shadow AI":** Descubrir pasivamente qué herramientas de IA no aprobadas o agentes autónomos se están ejecutando en las estaciones de trabajo de los desarrolladores.
-
-
-
-Lee nuestra guía completa de **[Casos de Uso Empresariales](docs/use_cases.md)** para más patrones de despliegue.
-
-
+| Live Token Dashboard | Tokens in/out en tiempo real con auto-refresh cada 5s. Estadísticas via endpoint /stats HTTP. |
+| Panel DLP & Guardrails | Panel en vivo de hallazgos con botón de refresco, toggles DLP y guardrails por sesión. |
+| Enrutador API Transparente | Redirige tráfico Copilot/Cursor a servidores LLM locales. |
+| AI DevSec Auditor | Análisis en vivo de procesos con recomendaciones de OpenAI. Claves solo en memoria. |
+| Interfaz CLI Nativa | Control completo para CI/CD: codegate --status, codegate --block. |
+| Interruptor de Apagado Determinista | Bloqueo a nivel SO vía hosts. Sin dependencia DNS remota. |
+| Distribución Universal | Instalable via pip, brew, scoop o binario portable. |
+| Interfaz Multilingüe | Catppuccin Mocha con 10 idiomas y elevación inteligente (UAC/sudo). |
+| Prevención de Fuga de Datos (DLP) | Redacción/bloqueo por regex de API keys, credenciales cloud, PII, claves privadas, JWT, URIs DB. |
+| Políticas DLP Configurables | Por dominio/ruta: REDACT, BLOCK, LOG_ONLY, PASS_THROUGH con circuit breaker. |
+| DLP Semántico Asistido por Cloud | Integración opcional con IA para análisis semántico profundo con caché LRU. |
+| Inteligencia de Amenazas IA | Analizador de patrones, detección de loops recursivos, alertas de agentes autónomos. |
+| Guardrails ONNX Locales | Runtime ONNX liviano (Phi-3-mini) para clasificación de seguridad en tiempo real. |
+| Flags CLI para DLP/Guardrails | --dlp, --guardrails, --token-monitor con persistencia de configuración. |
+| Auditoría Mejorada | Trazabilidad granular con metadatos (dominio, endpoint, categorías, hash del request). |
+| Dashboard de Cap de Tokens | Límite de uso, consumo total y porcentaje con códigos de color en UI. |
 
 ---
 
+## Prevención de Fuga de Datos (DLP)
 
+CodeGate incluye un motor DLP incorporado que inspecciona todo el tráfico API saliente en busca de datos sensibles. Soporta análisis semántico asistido por cloud vía API de IA con caché LRU y protocolo de escalación configurable.
 
-## Ø<ß¯ Proveedores Soportados
+### Categorías de Detección
 
-
-
-El motor de intercepción por defecto apunta a **más de 38 dominios** de los principales proveedores:
-
-
-
-| Proveedor | Dominios clave interceptados |
-
-|---|---|
-
-| Ø=ßâ **OpenAI** | `api.openai.com`, `chatgpt.com`, `platform.openai.com` |
-
-| Ø=ßà **Anthropic** | `claude.ai`, `api.anthropic.com`, `anthropic.com` |
-
-| Ø=Ü **GitHub Copilot** | `copilot.github.com`, `api.githubcopilot.com`, `telemetry.githubcopilot.com` |
-
-| Ø=Ý5 **Google AI** | `gemini.google.com`, `aistudio.google.com` |
-
-| Ø=ßæ **Microsoft** | `copilot.microsoft.com`, `bing.com` |
-
-| Ø=Ý7 **Meta AI** | `meta.ai`, `ai.meta.com` |
-
-| Ø<ß
- **Mistral / DeepSeek / xAI** | `mistral.ai`, `api.deepseek.com`, `api.x.ai` |
-
-
-
-> *La lista de bloqueo es configurable dinámicamente desde [`ai_blocker/constants.py`](ai_blocker/constants.py).*
-
-
+| Categoría | Ejemplos | Acción por Defecto |
+|---|---|---|
+| API Keys y Tokens | OpenAI sk-*, Anthropic sk-ant-*, GitHub ghp_*, xoxb-* | REDACT |
+| Credenciales Cloud | AWS keys, GCP tokens, Azure secrets | REDACT |
+| PII | Emails, SSN, tarjetas de crédito, teléfonos | REDACT |
+| Claves Privadas | RSA/EC/DSA/OpenSSH private keys | BLOCK |
+| Cloud DLP | Análisis semántico IA de hallazgos de baja confianza | ESCALATE |
+| JWT Tokens | JSON Web Tokens (eyJ.) | REDACT |
+| IPs Internas | RFC 1918 (10.x, 172.16-31.x, 192.168.x) | LOG_ONLY |
+| Licencias Conflictivas | AGPL-3.0, GPL-3.0 | LOG_ONLY |
+| Conexiones a BD | PostgreSQL, MySQL, MongoDB, Redis URIs | REDACT |
+| Variables de Entorno | AWS_SECRET_ACCESS_KEY, DB_PASSWORD | LOG_ONLY |
 
 ---
 
+## Guardrails e Inteligencia de Amenazas
 
-
-## Ø<ß×þ Arquitectura
-
-
-
-CodeGate opera en la frontera entre tu entorno de desarrollo local y la nube.
-
-
-
-```mermaid
-
-graph TD
-
-    subgraph Entorno Local ["Red de Desarrollo Local"]
-
-        IDE[VS Code / Cursor / IDE]
-
-        CLI[CLI ai-blocker]
-
-        GUI[GUI CodeGate]
-
-        
-
-        Gateway((Gateway API Local <br> 127.0.0.1))
-
-        OS_Hosts[(Archivo Hosts del SO)]
-
-    end
-
-
-
-    subgraph Externo ["Inferencia de Destino"]
-
-        LocalLLM[LLM Local Privado <br> Ollama / vLLM]
-
-        PublicCloud[Nube Pública <br> OpenAI / Anthropic]
-
-    end
-
-
-
-    IDE -->|1. Solicitud API Saliente| OS_Hosts
-
-    OS_Hosts -->|2. Interceptada| Gateway
-
-    
-
-    Gateway -->|3a. Ruta activa| LocalLLM
-
-    Gateway -.->|3b. Paso auditado| PublicCloud
-
-    Gateway -->|3c. Bloqueo activo| Drop[Conexión Rechazada]
-
-```
-
-
-
-Para sumergirte en profundidad en nuestra estructura modular, los planes de Inspección Profunda de Paquetes (DPI) y los Modelos de Amenazas, lee nuestra **[Documentación de Arquitectura](docs/architecture.md)**.
-
-
+CodeGate incluye clasificación multicapa de seguridad de prompts con cadena de fallback automática: ONNX runtime (Phi-3-mini) > clasificador heurístico > permitir.
 
 ---
 
+## Monitoreo de Tokens
 
-
-## ' Capacidades Actuales vs Roadmap
-
-
-
-El proyecto distingue explícitamente qué está implementado hoy y qué sigue como trabajo futuro.
-
-
-
-| Área | Estado actual |
-
-|---|---|
-
-| Bloqueo por archivo hosts | Implementado y usado por defecto en GUI/CLI. |
-
-| Gateway API local | Implementado para routing HTTP en loopback hacia servidores LLM locales compatibles. |
-
-| Selección de backend | Implementada en CLI con `hosts` por defecto y soporte experimental `firewall-redirect` en dry-run. |
-
-| Intercepción TLS/DPI | Planificada, no implementada. Las versiones actuales no instalan root CA. |
-
-| Intercepción kernel eBPF/WFP | Trabajo futuro como backend dedicado, no comportamiento activo en runtime. |
-
-
-
-El roadmap es ambicioso, pero cada release debe evaluarse por las capacidades implementadas arriba.
-
-
+El TokenMonitor incorporado rastrea uso de tokens por request, agrega resúmenes por hora y aplica límites configurables. El dashboard en vivo en la GUI muestra tokens in/out, consumo total, conteo de requests por dominio y porcentaje de uso con código de colores.
 
 ---
 
+## Proveedores Soportados
 
+El motor de intercepción apunta a 38+ dominios: OpenAI, Anthropic, GitHub Copilot, Google AI, Microsoft, Meta AI, Mistral, DeepSeek, xAI, y más. Lista configurable en `ai_blocker/constants.py`.
 
-## Ø=Þ Inicio Rápido
+---
 
-
+## Inicio Rápido
 
 ### 1. Paquete de Python (Pip)
 
-La forma más rápida de empezar a usar la interfaz CLI (terminal).
-
-
-
 ```bash
-
 pip install codegate
 
-
-
-# Los comandos CLI nativos estarán disponibles globalmente:
-
-ai-blocker --status
-
+codegate --status
 codegate --block
-
 codegate --unblock
-
 ```
 
-
-
-### 1.1 Selección de Backend y Dry-Run
-
-Puedes usar `hosts` como backend por defecto, o inspeccionar explícitamente el backend experimental de firewall usando `dry-run` antes de aplicar cambios:
-
-
-
-```bash
-
-# Mostrar backends disponibles
-
-ai-blocker --list-backends
-
-
-
-# Comportamiento por defecto (backend hosts)
-
-ai-blocker --backend hosts --block work
-
-
-
-# Plan del backend experimental (no aplica cambios de red)
-
-ai-blocker --backend firewall-redirect --block work --dry-run
-
-```
-
-
-
-### 2. Gestores de Paquetes (macOS y Windows)
-
-
+### 2. Gestores de Paquetes
 
 **macOS (Homebrew):**
-
 ```bash
-
 brew tap Akunimal/codegate https://github.com/Akunimal/CodeGate
-
 brew install codegate
-
-sudo ai-blocker --status
-
+sudo codegate --status
 ```
-
-
 
 **Windows (Scoop):**
-
 ```powershell
-
 scoop bucket add codegate https://github.com/Akunimal/CodeGate.git
-
 scoop install codegate
-
-ai-blocker --status
-
+codegate --status
 ```
-
-
 
 ### 3. Binarios GUI Portables
 
-Si prefieres una interfaz gráfica enriquecida sin tener que instalar Python:
-
-1. Visita la página de [**Releases**](https://github.com/Akunimal/CodeGate/releases).
-
-2. Descarga el ejecutable correspondiente a tu sistema operativo (`.exe`, binario macOS o Linux AppImage).
-
-3. Ejecuta la aplicación (automáticamente pedirá privilegios de Administrador/sudo al intentar encender el interruptor de red).
-
-
+1. Visita la página de [Releases](https://github.com/Akunimal/CodeGate/releases).
+2. Descarga el ejecutable para tu SO (.exe, macOS binary, Linux AppImage).
+3. Ejecuta la aplicación (pide Admin/sudo al activar el interruptor de red).
 
 ---
 
+## Modelo de Seguridad
 
-
-## Ø=Ý Modelo de Seguridad
-
-
-
-- **Zero-Persistence BYOK:** Las claves de API del auditor semántico se mantienen estrictamente en la memoria RAM. Nunca se guardan en el disco duro, previniendo el robo de credenciales en la cadena de suministro.
-
-- **Modificaciones Quirúrgicas del SO:** El motor utiliza análisis tipo `sed` para inyectar los marcadores `# AI-Block` en el archivo hosts. Garantiza aislamiento total respecto al resto de tus reglas de DNS existentes.
-
-- **Telemetría Aislada:** La aplicación en sí misma tiene absolutamente cero rastreo, análisis de uso o mecanismos ocultos de conexión en segundo plano (phone-home).
-
-
+- **Zero-Persistence BYOK:** Claves API estrictamente en memoria RAM. Nunca en disco.
+- **Modificaciones Quirúrgicas del SO:** Inyección de marcadores AI-Block en hosts. Aislamiento total.
+- **Telemetría Aislada:** Cero rastreo, análisis o mecanismos phone-home.
 
 ---
 
+## Roadmap y Visión Futura
 
-
-## Ø>Ý Código Abierto y Gobernanza
-
-
-
-Creemos firmemente que las herramientas de seguridad deben ser 100% transparentes. Este proyecto está construido bajo una gobernanza estricta de código abierto:
-
-- **[Guía de Arquitectura](docs/architecture.md):** Especificaciones técnicas completas.
-
-- **[Guía de Contribución](CONTRIBUTING.md):** Estándares y plantillas de PR.
-
-- **[Código de Conducta](CODE_OF_CONDUCT.md):** Fomentamos una comunidad acogedora.
-
-- **[Política de Seguridad](SECURITY.md):** Reporte responsable de vulnerabilidades.
-
-- **[Licencia](LICENSE):** Licencia MIT.
-
-
+- DLP (Prevención de Fuga de Datos) - *Implementado en v1.6.0*
+- DLP Semántico Asistido por Cloud - *Implementado en v1.6.0*
+- Guardrails ONNX Locales - *Implementado en v1.7.0*
+- Inteligencia de Amenazas IA - *Implementado en v1.7.0*
+- Dashboard de Monitoreo de Tokens - *Implementado en v1.7.0*
+- Panel DLP & Guardrails en UI - *Implementado en v1.7.0*
+- Flags CLI para DLP/Guardrails/TokenMonitor - *Implementado en v1.7.0*
+- Dry-Run Mode en GUI (próximo)
+- Telemetría Kernel eBPF
+- Computación Confidencial (SGX)
 
 ---
 
+## Código Abierto y Gobernanza
 
-
-## Ø=Ýúþ Roadmap y Visión Futura
-
-
-
-Estamos evolucionando activamente hacia ser un **Motor DLP Zero-Trust** corporativo. Nuestros próximos hitos incluyen:
-
-- **Sanitización DLP en Tiempo Real:** Expresiones regulares heurísticas al vuelo para eliminar PII (Información Personal Identificable) antes de enrutar el código.
-
-- **Telemetría de Kernel eBPF:** Detectar fuga de archivos como `.git/config` directamente a nivel del núcleo de Linux.
-
-- **Confidential Computing:** Ejecutar el Gateway de forma blindada dentro de Entornos de Ejecución Confiables (TEEs) como Intel SGX.
-
-
-
-Explora nuestro [**ROADMAP.md**](ROADMAP.md) para conocer la visión completa.
-
-
+- [Guía de Arquitectura](docs/architecture.md)
+- [Guía de Contribución](CONTRIBUTING.md)
+- [Código de Conducta](CODE_OF_CONDUCT.md)
+- [Política de Seguridad](SECURITY.md)
+- [Licencia: MIT](LICENSE)
 
 ---
 
-
-
-<p align="center">
-
-  <strong>Audita lo invisible. Enruta lo restringido. No confíes en ningún paquete.</strong><br>
-
-  <em>El Gateway DevSecOps para la era de la IA.</em>
-
-</p>
-
+> Audita lo invisible. Enruta lo restringido. No confíes en ningún paquete.
