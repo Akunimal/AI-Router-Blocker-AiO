@@ -395,6 +395,9 @@ class TestHelpers:
 
     def test_check_guardrails_blocked(self):
         h = _handler()
+        h.send_response = MagicMock()
+        h.send_header = MagicMock()
+        h.end_headers = MagicMock()
         g = MagicMock(spec=PromptGuardrail)
         g.evaluate.return_value = GuardrailResult(
             ThreatCategory.JAILBREAK, 0.95, ["pattern"], "bad prompt",
@@ -403,7 +406,9 @@ class TestHelpers:
         h.server.audit_log = MagicMock(spec=AuditLog)
         conn = MagicMock()
         assert h._check_guardrails(b"bad", conn, "ex.com", "/", "POST") is False
-        conn.sendall.assert_called_once()
+        h.send_response.assert_called_with(403)
+        h.send_header.assert_any_call("Content-Type", "application/json")
+        h.end_headers.assert_called_once()
 
     def test_check_guardrails_no_engine(self):
         h = _handler()
@@ -515,7 +520,7 @@ class TestDO_CONNECT:
             h.do_CONNECT()
 
         dpi.evaluate.assert_called_once()
-        mock_client_conn.sendall.assert_called_once()
+        mock_client_conn.write.assert_called_once()
         h._log_audit.assert_called_with("evil.com", "/", "GET", "blocked")
 
     def test_connect_log_action(self):
@@ -541,7 +546,7 @@ class TestDO_CONNECT:
 
         with (
             patch("ai_blocker.gateway.ssl.SSLContext", return_value=mock_ctx),
-            patch("ai_blocker.gateway.socket.create_connection") as mock_sock,
+            patch("socket.create_connection") as mock_sock,
             patch("ai_blocker.gateway.ssl.create_default_context") as mock_def_ctx,
         ):
             mock_remote = MagicMock()

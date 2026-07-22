@@ -5,7 +5,6 @@ sanitization, and structured audit logging.
 """
 import json
 import select
-import socket
 import ssl
 import time
 import urllib.error

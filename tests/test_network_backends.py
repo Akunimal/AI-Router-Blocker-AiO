@@ -93,5 +93,5 @@ def test_get_backend_info_unknown_raises():
         assert "Unknown network backend" in str(exc)
 
 
-def test_plan_backend_activation_for_hosts_has_no_commands():
-    assert plan_backend_activation("hosts", ["api.openai.com"]) == []
+def test_plan_backend_activation_for_hosts_returns_plan_entries():
+    assert plan_backend_activation("hosts", ["api.openai.com"]) == [["api.openai.com"]]

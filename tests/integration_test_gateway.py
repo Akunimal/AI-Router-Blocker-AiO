@@ -6,8 +6,6 @@ These tests exercise the full GatewayHandler pipeline: DPI, DLP sanitization,
 guardrails evaluation, token monitoring, and audit logging, with flags turned
 on/off to verify correct bypass behavior.
 """
-import json
-from io import BytesIO
 from unittest.mock import MagicMock, patch
 
 from ai_blocker.audit_log import AuditLog
@@ -15,7 +13,6 @@ from ai_blocker.dpi_rules import DPIAction, DPIRuleEngine
 from ai_blocker.gateway import GatewayHandler
 from ai_blocker.guardrails import GuardrailResult, PromptGuardrail, ThreatCategory
 from ai_blocker.token_monitor import TokenMonitor
-
 
 # ---------------------------------------------------------------------------
 # Helper — build a minimal handler with all feature flags

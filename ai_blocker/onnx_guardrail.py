@@ -20,7 +20,7 @@ if HAS_NUMPY:
     pass
 
 try:
-    import onnxruntime as ort
+    import onnxruntime as ort  # type: ignore[import-not-found]
     HAS_ONNX = True
 except ImportError:
     HAS_ONNX = False
@@ -124,13 +124,13 @@ class ONNXGuardrailRuntime:
             return None
 
     def _tokenize(self, text: str) -> Any:
-        import numpy as np
+        import numpy as np  # type: ignore[import-not-found]
         simple_ids = [min(ord(c), 50255) for c in text[:512]]
         arr = np.array([simple_ids], dtype=np.int64)
         return arr
 
     def _postprocess(self, result: list[Any]) -> tuple[str, float]:
-        import numpy as np
+        import numpy as np  # type: ignore[import-not-found]
         logits = result[0]
         if isinstance(logits, (list, tuple)):
             logits = np.array(logits)
