@@ -79,16 +79,16 @@
 
 ---
 
-## Wave 5 — Mejoras de UX e infraestructura (PARCIALMENTE COMPLETADO)
+## Wave 5 — Mejoras de UX e infraestructura (COMPLETED)
 
 | # | Tarea | Archivos | Commit msg | Estado |
 |---|---|---|---|---|
 | 5.1 | Dry-run mode visual en GUI | ai_blocker/ui.py | `feat: add dry-run mode toggle to GUI with visual plan preview` | ✅ Hecho |
-| 5.2 | Limpiar build artifacts obsoletos | — | `chore: remove stale coverage.xml and unreferenced build artifacts` | ⬜ **Pendiente** |
+| 5.2 | Limpiar build artifacts obsoletos | — | `chore: remove stale coverage.xml and unreferenced build artifacts` | ✅ Hecho |
 | 5.3 | Bump version a 1.8.0 | pyproject.toml, ai_blocker/__init__.py, ai_blocker/constants.py | `chore: bump version to 1.8.0` | ✅ Hecho |
 | 5.4 | Actualizar CHANGELOG.md y READMEs | CHANGELOG.md, README.md, README.es.md | `docs: update changelog and readmes for v1.8.0` | ✅ Hecho |
 
-**Pushes**: 3/4 (pendiente 5.2)
+|**Pushes**: ✅ 4/4
 
 ---
 
@@ -114,9 +114,9 @@
 | Wave 2 | 8 | Cobertura de tests (~30 nuevos) | ✅ |
 | Wave 3 | 6 | Integración Phase 3 (DLP + Guardrails + TokenMonitor en gateway) | ✅ |
 | Wave 4 | 3 | Dashboard de tokens en UI | ✅ |
-| Wave 5 | 4 | UX, cleanup, release prep | 🔶 **3/4** |
+| Wave 5 | 4 | UX, cleanup, release prep | ✅ **4/4** |
 | Wave 6 | 4 | Verificación final + tag | ⬜ **0/4** |
-| **Total** | **31** | **—** | **✅ 26/31 completados** |
+| **Total** | **31** | **—** | **✅ 27/31 completados** |
 
 ---
 
@@ -144,17 +144,16 @@ El plan se ejecuta secuencialmente, wave por wave.
 | Wave 2 | ✅ Hecho | 8/8 | 8/8 |
 | Wave 3 | ✅ Hecho | 6/6 | 6/6 |
 | Wave 4 | ✅ Hecho | 3/3 | 3/3 |
-| Wave 5 | 🔶 Parcial (3/4) | 3/4 | 3/4 |
+| Wave 5 | ✅ Hecho | 4/4 | 4/4 |
 | Wave 6 | ⬜ Pendiente | 0/4 | 0/4 |
 
 ---
 
-## Notas sincronizadas al 2026-07-21
+## Notas sincronizadas al 2026-07-22
 
 - **Git tag actual**: `v1.7.0` (no existe tag v1.8.0 aún)
 - **Branch**: `main` — working tree limpio
 - **Versión en pyproject.toml**: `1.8.0`
-- **Local commits sin pushear**: 1 commit (sync version + CHANGELOG)
-- **Commits ya hechos de Wave 5**: 5.1 (dry-run), 5.3 (version bump), 5.4 (CHANGELOG+READMEs)
-- **Commits pendientes**: 5.2 (cleanup), y toda Wave 6
-- **`.tmp.driveupload/`**: 88 archivos (~50 MB) — candidato a limpiar en 5.2
+- **Local commits sin pushear**: 1 commit (docs: update MASTER_PLAN Wave 5 completed)
+- **Wave 5**: 4/4 completado (dry-run, cleanup, version bump, CHANGELOG)
+- **Pendiente**: Wave 6 completa (verificación final + tag v1.8.0)
