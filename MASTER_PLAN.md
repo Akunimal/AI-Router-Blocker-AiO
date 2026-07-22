@@ -92,14 +92,14 @@
 
 ---
 
-## Wave 6 — Verificación final (PENDIENTE)
+## Wave 6 — Verificación final (COMPLETED)
 
 | # | Tarea | Commit msg |
 |---|---|---|
 | 6.1 | ruff check . — 0 errores | `chore: post-v1.8 ruff lint pass` |
 | 6.2 | mypy ai_blocker — 0 errores | `chore: post-v1.8 mypy type check pass` |
 | 6.3 | Test suite + coverage >70% general, >80% target | `chore: post-v1.8 full test suite and coverage verification` |
-| 6.4 | Push final + tag v1.8.0 + release | — |
+| 6.4 | Push final + tag v1.8.0 + release | ✅ Done |
 
 **Nota**: 6.1/6.2/6.3 se pueden pushear como squash commit. 6.4 es tag + push tags.
 
@@ -115,8 +115,8 @@
 | Wave 3 | 6 | Integración Phase 3 (DLP + Guardrails + TokenMonitor en gateway) | ✅ |
 | Wave 4 | 3 | Dashboard de tokens en UI | ✅ |
 | Wave 5 | 4 | UX, cleanup, release prep | ✅ **4/4** |
-| Wave 6 | 4 | Verificación final + tag | ⬜ **0/4** |
-| **Total** | **31** | **—** | **✅ 27/31 completados** |
+| Wave 6 | 4 | Verificación final + tag | ✅ **4/4** |
+| **Total** | **31** | **—** | **✅ 31/31 completados** |
 
 ---
 
@@ -145,15 +145,15 @@ El plan se ejecuta secuencialmente, wave por wave.
 | Wave 3 | ✅ Hecho | 6/6 | 6/6 |
 | Wave 4 | ✅ Hecho | 3/3 | 3/3 |
 | Wave 5 | ✅ Hecho | 4/4 | 4/4 |
-| Wave 6 | ⬜ Pendiente | 0/4 | 0/4 |
+| Wave 6 | ✅ Hecho | 4/4 | 4/4 |
 
 ---
 
-## Notas sincronizadas al 2026-07-22
+## Notas sincronizadas al 2026-07-22 — Todo completado 🎉
 
-- **Git tag actual**: `v1.7.0` (no existe tag v1.8.0 aún)
+- **Git tag**: `v1.8.0` creado y pusheado
 - **Branch**: `main` — working tree limpio
 - **Versión en pyproject.toml**: `1.8.0`
-- **Local commits sin pushear**: 1 commit (docs: update MASTER_PLAN Wave 5 completed)
-- **Wave 5**: 4/4 completado (dry-run, cleanup, version bump, CHANGELOG)
-- **Pendiente**: Wave 6 completa (verificación final + tag v1.8.0)
+- **Wave 5**: ✅ 4/4 completado
+- **Wave 6**: ✅ 4/4 completado (ruff, mypy, tests+coverage 84%, tag v1.8.0)
+- **Total**: 31/31 commits completados y pusheados
