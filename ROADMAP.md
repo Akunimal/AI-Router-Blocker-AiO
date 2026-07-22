@@ -24,7 +24,7 @@ This roadmap outlines our technical vision, showing our completed work, upcoming
 
 | **Phase 0** | Core Desktop Blocker & i18n | Q1 2026 | `%%%%%%%%%%` 100% |
 
-| **Phase 1** | Modularization, CLI & Multi-Provider | Q2 2026 (Current) | `%%%%%%%%%%` 100% |
+| **Phase 1** | Modularization, CLI & Multi-Provider | Q2 2026 | `%%%%%%%%%%` 100% |
 
 | **Phase 2** | Network Backend Abstraction, Firewall Redirects & TLS Decryption | Q3 2026 | `%%%%%%%%%%` 100% |
 
